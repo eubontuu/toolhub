@@ -314,30 +314,6 @@ html, body {
   transform: scale(0.97);
 }
 
-/* dice */
-
-.dice-wrap {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 36px;
-}
-
-.die {
-  width: 140px;
-  height: 140px;
-  border-radius: 24px;
-  background: linear-gradient(160deg, var(--card-hi), var(--card));
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 64px;
-  font-weight: 800;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.4);
-}
-
 /* random picker */
 
 .picker-wrap {
@@ -407,39 +383,61 @@ html, body {
   font-weight: 700;
 }
 
-/* rock paper scissors */
+/* ไพ่ Ohana */
 
-.rps-wrap {
+.ohana-wrap {
   flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 40px;
+  gap: 22px;
+  padding-bottom: 12px;
 }
 
-.rps-result {
-  font-size: 17px;
-  text-align: center;
-  min-height: 48px;
-  padding: 0 8px;
+.ohana-count {
+  color: var(--sub);
+  font-size: 13px;
 }
 
-.rps-choices {
+.ohana-card {
+  width: 160px;
+  height: 224px;
+  border-radius: 16px;
+  background: #f5f2ea;
+  color: #1a1a1a;
   display: flex;
-  gap: 20px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 22px rgba(0,0,0,0.45);
+  font-weight: 800;
 }
 
-.rps-btn {
-  width: 72px;
-  height: 72px;
-  border-radius: 50%;
+.ohana-card.red {
+  color: #d3252f;
+}
+
+.ohana-card.empty {
+  font-size: 52px;
   background: var(--card);
-  border: none;
-  font-size: 32px;
-  cursor: pointer;
+  box-shadow: none;
 }
 
-.rps-btn:active {
-  transform: scale(0.92);
+.ohana-rank {
+  font-size: 56px;
+  line-height: 1;
+}
+
+.ohana-suit {
+  font-size: 40px;
+  margin-top: 4px;
+}
+
+.ohana-rule {
+  font-size: 17px;
+  font-weight: 700;
+  text-align: center;
+  min-height: 46px;
+  padding: 0 12px;
 }

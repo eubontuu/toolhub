@@ -173,12 +173,11 @@ function renderCounter(container) {
   updateDisplay();
 }
 
-// ---------- วงเหล้า tool (dice / random picker / rock-paper-scissors) ----------
+// ---------- วงเหล้า tool (random picker / ไพ่ Ohana) ----------
 
 const WONGLAO_TABS = [
-  { id: "dice", label: "🎲 ลูกเต๋า" },
   { id: "picker", label: "🎯 สุ่มคน" },
-  { id: "rps", label: "✊ เป่ายิ้งฉุบ" },
+  { id: "ohana", label: "🃏 ไพ่ Ohana" },
 ];
 
 function loadWongLaoState() {
@@ -186,7 +185,7 @@ function loadWongLaoState() {
     const raw = localStorage.getItem("toolhub.wonglao");
     if (raw) return JSON.parse(raw);
   } catch (e) {}
-  return { tab: "dice", diceValue: null, names: [], pickedName: null, rpsMessage: null };
+  return { tab: "picker", names: [], pickedName: null, ohanaDeck: null, ohanaLast: null };
 }
 
 function saveWongLaoState(state) {
@@ -215,36 +214,11 @@ function renderWongLao(container) {
       });
     });
     const body = container.querySelector("#wlBody");
-    if (state.tab === "dice") renderDiceGame(body, state);
-    else if (state.tab === "picker") renderPickerGame(body, state);
-    else renderRpsGame(body, state);
+    if (state.tab === "picker") renderPickerGame(body, state);
+    else renderOhanaGame(body, state);
   }
 
   draw();
-}
-
-function renderDiceGame(body, state) {
-  body.innerHTML = `
-    <div class="dice-wrap">
-      <div class="die" id="die">${state.diceValue || "?"}</div>
-      <button class="wl-action-btn" id="rollBtn">ทอยลูกเต๋า</button>
-    </div>
-  `;
-  body.querySelector("#rollBtn").addEventListener("click", () => {
-    const die = body.querySelector("#die");
-    let ticks = 0;
-    const spin = setInterval(() => {
-      die.textContent = String(1 + Math.floor(Math.random() * 6));
-      ticks++;
-      if (ticks > 8) {
-        clearInterval(spin);
-        const finalVal = 1 + Math.floor(Math.random() * 6);
-        die.textContent = finalVal;
-        state.diceValue = finalVal;
-        saveWongLaoState(state);
-      }
-    }, 80);
-  });
 }
 
 function renderPickerGame(body, state) {
@@ -296,40 +270,83 @@ function renderPickerGame(body, state) {
   });
 }
 
-const RPS_CHOICES = [
-  { id: "rock", label: "✊", name: "ค้อน" },
-  { id: "paper", label: "✋", name: "กระดาษ" },
-  { id: "scissors", label: "✌️", name: "กรรไกร" },
-];
+// ---------- ไพ่ Ohana ----------
 
-function rpsOutcome(player, cpu) {
-  if (player === cpu) return "draw";
-  const beats = { rock: "scissors", scissors: "paper", paper: "rock" };
-  return beats[player] === cpu ? "win" : "lose";
+const OHANA_SUITS = ["♠", "♥", "♦", "♣"];
+const OHANA_RANKS = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"];
+
+const OHANA_RULES = {
+  A: "ดื่มคนเดียว",
+  2: "ดื่มเอง แล้วหาอีก 1 คนดื่มด้วย",
+  3: "ดื่มเอง แล้วหาอีก 2 คนดื่มด้วย",
+  4: "คนทางซ้ายของคนจั่วดื่ม",
+  5: "ทุกคนดื่ม",
+  6: "คนทางขวาของคนจั่วดื่ม",
+  7: "เล่นมินิเกมกัน",
+  8: "พัก 1 ยก",
+  9: "เล่นมินิเกม (เหมือน 7)",
+  10: "ทาแป้ง",
+  J: "จับหน้า",
+  Q: "แหม่ม ห้ามใครคุยด้วย",
+  K: "สร้างกฎ ทำตามที่ตกลงกัน",
+};
+
+function buildOhanaDeck() {
+  const deck = [];
+  for (const suit of OHANA_SUITS) {
+    for (const rank of OHANA_RANKS) {
+      deck.push(rank + suit);
+    }
+  }
+  for (let i = deck.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [deck[i], deck[j]] = [deck[j], deck[i]];
+  }
+  return deck;
 }
 
-function renderRpsGame(body, state) {
-  body.innerHTML = `
-    <div class="rps-wrap">
-      <div class="rps-result" id="rpsResult">${state.rpsMessage || "เลือกไม้ของคุณ"}</div>
-      <div class="rps-choices">
-        ${RPS_CHOICES.map((c) => `<button class="rps-btn" data-id="${c.id}">${c.label}</button>`).join("")}
-      </div>
-    </div>
-  `;
-
-  body.querySelectorAll(".rps-btn").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      const playerChoice = RPS_CHOICES.find((c) => c.id === btn.dataset.id);
-      const cpuChoice = RPS_CHOICES[Math.floor(Math.random() * RPS_CHOICES.length)];
-      const outcome = rpsOutcome(playerChoice.id, cpuChoice.id);
-      const outcomeText =
-        outcome === "draw" ? "เสมอ ลองใหม่" : outcome === "win" ? "คุณชนะ! อีกฝั่งดื่ม 🍺" : "คุณแพ้! ดื่มเลย 🍺";
-      state.rpsMessage = `${playerChoice.label} vs ${cpuChoice.label} — ${outcomeText}`;
+function renderOhanaGame(body, state) {
+  if (!state.ohanaDeck || !state.ohanaDeck.length) {
+    if (!state.ohanaDeck) {
+      state.ohanaDeck = buildOhanaDeck();
       saveWongLaoState(state);
-      body.querySelector("#rpsResult").textContent = state.rpsMessage;
+    }
+  }
+
+  function draw() {
+    const last = state.ohanaLast;
+    const rank = last ? last.slice(0, -1) : null;
+    const suit = last ? last.slice(-1) : null;
+    const isRed = suit === "♥" || suit === "♦";
+    const deckEmpty = state.ohanaDeck.length === 0;
+
+    body.innerHTML = `
+      <div class="ohana-wrap">
+        <div class="ohana-count">เหลือ ${state.ohanaDeck.length} ใบ</div>
+        <div class="ohana-card ${last ? (isRed ? "red" : "") : "empty"}">
+          ${last ? `<span class="ohana-rank">${rank}</span><span class="ohana-suit">${suit}</span>` : "🃏"}
+        </div>
+        <div class="ohana-rule" id="ohanaRule">${last ? OHANA_RULES[rank] : "กดจั่วไพ่เพื่อเริ่ม"}</div>
+        <button class="wl-action-btn" id="drawCardBtn" ${deckEmpty ? "disabled" : ""}>จั่วไพ่</button>
+        <button class="reset-btn" id="reshuffleBtn">${deckEmpty ? "สับไพ่ใหม่ (ครบ 52 ใบ)" : "สับไพ่ใหม่"}</button>
+      </div>
+    `;
+
+    body.querySelector("#drawCardBtn").addEventListener("click", () => {
+      state.ohanaLast = state.ohanaDeck.pop();
+      saveWongLaoState(state);
+      draw();
     });
-  });
+
+    body.querySelector("#reshuffleBtn").addEventListener("click", () => {
+      state.ohanaDeck = buildOhanaDeck();
+      state.ohanaLast = null;
+      saveWongLaoState(state);
+      draw();
+    });
+  }
+
+  draw();
 }
 
 // ---------- Boot ----------
