@@ -1,0 +1,256 @@
+:root {
+  --bg: #0f1115;
+  --card: #1b1f27;
+  --card-hi: #232837;
+  --text: #f2f3f5;
+  --sub: #9aa1ac;
+  --green: #34c759;
+  --green-dim: #1f7a37;
+  --red: #ff453a;
+  --red-dim: #8f261f;
+  --accent: #4c8dff;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans Thai", sans-serif;
+  overscroll-behavior-y: contain;
+  user-select: none;
+}
+
+#app {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ---------- Home screen ---------- */
+
+.home {
+  flex: 1;
+  padding: calc(var(--safe-top) + 28px) 20px calc(var(--safe-bottom) + 20px);
+  display: flex;
+  flex-direction: column;
+}
+
+.home h1 {
+  font-size: 22px;
+  font-weight: 700;
+  margin: 0 0 4px;
+}
+
+.home .sub {
+  color: var(--sub);
+  font-size: 13px;
+  margin: 0 0 24px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px 12px;
+}
+
+.icon-btn {
+  background: none;
+  border: none;
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 0;
+  cursor: pointer;
+}
+
+.icon-tile {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 20%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  background: linear-gradient(160deg, var(--card-hi), var(--card));
+  box-shadow: 0 2px 6px rgba(0,0,0,0.35);
+}
+
+.icon-btn:active .icon-tile {
+  transform: scale(0.92);
+}
+
+.icon-tile {
+  transition: transform 0.08s ease;
+}
+
+.icon-label {
+  font-size: 11px;
+  color: var(--sub);
+  text-align: center;
+  line-height: 1.2;
+}
+
+.empty-slot .icon-tile {
+  background: none;
+  border: 1.5px dashed #2a2f3a;
+}
+
+.empty-hint {
+  margin-top: auto;
+  padding-top: 24px;
+  color: var(--sub);
+  font-size: 12px;
+  text-align: center;
+}
+
+/* ---------- Tool screen (generic) ---------- */
+
+.tool-screen {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding-top: var(--safe-top);
+}
+
+.tool-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 12px;
+}
+
+.back-btn {
+  background: var(--card);
+  border: none;
+  color: var(--text);
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.tool-title {
+  font-size: 17px;
+  font-weight: 700;
+}
+
+/* ---------- Counter tool ---------- */
+
+.counter {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 24px calc(var(--safe-bottom) + 24px);
+}
+
+.counter-display-wrap {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.counter-display {
+  font-size: 96px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -2px;
+}
+
+.counter-display.negative {
+  color: var(--red);
+}
+
+.step-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 22px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.step-label {
+  color: var(--sub);
+  font-size: 12px;
+  width: 100%;
+  text-align: center;
+  margin-bottom: 6px;
+}
+
+.step-chip {
+  background: var(--card);
+  border: 1.5px solid transparent;
+  color: var(--text);
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.step-chip.active {
+  border-color: var(--accent);
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.buttons-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 28px;
+  width: 100%;
+  margin-bottom: 18px;
+}
+
+.big-btn {
+  width: 92px;
+  height: 92px;
+  border-radius: 50%;
+  border: none;
+  font-size: 40px;
+  font-weight: 300;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.big-btn:active {
+  transform: scale(0.94);
+}
+
+.big-btn.minus {
+  background: var(--red);
+  box-shadow: 0 4px 14px rgba(255,69,58,0.35);
+}
+
+.big-btn.plus {
+  background: var(--green);
+  box-shadow: 0 4px 14px rgba(52,199,89,0.35);
+}
+
+.reset-btn {
+  background: none;
+  border: none;
+  color: var(--sub);
+  font-size: 13px;
+  padding: 8px 12px;
+  cursor: pointer;
+}
