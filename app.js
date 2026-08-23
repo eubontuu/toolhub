@@ -8,6 +8,12 @@ const APPS = [
     icon: "±",
     render: renderCounter,
   },
+  {
+    id: "wonglao",
+    name: "วงเหล้า",
+    icon: "🍻",
+    render: renderWongLao,
+  },
 ];
 
 const root = document.getElementById("app");
@@ -165,6 +171,165 @@ function renderCounter(container) {
 
   updateChipHighlight();
   updateDisplay();
+}
+
+// ---------- วงเหล้า tool (dice / random picker / rock-paper-scissors) ----------
+
+const WONGLAO_TABS = [
+  { id: "dice", label: "🎲 ลูกเต๋า" },
+  { id: "picker", label: "🎯 สุ่มคน" },
+  { id: "rps", label: "✊ เป่ายิ้งฉุบ" },
+];
+
+function loadWongLaoState() {
+  try {
+    const raw = localStorage.getItem("toolhub.wonglao");
+    if (raw) return JSON.parse(raw);
+  } catch (e) {}
+  return { tab: "dice", diceValue: null, names: [], pickedName: null, rpsMessage: null };
+}
+
+function saveWongLaoState(state) {
+  localStorage.setItem("toolhub.wonglao", JSON.stringify(state));
+}
+
+function renderWongLao(container) {
+  const state = loadWongLaoState();
+
+  function draw() {
+    container.innerHTML = `
+      <div class="wonglao">
+        <div class="wl-tabs">
+          ${WONGLAO_TABS.map(
+            (t) => `<button class="wl-tab ${t.id === state.tab ? "active" : ""}" data-tab="${t.id}">${t.label}</button>`
+          ).join("")}
+        </div>
+        <div class="wl-body" id="wlBody"></div>
+      </div>
+    `;
+    container.querySelectorAll(".wl-tab").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        state.tab = btn.dataset.tab;
+        saveWongLaoState(state);
+        draw();
+      });
+    });
+    const body = container.querySelector("#wlBody");
+    if (state.tab === "dice") renderDiceGame(body, state);
+    else if (state.tab === "picker") renderPickerGame(body, state);
+    else renderRpsGame(body, state);
+  }
+
+  draw();
+}
+
+function renderDiceGame(body, state) {
+  body.innerHTML = `
+    <div class="dice-wrap">
+      <div class="die" id="die">${state.diceValue || "?"}</div>
+      <button class="wl-action-btn" id="rollBtn">ทอยลูกเต๋า</button>
+    </div>
+  `;
+  body.querySelector("#rollBtn").addEventListener("click", () => {
+    const die = body.querySelector("#die");
+    let ticks = 0;
+    const spin = setInterval(() => {
+      die.textContent = String(1 + Math.floor(Math.random() * 6));
+      ticks++;
+      if (ticks > 8) {
+        clearInterval(spin);
+        const finalVal = 1 + Math.floor(Math.random() * 6);
+        die.textContent = finalVal;
+        state.diceValue = finalVal;
+        saveWongLaoState(state);
+      }
+    }, 80);
+  });
+}
+
+function renderPickerGame(body, state) {
+  body.innerHTML = `
+    <div class="picker-wrap">
+      <div class="picker-input-row">
+        <input type="text" id="nameInput" placeholder="พิมพ์ชื่อแล้วกดเพิ่ม" />
+        <button id="addNameBtn">เพิ่ม</button>
+      </div>
+      <div class="picker-list" id="nameList"></div>
+      <button class="wl-action-btn" id="pickBtn" ${state.names.length < 2 ? "disabled" : ""}>สุ่มคนโดน</button>
+      <div class="picker-result" id="pickerResult">${state.pickedName ? `🍻 ${state.pickedName} โดน!` : ""}</div>
+    </div>
+  `;
+
+  const list = body.querySelector("#nameList");
+  state.names.forEach((name, i) => {
+    const chip = document.createElement("div");
+    chip.className = "name-chip";
+    chip.innerHTML = `<span>${name}</span><button data-i="${i}">×</button>`;
+    list.appendChild(chip);
+  });
+  list.querySelectorAll("button").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      state.names.splice(Number(btn.dataset.i), 1);
+      saveWongLaoState(state);
+      renderPickerGame(body, state);
+    });
+  });
+
+  body.querySelector("#addNameBtn").addEventListener("click", () => {
+    const input = body.querySelector("#nameInput");
+    const val = input.value.trim();
+    if (!val) return;
+    state.names.push(val);
+    saveWongLaoState(state);
+    renderPickerGame(body, state);
+  });
+  body.querySelector("#nameInput").addEventListener("keydown", (e) => {
+    if (e.key === "Enter") body.querySelector("#addNameBtn").click();
+  });
+
+  const pickBtn = body.querySelector("#pickBtn");
+  pickBtn.addEventListener("click", () => {
+    const idx = Math.floor(Math.random() * state.names.length);
+    state.pickedName = state.names[idx];
+    saveWongLaoState(state);
+    body.querySelector("#pickerResult").textContent = `🍻 ${state.pickedName} โดน!`;
+  });
+}
+
+const RPS_CHOICES = [
+  { id: "rock", label: "✊", name: "ค้อน" },
+  { id: "paper", label: "✋", name: "กระดาษ" },
+  { id: "scissors", label: "✌️", name: "กรรไกร" },
+];
+
+function rpsOutcome(player, cpu) {
+  if (player === cpu) return "draw";
+  const beats = { rock: "scissors", scissors: "paper", paper: "rock" };
+  return beats[player] === cpu ? "win" : "lose";
+}
+
+function renderRpsGame(body, state) {
+  body.innerHTML = `
+    <div class="rps-wrap">
+      <div class="rps-result" id="rpsResult">${state.rpsMessage || "เลือกไม้ของคุณ"}</div>
+      <div class="rps-choices">
+        ${RPS_CHOICES.map((c) => `<button class="rps-btn" data-id="${c.id}">${c.label}</button>`).join("")}
+      </div>
+    </div>
+  `;
+
+  body.querySelectorAll(".rps-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const playerChoice = RPS_CHOICES.find((c) => c.id === btn.dataset.id);
+      const cpuChoice = RPS_CHOICES[Math.floor(Math.random() * RPS_CHOICES.length)];
+      const outcome = rpsOutcome(playerChoice.id, cpuChoice.id);
+      const outcomeText =
+        outcome === "draw" ? "เสมอ ลองใหม่" : outcome === "win" ? "คุณชนะ! อีกฝั่งดื่ม 🍺" : "คุณแพ้! ดื่มเลย 🍺";
+      state.rpsMessage = `${playerChoice.label} vs ${cpuChoice.label} — ${outcomeText}`;
+      saveWongLaoState(state);
+      body.querySelector("#rpsResult").textContent = state.rpsMessage;
+    });
+  });
 }
 
 // ---------- Boot ----------

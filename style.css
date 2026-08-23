@@ -254,3 +254,192 @@ html, body {
   padding: 8px 12px;
   cursor: pointer;
 }
+
+/* ---------- วงเหล้า tool ---------- */
+
+.wonglao {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 0 16px calc(var(--safe-bottom) + 20px);
+}
+
+.wl-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.wl-tab {
+  flex: 1;
+  background: var(--card);
+  border: 1.5px solid transparent;
+  color: var(--sub);
+  padding: 10px 6px;
+  border-radius: 12px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.wl-tab.active {
+  border-color: var(--accent);
+  color: var(--text);
+  font-weight: 700;
+}
+
+.wl-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.wl-action-btn {
+  background: var(--accent);
+  border: none;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  padding: 14px 20px;
+  border-radius: 14px;
+  cursor: pointer;
+}
+
+.wl-action-btn:disabled {
+  background: var(--card);
+  color: var(--sub);
+  cursor: not-allowed;
+}
+
+.wl-action-btn:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+/* dice */
+
+.dice-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 36px;
+}
+
+.die {
+  width: 140px;
+  height: 140px;
+  border-radius: 24px;
+  background: linear-gradient(160deg, var(--card-hi), var(--card));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 64px;
+  font-weight: 800;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+}
+
+/* random picker */
+
+.picker-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding-top: 8px;
+}
+
+.picker-input-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.picker-input-row input {
+  flex: 1;
+  background: var(--card);
+  border: none;
+  border-radius: 10px;
+  color: var(--text);
+  padding: 12px;
+  font-size: 15px;
+}
+
+.picker-input-row button {
+  background: var(--card-hi);
+  border: none;
+  color: var(--text);
+  border-radius: 10px;
+  padding: 0 16px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.picker-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.name-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--card);
+  border-radius: 999px;
+  padding: 6px 6px 6px 14px;
+  font-size: 14px;
+}
+
+.name-chip button {
+  background: none;
+  border: none;
+  color: var(--sub);
+  font-size: 16px;
+  width: 22px;
+  height: 22px;
+  cursor: pointer;
+}
+
+.picker-result {
+  margin-top: 18px;
+  text-align: center;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+/* rock paper scissors */
+
+.rps-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 40px;
+}
+
+.rps-result {
+  font-size: 17px;
+  text-align: center;
+  min-height: 48px;
+  padding: 0 8px;
+}
+
+.rps-choices {
+  display: flex;
+  gap: 20px;
+}
+
+.rps-btn {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: var(--card);
+  border: none;
+  font-size: 32px;
+  cursor: pointer;
+}
+
+.rps-btn:active {
+  transform: scale(0.92);
+}
