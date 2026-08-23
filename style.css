@@ -805,3 +805,320 @@ html, body {
   text-align: center;
   line-height: 1.5;
 }
+
+/* เตรียมเดินป่า */
+
+.hike-wrap {
+  --hike-accent: #93c97e;
+  --hike-accent-strong: #b9e2a0;
+  --hike-amber: #e2a363;
+  --hike-amber-soft: #3a2c1c;
+  --hike-blue: #8fb3d1;
+  --hike-blue-soft: #232c36;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 0 16px calc(var(--safe-bottom) + 24px);
+}
+
+.hike-sub {
+  color: var(--sub);
+  font-size: 13px;
+  margin: 0;
+}
+
+.hike-hero {
+  background: var(--card);
+  border-radius: 16px;
+  padding: 16px;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 16px;
+  align-items: center;
+}
+
+.hike-countdown {
+  text-align: center;
+  background: var(--card-hi);
+  border-radius: 12px;
+  padding: 12px 8px;
+  min-width: 72px;
+}
+
+.hike-countdown-num {
+  font-size: 28px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: var(--hike-accent-strong);
+  line-height: 1;
+}
+
+.hike-countdown-lbl {
+  font-size: 10px;
+  color: var(--sub);
+  margin-top: 4px;
+}
+
+.hike-hero-body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.hike-hero-phase {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--sub);
+}
+
+.hike-hero-date {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.hike-today-card {
+  background: var(--card);
+  border: 1px solid transparent;
+  border-radius: 16px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.hike-today-card.is-key {
+  border-color: var(--hike-amber);
+}
+
+.hike-today-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.hike-today-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--sub);
+}
+
+.hike-badge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.hike-badge.strength { background: var(--card-hi); color: var(--hike-accent-strong); }
+.hike-badge.cardio { background: var(--hike-blue-soft); color: var(--hike-blue); }
+.hike-badge.ruck, .hike-badge.trail { background: var(--hike-amber-soft); color: var(--hike-amber); }
+.hike-badge.rest, .hike-badge.taper { background: var(--card-hi); color: var(--sub); }
+.hike-badge.trip { background: var(--hike-accent); color: #14160f; }
+
+.hike-today-title {
+  font-weight: 700;
+  font-size: 17px;
+}
+
+.hike-today-detail {
+  color: var(--text);
+  font-size: 14px;
+}
+
+.hike-today-tip {
+  color: var(--sub);
+  font-size: 12.5px;
+  border-top: 1px dashed var(--card-hi);
+  padding-top: 10px;
+}
+
+.hike-check-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--hike-accent-strong);
+  cursor: pointer;
+  width: fit-content;
+}
+
+.hike-check-row input {
+  width: 17px;
+  height: 17px;
+  accent-color: var(--hike-accent);
+  cursor: pointer;
+}
+
+.hike-progress-line {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+  color: var(--sub);
+}
+
+.hike-progress-track {
+  flex: 1;
+  height: 6px;
+  background: var(--card);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.hike-progress-fill {
+  height: 100%;
+  background: var(--hike-accent);
+  border-radius: 999px;
+}
+
+.hike-plan-title {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.hike-week {
+  border: 1px solid var(--card-hi);
+  border-radius: 14px;
+  background: var(--card);
+  margin-bottom: 12px;
+  overflow: hidden;
+}
+
+.hike-week > summary {
+  list-style: none;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.hike-week > summary::-webkit-details-marker {
+  display: none;
+}
+
+.hike-chev {
+  color: var(--sub);
+  transition: transform 0.15s ease;
+}
+
+.hike-week[open] > summary .hike-chev {
+  transform: rotate(90deg);
+}
+
+.hike-week-phase {
+  font-size: 11.5px;
+  color: var(--sub);
+  font-weight: 500;
+}
+
+.hike-day-row {
+  display: grid;
+  grid-template-columns: 26px 56px 1fr auto;
+  gap: 8px;
+  align-items: start;
+  padding: 10px 16px;
+  border-top: 1px solid var(--card-hi);
+}
+
+.hike-day-row.done {
+  opacity: 0.5;
+}
+
+.hike-day-row.done .hike-day-text {
+  text-decoration: line-through;
+  text-decoration-color: var(--card-hi);
+}
+
+.hike-day-check input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--hike-accent);
+  cursor: pointer;
+  margin-top: 2px;
+}
+
+.hike-day-date {
+  font-size: 11.5px;
+  color: var(--sub);
+  padding-top: 2px;
+  font-variant-numeric: tabular-nums;
+}
+
+.hike-dow {
+  display: block;
+  font-size: 11px;
+}
+
+.hike-day-main {
+  min-width: 0;
+}
+
+.hike-day-title {
+  font-weight: 700;
+  font-size: 13.5px;
+  margin-bottom: 2px;
+}
+
+.hike-day-text {
+  color: var(--sub);
+  font-size: 12.5px;
+}
+
+.hike-day-row .hike-badge {
+  padding-top: 2px;
+  grid-column: 1 / -1;
+  justify-self: start;
+  margin-top: 4px;
+}
+
+@media (min-width: 461px) {
+  .hike-day-row .hike-badge {
+    grid-column: auto;
+    justify-self: auto;
+    margin-top: 0;
+  }
+}
+
+.hike-tip-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 10px;
+}
+
+.hike-tip-card {
+  background: var(--card);
+  border-radius: 12px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.hike-tip-card .hike-tip-h {
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--hike-accent-strong);
+}
+
+.hike-tip-card p {
+  margin: 0;
+  font-size: 12.5px;
+  color: var(--sub);
+}
+
+.hike-footer {
+  text-align: center;
+  color: var(--sub);
+  font-size: 11.5px;
+  padding-top: 4px;
+}
