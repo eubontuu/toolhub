@@ -145,6 +145,13 @@ html, body {
   font-weight: 700;
 }
 
+.tool-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
 /* ---------- Counter tool ---------- */
 
 .counter {
@@ -261,6 +268,7 @@ html, body {
   flex: 1;
   display: flex;
   flex-direction: column;
+  min-height: 0;
   padding: 0 16px calc(var(--safe-bottom) + 20px);
 }
 
@@ -291,6 +299,7 @@ html, body {
   flex: 1;
   display: flex;
   flex-direction: column;
+  min-height: 0;
 }
 
 .wl-action-btn {
@@ -440,4 +449,359 @@ html, body {
   text-align: center;
   min-height: 46px;
   padding: 0 12px;
+}
+
+.ohana-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(5, 6, 10, 0.92);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 28px;
+  z-index: 1000;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  padding: 24px;
+}
+
+.ohana-overlay.show {
+  opacity: 1;
+}
+
+.ohana-overlay-card {
+  width: min(72vw, 300px);
+  aspect-ratio: 5 / 7;
+  border-radius: 22px;
+  background: #f5f2ea;
+  color: #1a1a1a;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  box-shadow: 0 16px 48px rgba(0,0,0,0.6);
+  transform: rotateY(90deg) scale(0.75);
+  transition: transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.ohana-overlay.show .ohana-overlay-card {
+  transform: rotateY(0deg) scale(1);
+}
+
+.ohana-overlay-card.red {
+  color: #d3252f;
+}
+
+.ohana-overlay-card .ohana-rank {
+  font-size: 100px;
+  line-height: 1;
+}
+
+.ohana-overlay-card .ohana-suit {
+  font-size: 68px;
+  margin-top: 10px;
+}
+
+.ohana-overlay-rule {
+  color: #fff;
+  font-size: 22px;
+  font-weight: 700;
+  text-align: center;
+  padding: 0 16px;
+  opacity: 0;
+  transition: opacity 0.3s ease 0.3s;
+}
+
+.ohana-overlay.show .ohana-overlay-rule {
+  opacity: 1;
+}
+
+.ohana-overlay-hint {
+  color: var(--sub);
+  font-size: 13px;
+  opacity: 0;
+  transition: opacity 0.3s ease 0.35s;
+}
+
+.ohana-overlay.show .ohana-overlay-hint {
+  opacity: 1;
+}
+
+/* ไพ่สุ่ม */
+
+.rc-setup {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding-top: 4px;
+  padding-bottom: 12px;
+}
+
+.rc-total {
+  color: var(--sub);
+  font-size: 13px;
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.rc-setup > .reset-btn {
+  align-self: center;
+  margin-bottom: 8px;
+}
+
+.rc-list {
+  max-height: 200px;
+  overflow-y: auto;
+  background: var(--card);
+  border-radius: 12px;
+  padding: 10px 12px;
+  margin-bottom: 18px;
+}
+
+.rc-list-item {
+  font-size: 13px;
+  color: var(--text);
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.rc-list-item:last-child {
+  border-bottom: none;
+}
+
+.rc-draw {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding-bottom: 12px;
+}
+
+.rc-count {
+  color: var(--sub);
+  font-size: 13px;
+}
+
+.rc-card {
+  width: min(80vw, 300px);
+  min-height: 200px;
+  border-radius: 18px;
+  background: linear-gradient(155deg, #7b4fd6, #d6478e);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.45);
+}
+
+.rc-card.empty {
+  background: var(--card);
+  font-size: 52px;
+}
+
+.rc-card-text {
+  font-size: 19px;
+  font-weight: 700;
+  text-align: center;
+  line-height: 1.5;
+}
+
+.rc-draw-actions {
+  display: flex;
+  gap: 16px;
+}
+
+/* วงล้อ */
+
+.wheel-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  padding-bottom: 12px;
+}
+
+.wheel-display {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  background: linear-gradient(160deg, var(--card-hi), var(--card));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 56px;
+  font-weight: 800;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+}
+
+.wheel-display.empty {
+  color: var(--sub);
+  font-size: 36px;
+}
+
+.wheel-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(5, 6, 10, 0.92);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 28px;
+  z-index: 1000;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  padding: 24px;
+}
+
+.wheel-overlay.show {
+  opacity: 1;
+}
+
+.wheel-overlay-circle {
+  width: min(62vw, 240px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: conic-gradient(from 0deg, #ff6b6b, #ffd93d, #6bcb77, #4d96ff, #a66bff, #ff6b6b);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 16px 48px rgba(0,0,0,0.6);
+  transform: rotate(-540deg) scale(0.4);
+  transition: transform 0.6s cubic-bezier(0.22, 1.2, 0.36, 1);
+}
+
+.wheel-overlay.show .wheel-overlay-circle {
+  transform: rotate(0deg) scale(1);
+}
+
+.wheel-overlay-circle span {
+  width: 62%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: #fff;
+  color: #111;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 84px;
+  font-weight: 900;
+  box-shadow: inset 0 0 0 4px rgba(0,0,0,0.08);
+}
+
+.wheel-overlay-hint {
+  color: var(--sub);
+  font-size: 13px;
+  opacity: 0;
+  transition: opacity 0.3s ease 0.35s;
+}
+
+.wheel-overlay.show .wheel-overlay-hint {
+  opacity: 1;
+}
+
+/* Chwazi */
+
+.chwazi-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  padding-bottom: 12px;
+}
+
+.chwazi-hint {
+  text-align: center;
+  color: var(--sub);
+  font-size: 14px;
+  padding: 10px 12px;
+  transition: opacity 0.2s ease;
+}
+
+.chwazi-hint.hidden {
+  opacity: 0;
+}
+
+.chwazi-area {
+  flex: 1;
+  position: relative;
+  touch-action: none;
+  overflow: hidden;
+  border-radius: 16px;
+  background: var(--card);
+}
+
+.chwazi-dot {
+  position: absolute;
+  width: 56px;
+  height: 56px;
+  margin-left: -28px;
+  margin-top: -28px;
+  border-radius: 50%;
+  background: var(--accent);
+  opacity: 0.85;
+  transition: background 0.25s ease, transform 0.25s ease, opacity 0.25s ease;
+}
+
+.chwazi-dot.winner {
+  background: var(--green);
+  transform: scale(1.6);
+  box-shadow: 0 0 24px 8px rgba(52,199,89,0.6);
+}
+
+.chwazi-dot.loser {
+  background: #3a3f4a;
+  opacity: 0.35;
+  transform: scale(0.8);
+}
+
+/* Flash Quiz */
+
+.quiz-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding-bottom: 12px;
+}
+
+.quiz-count {
+  color: var(--sub);
+  font-size: 13px;
+}
+
+.quiz-card {
+  width: min(80vw, 300px);
+  min-height: 180px;
+  border-radius: 18px;
+  background: linear-gradient(155deg, #2d8cf0, #f5c518);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.45);
+}
+
+.quiz-card.empty {
+  background: var(--card);
+  font-size: 52px;
+}
+
+.quiz-card-text {
+  font-size: 20px;
+  font-weight: 700;
+  text-align: center;
+  line-height: 1.5;
 }
