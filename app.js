@@ -1114,6 +1114,16 @@ function renderHikePrep(container) {
     <div class="hike-wrap">
       <p class="hike-sub">แผน 6 สัปดาห์ ไม่ใช้อุปกรณ์ยิม ไม่มีบันได/เนิน · เริ่ม 24 ส.ค. — ทริป 1 ต.ค. 2026</p>
 
+      <div class="hike-notify" id="hikeNotify">
+        <div class="hike-notify-status" id="hikeNotifyStatus">กำลังเช็คสถานะการแจ้งเตือน…</div>
+        <button class="reset-btn" id="hikeNotifyBtn" style="display:none">เปิดการแจ้งเตือนในแอป</button>
+        <div class="hike-notify-box" id="hikeNotifyBox" style="display:none">
+          <p class="hike-notify-hint">คัดลอกรหัสนี้แล้วส่งให้ผู้ช่วย Claude ในแชท เพื่อเชื่อมต่อการแจ้งเตือน (ทำครั้งเดียว)</p>
+          <textarea class="hike-notify-textarea" id="hikeNotifyTextarea" readonly rows="4"></textarea>
+          <button class="reset-btn" id="hikeNotifyCopyBtn">คัดลอก</button>
+        </div>
+      </div>
+
       <div class="hike-hero">
         <div class="hike-countdown">
           <div class="hike-countdown-num" id="hikeCountdownNum">—</div>
@@ -1270,6 +1280,86 @@ function renderHikePrep(container) {
   }
 
   render();
+  setupHikeNotify(container);
+}
+
+const VAPID_PUBLIC_KEY = "BIxL1adPM9LQMkLjjED9J_ujgRub6K7TKCueo6Y2nooCRfwEaxkyyoFqqPGkV1OWCeovxa2N8m5QxUjpolJaCwo";
+
+function urlBase64ToUint8Array(base64String) {
+  const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
+  const base64 = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/");
+  const rawData = atob(base64);
+  const output = new Uint8Array(rawData.length);
+  for (let i = 0; i < rawData.length; i++) output[i] = rawData.charCodeAt(i);
+  return output;
+}
+
+function showHikeNotifySubscription(sub, statusEl, btnEl, boxEl) {
+  statusEl.textContent = "เปิดใช้งานแล้ว — คัดลอกรหัสด้านล่างส่งให้ผู้ช่วยเพื่อเชื่อมต่อ (ถ้ายังไม่เคยทำ)";
+  btnEl.textContent = "แสดงรหัสอีกครั้ง";
+  btnEl.style.display = "inline-block";
+  boxEl.style.display = "block";
+  boxEl.querySelector("#hikeNotifyTextarea").value = JSON.stringify(sub.toJSON(), null, 2);
+}
+
+async function setupHikeNotify(container) {
+  const statusEl = container.querySelector("#hikeNotifyStatus");
+  const btnEl = container.querySelector("#hikeNotifyBtn");
+  const boxEl = container.querySelector("#hikeNotifyBox");
+
+  if (!("serviceWorker" in navigator) || !("PushManager" in window)) {
+    statusEl.textContent = "เบราว์เซอร์นี้ไม่รองรับการแจ้งเตือนแบบ push";
+    return;
+  }
+
+  try {
+    const reg = await navigator.serviceWorker.ready;
+    const existing = await reg.pushManager.getSubscription();
+
+    if (existing && Notification.permission === "granted") {
+      showHikeNotifySubscription(existing, statusEl, btnEl, boxEl);
+    } else {
+      statusEl.textContent = "ยังไม่ได้เปิดการแจ้งเตือน";
+      btnEl.textContent = "เปิดการแจ้งเตือนในแอป";
+      btnEl.style.display = "inline-block";
+    }
+  } catch (e) {
+    statusEl.textContent = "เช็คสถานะไม่ได้: " + e.message;
+  }
+
+  btnEl.addEventListener("click", async () => {
+    try {
+      const permission = await Notification.requestPermission();
+      if (permission !== "granted") {
+        statusEl.textContent = "ไม่ได้รับอนุญาตให้แจ้งเตือน — ลองอีกครั้งได้ในตั้งค่าเบราว์เซอร์";
+        return;
+      }
+      const reg = await navigator.serviceWorker.ready;
+      let sub = await reg.pushManager.getSubscription();
+      if (!sub) {
+        sub = await reg.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
+        });
+      }
+      showHikeNotifySubscription(sub, statusEl, btnEl, boxEl);
+    } catch (e) {
+      statusEl.textContent = "เกิดข้อผิดพลาด: " + e.message;
+    }
+  });
+
+  container.querySelector("#hikeNotifyCopyBtn").addEventListener("click", async () => {
+    const textarea = container.querySelector("#hikeNotifyTextarea");
+    try {
+      await navigator.clipboard.writeText(textarea.value);
+      const copyBtn = container.querySelector("#hikeNotifyCopyBtn");
+      const original = copyBtn.textContent;
+      copyBtn.textContent = "คัดลอกแล้ว ✓";
+      setTimeout(() => (copyBtn.textContent = original), 1500);
+    } catch (e) {
+      textarea.select();
+    }
+  });
 }
 
 // ---------- Boot ----------
