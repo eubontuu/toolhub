@@ -182,16 +182,16 @@ function renderCounter(container) {
 // ---------- วงเหล้า tool (random picker / ไพ่ Ohana / ไพ่สุ่ม) ----------
 
 const WONGLAO_TABS = [
-  { id: "picker", label: "🎯 สุ่มคน" },
-  { id: "ohana", label: "🃏 ไพ่ Ohana" },
-  { id: "randomcard", label: "🎴 ไพ่สุ่ม" },
-  { id: "wheel", label: "🎡 วงล้อ" },
-  { id: "chwazi", label: "🖐️ Chwazi" },
-  { id: "quiz", label: "⚡ Flash Quiz" },
+  { id: "picker", label: "สุ่มคน", icon: "🎯" },
+  { id: "ohana", label: "ไพ่ Ohana", icon: "🃏" },
+  { id: "randomcard", label: "ไพ่สุ่ม", icon: "🎴" },
+  { id: "wheel", label: "วงล้อ", icon: "🎡" },
+  { id: "chwazi", label: "Chwazi", icon: "🖐️" },
+  { id: "quiz", label: "Flash Quiz", icon: "⚡" },
 ];
 
 const WONGLAO_DEFAULT_STATE = {
-  tab: "picker",
+  tab: null,
   names: [],
   pickedName: null,
   ohanaDeck: null,
@@ -224,33 +224,60 @@ function renderWongLao(container) {
   const state = loadWongLaoState();
 
   function draw() {
-    container.innerHTML = `
-      <div class="wonglao">
-        <div class="wl-tabs">
-          ${WONGLAO_TABS.map(
-            (t) => `<button class="wl-tab ${t.id === state.tab ? "active" : ""}" data-tab="${t.id}">${t.label}</button>`
-          ).join("")}
-        </div>
-        <div class="wl-body" id="wlBody"></div>
-      </div>
-    `;
-    container.querySelectorAll(".wl-tab").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        state.tab = btn.dataset.tab;
-        saveWongLaoState(state);
-        draw();
-      });
-    });
-    const body = container.querySelector("#wlBody");
-    if (state.tab === "picker") renderPickerGame(body, state);
-    else if (state.tab === "ohana") renderOhanaGame(body, state);
-    else if (state.tab === "randomcard") renderRandomCardGame(body, state);
-    else if (state.tab === "wheel") renderWheelGame(body, state);
-    else if (state.tab === "chwazi") renderChwaziGame(body, state);
-    else renderFlashQuizGame(body, state);
+    if (!state.tab) {
+      renderWongLaoMenu(container, state, draw);
+    } else {
+      renderWongLaoGame(container, state, draw);
+    }
   }
 
   draw();
+}
+
+function renderWongLaoMenu(container, state, draw) {
+  container.innerHTML = `
+    <div class="wl-menu">
+      <div class="grid" id="wlGrid"></div>
+    </div>
+  `;
+  const grid = container.querySelector("#wlGrid");
+  WONGLAO_TABS.forEach((t) => {
+    const btn = document.createElement("button");
+    btn.className = "icon-btn";
+    btn.innerHTML = `<div class="icon-tile">${t.icon}</div><div class="icon-label">${t.label}</div>`;
+    btn.addEventListener("click", () => {
+      state.tab = t.id;
+      saveWongLaoState(state);
+      draw();
+    });
+    grid.appendChild(btn);
+  });
+}
+
+function renderWongLaoGame(container, state, draw) {
+  const meta = WONGLAO_TABS.find((t) => t.id === state.tab);
+  container.innerHTML = `
+    <div class="wl-game">
+      <div class="wl-game-header">
+        <button class="back-btn" id="wlBack">‹</button>
+        <div class="wl-game-title">${meta.icon} ${meta.label}</div>
+      </div>
+      <div class="wl-game-body" id="wlGameBody"></div>
+    </div>
+  `;
+  container.querySelector("#wlBack").addEventListener("click", () => {
+    state.tab = null;
+    saveWongLaoState(state);
+    draw();
+  });
+
+  const body = container.querySelector("#wlGameBody");
+  if (state.tab === "picker") renderPickerGame(body, state);
+  else if (state.tab === "ohana") renderOhanaGame(body, state);
+  else if (state.tab === "randomcard") renderRandomCardGame(body, state);
+  else if (state.tab === "wheel") renderWheelGame(body, state);
+  else if (state.tab === "chwazi") renderChwaziGame(body, state);
+  else renderFlashQuizGame(body, state);
 }
 
 function renderPickerGame(body, state) {

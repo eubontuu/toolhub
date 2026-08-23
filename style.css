@@ -264,42 +264,42 @@ html, body {
 
 /* ---------- วงเหล้า tool ---------- */
 
-.wonglao {
+.wl-menu {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 20px 16px calc(var(--safe-bottom) + 20px);
+}
+
+.wl-menu .grid {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.wl-game {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.wl-game-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 16px 14px;
+}
+
+.wl-game-title {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.wl-game-body {
   flex: 1;
   display: flex;
   flex-direction: column;
   min-height: 0;
   padding: 0 16px calc(var(--safe-bottom) + 20px);
-}
-
-.wl-tabs {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 20px;
-}
-
-.wl-tab {
-  flex: 1;
-  background: var(--card);
-  border: 1.5px solid transparent;
-  color: var(--sub);
-  padding: 10px 6px;
-  border-radius: 12px;
-  font-size: 13px;
-  cursor: pointer;
-}
-
-.wl-tab.active {
-  border-color: var(--accent);
-  color: var(--text);
-  font-weight: 700;
-}
-
-.wl-body {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
 }
 
 .wl-action-btn {
