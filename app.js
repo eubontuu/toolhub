@@ -198,6 +198,7 @@ const WONGLAO_DEFAULT_STATE = {
   ohanaLast: null,
   rcQuantity: 50,
   rcCustom: [],
+  rcExcluded: [],
   rcDeck: null,
   rcLast: null,
   rcStarted: false,
@@ -619,10 +620,24 @@ function shuffleArray(arr) {
   return copy;
 }
 
-function buildRcDeck(quantity, custom) {
-  const shuffledPool = shuffleArray(RC_BUILTIN_POOL);
+function buildRcDeck(quantity, custom, excluded) {
+  const effectivePool = RC_BUILTIN_POOL.filter((item) => !excluded.includes(item));
+  const shuffledPool = shuffleArray(effectivePool);
   const picked = quantity === "all" ? shuffledPool : shuffledPool.slice(0, Math.min(quantity, shuffledPool.length));
   return shuffleArray([...picked, ...custom]);
+}
+
+function rcRemoveFromPool(text, state) {
+  const customIdx = state.rcCustom.indexOf(text);
+  if (customIdx !== -1) {
+    state.rcCustom.splice(customIdx, 1);
+  } else if (!state.rcExcluded.includes(text)) {
+    state.rcExcluded.push(text);
+  }
+  if (state.rcDeck) {
+    state.rcDeck = state.rcDeck.filter((d) => d !== text);
+  }
+  saveWongLaoState(state);
 }
 
 function renderRandomCardGame(body, state) {
@@ -634,16 +649,23 @@ function renderRandomCardGame(body, state) {
 }
 
 function renderRcSetupScreen(body, state) {
-  const totalCount = RC_BUILTIN_POOL.length + state.rcCustom.length;
+  const builtInCount = RC_BUILTIN_POOL.length - state.rcExcluded.length;
+  const totalCount = builtInCount + state.rcCustom.length;
+  const listItems = [...RC_BUILTIN_POOL.filter((p) => !state.rcExcluded.includes(p)), ...state.rcCustom];
 
   body.innerHTML = `
     <div class="rc-setup">
-      <div class="rc-total">มีบทลงโทษทั้งหมด ${totalCount} ใบ (${RC_BUILTIN_POOL.length} มาตรฐาน + ${state.rcCustom.length} ที่คุณเพิ่มเอง)</div>
+      <div class="rc-total">มีบทลงโทษทั้งหมด ${totalCount} ใบ (${builtInCount} มาตรฐาน + ${state.rcCustom.length} ที่คุณเพิ่มเอง)</div>
       <button class="reset-btn" id="rcToggleList">${state.rcShowList ? "ซ่อนรายการ" : "ดูรายการทั้งหมด"}</button>
       ${
+        state.rcExcluded.length > 0
+          ? `<button class="reset-btn" id="rcRestoreBtn">กู้คืนรายการที่ลบ (${state.rcExcluded.length})</button>`
+          : ""
+      }
+      ${
         state.rcShowList
-          ? `<div class="rc-list">${[...RC_BUILTIN_POOL, ...state.rcCustom]
-              .map((p) => `<div class="rc-list-item">${p}</div>`)
+          ? `<div class="rc-list">${listItems
+              .map((p, i) => `<div class="rc-list-item"><span>${p}</span><button class="rc-list-del" data-i="${i}">×</button></div>`)
               .join("")}</div>`
           : ""
       }
@@ -669,6 +691,22 @@ function renderRcSetupScreen(body, state) {
     state.rcShowList = !state.rcShowList;
     saveWongLaoState(state);
     renderRcSetupScreen(body, state);
+  });
+
+  const restoreBtn = body.querySelector("#rcRestoreBtn");
+  if (restoreBtn) {
+    restoreBtn.addEventListener("click", () => {
+      state.rcExcluded = [];
+      saveWongLaoState(state);
+      renderRcSetupScreen(body, state);
+    });
+  }
+
+  body.querySelectorAll(".rc-list-del").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      rcRemoveFromPool(listItems[Number(btn.dataset.i)], state);
+      renderRcSetupScreen(body, state);
+    });
   });
 
   body.querySelectorAll(".step-chip[data-q]").forEach((chip) => {
@@ -708,7 +746,7 @@ function renderRcSetupScreen(body, state) {
   });
 
   body.querySelector("#rcStartBtn").addEventListener("click", () => {
-    state.rcDeck = buildRcDeck(state.rcQuantity, state.rcCustom);
+    state.rcDeck = buildRcDeck(state.rcQuantity, state.rcCustom, state.rcExcluded);
     state.rcLast = null;
     state.rcStarted = true;
     saveWongLaoState(state);
@@ -727,7 +765,8 @@ function renderRcDrawScreen(body, state) {
       </div>
       <button class="wl-action-btn" id="rcDrawBtn" ${deckEmpty ? "disabled" : ""}>เปิดไพ่</button>
       <div class="rc-draw-actions">
-        <button class="reset-btn" id="rcReshuffleBtn">${deckEmpty ? "สับไพ่ใหม่" : "สับไพ่ใหม่"}</button>
+        <button class="reset-btn" id="rcReshuffleBtn">สับไพ่ใหม่</button>
+        <button class="reset-btn" id="rcDeleteBtn" ${state.rcLast ? "" : "disabled"}>ลบใบนี้ทิ้ง</button>
         <button class="reset-btn" id="rcSettingsBtn">ตั้งค่า</button>
       </div>
     </div>
@@ -737,10 +776,19 @@ function renderRcDrawScreen(body, state) {
     state.rcLast = state.rcDeck.pop();
     saveWongLaoState(state);
     renderRcDrawScreen(body, state);
+    showRcOverlay(state.rcLast);
   });
 
   body.querySelector("#rcReshuffleBtn").addEventListener("click", () => {
-    state.rcDeck = buildRcDeck(state.rcQuantity, state.rcCustom);
+    state.rcDeck = buildRcDeck(state.rcQuantity, state.rcCustom, state.rcExcluded);
+    state.rcLast = null;
+    saveWongLaoState(state);
+    renderRcDrawScreen(body, state);
+  });
+
+  body.querySelector("#rcDeleteBtn").addEventListener("click", () => {
+    if (!state.rcLast) return;
+    rcRemoveFromPool(state.rcLast, state);
     state.rcLast = null;
     saveWongLaoState(state);
     renderRcDrawScreen(body, state);
@@ -751,6 +799,19 @@ function renderRcDrawScreen(body, state) {
     saveWongLaoState(state);
     renderRcSetupScreen(body, state);
   });
+}
+
+function showRcOverlay(text) {
+  const overlay = document.createElement("div");
+  overlay.className = "rc-overlay";
+  overlay.innerHTML = `
+    <div class="rc-overlay-card"><span>${text}</span></div>
+    <div class="rc-overlay-hint">แตะที่ไหนก็ได้เพื่อปิด</div>
+  `;
+  overlay.addEventListener("click", () => overlay.remove());
+  document.body.appendChild(overlay);
+  void overlay.offsetHeight;
+  overlay.classList.add("show");
 }
 
 // ---------- วงล้อ ----------
