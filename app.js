@@ -20,6 +20,12 @@ const APPS = [
     icon: "🥾",
     render: renderHikePrep,
   },
+  {
+    id: "randomcolor",
+    name: "สุ่มสี",
+    icon: "🎨",
+    render: renderRandomColor,
+  },
 ];
 
 const root = document.getElementById("app");
@@ -177,6 +183,31 @@ function renderCounter(container) {
 
   updateChipHighlight();
   updateDisplay();
+}
+
+// ---------- สุ่มสี tool ----------
+
+function randomHexColor() {
+  const n = Math.floor(Math.random() * 0x1000000);
+  return "#" + n.toString(16).padStart(6, "0");
+}
+
+function renderRandomColor(container) {
+  let color = randomHexColor();
+
+  container.innerHTML = `
+    <div class="color-wrap">
+      <div class="color-bar" id="colorBar" style="background:${color}"></div>
+      <div class="color-hex" id="colorHex">${color.toUpperCase()}</div>
+      <button class="wl-action-btn" id="colorRandomBtn">สุ่มสีใหม่</button>
+    </div>
+  `;
+
+  container.querySelector("#colorRandomBtn").addEventListener("click", () => {
+    color = randomHexColor();
+    container.querySelector("#colorBar").style.background = color;
+    container.querySelector("#colorHex").textContent = color.toUpperCase();
+  });
 }
 
 // ---------- วงเหล้า tool (random picker / ไพ่ Ohana / ไพ่สุ่ม) ----------
