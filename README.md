@@ -13,21 +13,29 @@ The owner wanted a single app icon on their phone that bundles several small per
 ## File map
 
 ```
-index.html        entry point, loads app.js + style.css, registers sw.js
-app.js            everything: app shell, router, and every tool's logic
-style.css         everything: all styling, one file, organized by section
-sw.js             service worker: offline cache + update mechanism
-manifest.json     PWA metadata (name, icons, display mode)
-icons/            app icons (192, 512, apple-touch-icon)
+index.html                    entry point; loads style.css + every script in order, registers sw.js
+app.js                        app shell only: APPS registry, router, boot
+tools/counter.js              บวก/ลบ
+tools/wonglao-core.js         วงเหล้า shared state, menu/router, สุ่มคน, shuffleArray util
+tools/wonglao-ohana.js        ไพ่ Ohana
+tools/wonglao-randomcard.js   ไพ่สุ่ม
+tools/wonglao-wheel.js        วงล้อ
+tools/wonglao-chwazi.js       Chwazi
+tools/wonglao-quiz.js         Flash Quiz
+tools/hikeprep.js             เตรียมเดินป่า
+style.css                     everything: all styling, one file, organized by section
+sw.js                         service worker: offline cache + update mechanism
+manifest.json                 PWA metadata (name, icons, display mode)
+icons/                        app icons (192, 512, apple-touch-icon)
 ```
 
-There is no bundler, no `node_modules`, no `package.json`. Edit the files directly and reload.
+There is no bundler, no `node_modules`, no `package.json`, no ES modules — every file is a plain classic `<script>` tag, so **everything lives in one shared global scope and load order in `index.html` matters**. `tools/wonglao-core.js` defines `shuffleArray`, `saveWongLaoState`/`loadWongLaoState`, and the menu/dispatcher, so it must load before the other `tools/wonglao-*.js` files, which in turn must all load before `app.js` (whose `APPS` array references `renderCounter`/`renderWongLao`/`renderHikePrep` by name at top-level). Edit the files directly and reload.
 
 ## Architecture
 
 ### App shell / registry pattern
 
-`app.js` opens with an `APPS` array — this is the Home screen's icon grid:
+`app.js` (small — shell only, everything else lives in `tools/`) opens with an `APPS` array — this is the Home screen's icon grid:
 
 ```js
 const APPS = [
@@ -39,11 +47,11 @@ const APPS = [
 
 Routing is a single-page hash router (`#app/<id>`), handled by `render()`/`renderHome()`/`renderToolShell()` near the top of `app.js`. `renderToolShell` draws the back-button header and calls the tool's own `render(container)` function to fill `.tool-body`.
 
-**To add a new top-level tool:** push an entry onto `APPS`, write a `renderYourTool(container)` function, add its CSS section. That's the whole contract — no other file needs to change.
+**To add a new top-level tool:** create `tools/yourtool.js` with a `renderYourTool(container)` function, add its `<script src="tools/yourtool.js"></script>` to `index.html` *before* the `app.js` tag, push an entry onto `APPS` in `app.js`, add its CSS section, and add the new file to `PRECACHE_URLS` in `sw.js`.
 
 ### The "วงเหล้า" (wonglao) sub-hub
 
-`wonglao` is itself a mini hub: it has its own icon-grid menu (`WONGLAO_TABS`) with 6 mini-games, each with its own back button nested under wonglao's header. This pattern (menu screen + per-item detail screen, both driven by one `state.tab` field) exists because a flat tab bar with 6 items was too cramped — see `renderWongLaoMenu` / `renderWongLaoGame` in `app.js`.
+`wonglao` is itself a mini hub: it has its own icon-grid menu (`WONGLAO_TABS`) with 6 mini-games, each with its own back button nested under wonglao's header. This pattern (menu screen + per-item detail screen, both driven by one `state.tab` field) exists because a flat tab bar with 6 items was too cramped — see `renderWongLaoMenu` / `renderWongLaoGame` in `tools/wonglao-core.js`.
 
 Sub-games and their render functions:
 
@@ -58,7 +66,7 @@ Sub-games and their render functions:
 
 All six share one state blob (see Persistence below), loaded/saved via `loadWongLaoState()` / `saveWongLaoState()`.
 
-**To add a new wonglao sub-game:** add an entry to `WONGLAO_TABS`, add its default fields to `WONGLAO_DEFAULT_STATE`, add a branch in `renderWongLaoGame`'s dispatcher, write the render function.
+**To add a new wonglao sub-game:** add an entry to `WONGLAO_TABS` and its default fields to `WONGLAO_DEFAULT_STATE` (both in `tools/wonglao-core.js`), add a branch in `renderWongLaoGame`'s dispatcher (also in `wonglao-core.js`), then write the render function — either inline in `wonglao-core.js` for something small, or its own `tools/wonglao-yourgame.js` (register it in `index.html` and `PRECACHE_URLS` like any other tool file) for something bigger.
 
 ### Fullscreen "reveal" overlays
 
@@ -83,7 +91,7 @@ An earlier version used `requestAnimationFrame` nested twice, which is the "norm
 | key | shape | used by |
 |---|---|---|
 | `toolhub.counter` | `{ value, step }` | บวก/ลบ |
-| `toolhub.wonglao` | one big object — see `WONGLAO_DEFAULT_STATE` in `app.js` for every field | all 6 wonglao sub-games |
+| `toolhub.wonglao` | one big object — see `WONGLAO_DEFAULT_STATE` in `tools/wonglao-core.js` for every field | all 6 wonglao sub-games |
 | `toolhub.hikeprep.<YYYY-MM-DD>` | `"1"` / `"0"` | เตรียมเดินป่า's per-day "done" checkbox |
 
 `loadWongLaoState()` always merges `{...WONGLAO_DEFAULT_STATE, ...JSON.parse(saved)}` — **never read `localStorage` directly without this merge**. A saved state from before a new field existed would otherwise come back `undefined` for that field (this caused a real bug: วงล้อ showed "undefined" instead of "?" until the merge was added). When adding a new persisted field to any tool, add it to that tool's default-state object, not just to the code that uses it.
@@ -99,10 +107,10 @@ This app is installed via Safari "Add to Home Screen" on iOS (no App Store, no A
 `sw.js` uses a cache-first / stale-while-revalidate strategy: on every request it serves the cached file instantly (if present) and re-fetches in the background to update the cache for *next* time. The cache is versioned:
 
 ```js
-const CACHE_VERSION = "v15";   // <-- bump this on every deploy that changes app.js/style.css/index.html
+const CACHE_VERSION = "v18";   // <-- bump this on every deploy that changes any precached file
 ```
 
-**You must bump `CACHE_VERSION` every time you change `app.js`, `style.css`, `index.html`, or `manifest.json`.** If you don't, installed clients may keep serving the old cached files indefinitely, because the `install` step only re-fetches everything when the service worker script itself (`sw.js`) is byte-different from what's currently registered. A version bump is what makes `sw.js` different.
+**You must bump `CACHE_VERSION` every time you change `app.js`, any `tools/*.js`, `style.css`, `index.html`, or `manifest.json`.** If you don't, installed clients may keep serving the old cached files indefinitely, because the `install` step only re-fetches everything when the service worker script itself (`sw.js`) is byte-different from what's currently registered. A version bump is what makes `sw.js` different. If you add a new `tools/*.js` file, also add it to `PRECACHE_URLS` in `sw.js` — a file missing from that list still works (fetched on demand and cached lazily via the stale-while-revalidate handler) but won't be available offline on first load.
 
 Even with the bump, a real device may need the app **closed and reopened twice** to show new content: the first reopen is what lets the browser notice `sw.js` changed and finish installing the new cache in the background; only the *second* reopen is guaranteed to render from the new cache. This is normal stale-while-revalidate behavior, not a bug — just something to tell the user when handing off an update.
 
@@ -135,7 +143,7 @@ for (const k of keys) await caches.delete(k);
 ## Deployment
 
 ```bash
-git add app.js style.css sw.js   # (or whichever files changed)
+git add app.js tools/ style.css sw.js   # (or whichever files changed)
 git commit -m "..."
 git push
 ```
@@ -146,7 +154,7 @@ GitHub Pages redeploys automatically on push to `main` (usually live within ~1 m
 
 Outside this repo, there's a scheduled cloud routine (Claude Code "routine", trigger id `trig_01AuHV3Bt8XtvCGfFVgbThcc`, named "แจ้งเตือนเตรียมเดินป่ารายวัน") that fires once a day at 00:00 Thai time. It is **not part of this codebase** and has no file here — it's configured entirely server-side via the Claude routines API and only referenced here for context:
 
-- It contains its **own copy** of the same day-by-day schedule table that lives in `HIKE_DAYS` in `app.js`. If you edit `HIKE_DAYS` (e.g. rebalancing rep/set numbers), the routine's copy will drift out of sync unless someone also updates the routine's prompt to match. There is no automated sync between the two.
+- It contains its **own copy** of the same day-by-day schedule table that lives in `HIKE_DAYS` in `tools/hikeprep.js`. If you edit `HIKE_DAYS` (e.g. rebalancing rep/set numbers), the routine's copy will drift out of sync unless someone also updates the routine's prompt to match. There is no automated sync between the two.
 - It sends the reminder via Claude's own `PushNotification` tool (shows as a notification from Claude, not from the ToolHub app icon) — **not** email, and **not** raw Web Push to the PWA. Raw Web Push was implemented and tested first, but the cloud sandbox's network egress policy hard-blocks `web.push.apple.com` (403), so that path is dead and was fully removed from this codebase (there's no Web Push subscribe UI or `push`/`notificationclick` handler in `sw.js` — if you see references to VAPID keys or push subscriptions anywhere, they're stale and should be deleted).
 - The notification message links back to `https://eubontuu.github.io/toolhub/#app/hikeprep` so tapping context (manually, since Claude's PushNotification has no clickable action) takes the user straight into this tool.
 
