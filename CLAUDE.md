@@ -7,6 +7,46 @@ This file is auto-loaded by Claude Code at the start of every session in this re
 - Live: https://eubontuu.github.io/toolhub/ — Repo: https://github.com/eubontuu/toolhub (GitHub user `eubontuu`) — deploys from `main` on push.
 - Files: `index.html`, `app.js` (all app logic), `style.css` (all styling), `sw.js` (service worker), `manifest.json`, `icons/`.
 
+## File section map (avoid reading the whole file)
+`app.js` (~1350 lines) and `style.css` (~1200 lines) are long single files. Before editing, `Grep` for the function/selector you need, or jump straight to its line range below with `Read(offset, limit)` instead of reading the whole file — this is the single biggest token cost in this repo.
+
+`app.js`:
+```
+4     const APPS = [...]                 registry: counter, wonglao, hikeprep
+83    // Counter tool
+182   // วงเหล้า tool (menu/router + shared state load/save)
+333   // ไพ่ Ohana
+433   // ไพ่สุ่ม
+817   // วงล้อ
+892   // Chwazi
+993   // Flash Quiz
+1075  // เตรียมเดินป่า (incl. HIKE_DAYS schedule array)
+1336  // Boot
+```
+
+`style.css`:
+```
+34    /* Home screen */
+113   /* Tool screen (generic) */
+155   /* Counter tool */
+265   /* วงเหล้า tool (shared/menu) */
+326   /* random picker (สุ่มคน) */
+395   /* ไพ่ Ohana */
+533   /* ไพ่สุ่ม */
+694   /* วงล้อ */
+786   /* Chwazi */
+841   /* Flash Quiz */
+883   /* เตรียมเดินป่า */
+```
+(Line numbers drift as the files grow — re-`Grep` for `^// ----------` / `^/\* ---` if a range looks off.)
+
+## Token-efficiency habits for sessions in this repo
+- Don't `Read` all of `app.js`/`style.css` to "get oriented" — use the section map above, or `Grep` for the specific function/selector/state key involved in the task.
+- After an `Edit`, don't re-`Read` the file to confirm — the tool already errors if the match failed.
+- When testing in the browser, prefer `get_page_text`/targeted `find` over full-page screenshots when text content (not visual layout) is what's being checked; use screenshots only for actual visual/layout verification.
+- Keep long pasted content (routine prompts, schedule tables, JSON bodies) in a scratch file and reference it, rather than pasting it inline in chat more than once.
+- Prefer one `Grep`/`Read` with a tight scope over multiple exploratory reads — if unsure where something lives, one `Grep` across the file usually finds it faster than reading sections speculatively.
+
 ## Rules for working in this repo
 - **Always bump `CACHE_VERSION` in `sw.js`** when shipping any change to `app.js`/`style.css`/`index.html`/`manifest.json`. Without it, installed PWA clients won't see the update. Format: plain `"vN"`, increment N.
 - **All user-facing text is Thai.** Keep new UI strings in Thai unless told otherwise.
