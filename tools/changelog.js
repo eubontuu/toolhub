@@ -6,6 +6,13 @@ const CHANGELOG_TAG_LABEL = { added: "เพิ่ม", changed: "แก้ไ�
 
 const CHANGELOG_DATA = [
   {
+    version: "v24",
+    date: "26 ส.ค. 2569",
+    items: [
+      { type: "changed", text: "Flash Quiz — กดเปิดคำถามแล้วขยายเต็มจอ แตะที่ไหนก็ได้เพื่อปิด (เหมือนไพ่ Ohana)" },
+    ],
+  },
+  {
     version: "v23",
     date: "26 ส.ค. 2569",
     items: [

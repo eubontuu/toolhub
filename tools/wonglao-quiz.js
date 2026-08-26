@@ -67,6 +67,7 @@ function renderFlashQuizGame(body, state) {
       state.quizLast = state.quizDeck.pop();
       saveWongLaoState(state);
       draw();
+      showQuizOverlay(state.quizLast);
     });
 
     body.querySelector("#quizReshuffleBtn").addEventListener("click", () => {
@@ -78,4 +79,19 @@ function renderFlashQuizGame(body, state) {
   }
 
   draw();
+}
+
+function showQuizOverlay(questionText) {
+  const overlay = document.createElement("div");
+  overlay.className = "quiz-overlay";
+  overlay.innerHTML = `
+    <div class="quiz-overlay-card">
+      <span class="quiz-overlay-text">${questionText}</span>
+    </div>
+    <div class="quiz-overlay-hint">แตะที่ไหนก็ได้เพื่อปิด</div>
+  `;
+  overlay.addEventListener("click", () => overlay.remove());
+  document.body.appendChild(overlay);
+  void overlay.offsetHeight;
+  overlay.classList.add("show");
 }

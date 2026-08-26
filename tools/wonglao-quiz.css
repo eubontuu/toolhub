@@ -39,3 +39,60 @@
   text-align: center;
   line-height: 1.5;
 }
+
+.quiz-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(5, 6, 10, 0.92);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 28px;
+  z-index: 1000;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  padding: 24px;
+}
+
+.quiz-overlay.show {
+  opacity: 1;
+}
+
+.quiz-overlay-card {
+  width: min(85vw, 340px);
+  min-height: 220px;
+  border-radius: 22px;
+  background: linear-gradient(155deg, #2d8cf0, #f5c518);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+  box-shadow: 0 16px 48px rgba(0,0,0,0.6);
+  transform: scale(0.75);
+  transition: transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.quiz-overlay.show .quiz-overlay-card {
+  transform: scale(1);
+}
+
+.quiz-overlay-text {
+  font-size: 26px;
+  font-weight: 800;
+  text-align: center;
+  line-height: 1.5;
+}
+
+.quiz-overlay-hint {
+  color: var(--sub);
+  font-size: 13px;
+  opacity: 0;
+  transition: opacity 0.3s ease 0.35s;
+}
+
+.quiz-overlay.show .quiz-overlay-hint {
+  opacity: 1;
+}
