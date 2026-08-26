@@ -1,23 +1,18 @@
-/* To do list — Home-screen widget, styled like a paper notepad */
+/* สิ่งที่ต้องทำ — paper-note look, shared by the Home notice card and the full page */
 
-.todo-widget {
+/* ---------- Home-screen notice (read-only) ---------- */
+
+.todo-notice {
   position: relative;
   background: #f4ecd8;
   color: #3b2f22;
   border-radius: 10px;
-  padding: 16px 16px 12px 26px;
+  padding: 14px 16px 44px 26px;
   margin-bottom: 22px;
   box-shadow: var(--shadow-lg);
-  background-image: repeating-linear-gradient(
-    to bottom,
-    transparent 0,
-    transparent 32px,
-    rgba(59, 47, 34, 0.14) 33px
-  );
-  background-position: 0 44px;
 }
 
-.todo-widget::before {
+.todo-notice::before {
   content: "";
   position: absolute;
   top: 0;
@@ -27,18 +22,94 @@
   background: rgba(178, 58, 46, 0.4);
 }
 
-.todo-title {
+.todo-notice-title {
   font-size: 14px;
   font-weight: 800;
-  margin-bottom: 12px;
-  letter-spacing: 0.01em;
+  margin-bottom: 10px;
+}
+
+.todo-notice-list {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.todo-notice-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.todo-notice-text {
+  font-size: 13.5px;
+  line-height: 1.4;
+}
+
+.todo-notice-meta {
+  font-size: 11px;
+  color: rgba(59, 47, 34, 0.55);
+}
+
+.todo-notice-more {
+  font-size: 12px;
+  color: rgba(59, 47, 34, 0.55);
+  font-style: italic;
+}
+
+.todo-notice-empty {
+  font-size: 13px;
+  color: rgba(59, 47, 34, 0.55);
+  font-style: italic;
+}
+
+.todo-notice-jump {
+  position: absolute;
+  right: 14px;
+  bottom: 12px;
+  background: #b23a2e;
+  border: none;
+  color: #fdf6ea;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 6px 12px;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+}
+
+/* ---------- Full editable page ---------- */
+
+.todo-page {
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background: #f4ecd8;
+  color: #3b2f22;
+  padding: 16px 16px calc(var(--safe-bottom) + 16px) 26px;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent 32px,
+    rgba(59, 47, 34, 0.14) 33px
+  );
+  background-position: 0 96px;
+}
+
+.todo-page::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 15px;
+  width: 1.5px;
+  background: rgba(178, 58, 46, 0.4);
 }
 
 .todo-input-row {
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-bottom: 4px;
+  margin-bottom: 8px;
 }
 
 .todo-input {
@@ -80,21 +151,44 @@
   justify-content: center;
 }
 
+.todo-optional-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.todo-optional-input {
+  flex: 1;
+  min-width: 0;
+  background: rgba(255, 255, 255, 0.35);
+  border: 1px solid rgba(59, 47, 34, 0.25);
+  border-radius: 6px;
+  color: #3b2f22;
+  padding: 6px 8px;
+  font-size: 12.5px;
+}
+
+.todo-optional-input::placeholder {
+  color: rgba(59, 47, 34, 0.45);
+}
+
 .todo-list {
-  max-height: 230px;
+  flex: 1;
   overflow-y: auto;
+  min-height: 0;
 }
 
 .todo-item {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 10px;
-  padding: 7px 0;
+  padding: 8px 0;
   min-height: 32px;
 }
 
 .todo-check {
   flex-shrink: 0;
+  margin-top: 1px;
   width: 18px;
   height: 18px;
   border-radius: 4px;
@@ -116,9 +210,15 @@
   color: #fdf6ea;
 }
 
-.todo-text {
+.todo-item-body {
   flex: 1;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.todo-text {
   font-size: 14.5px;
   word-break: break-word;
 }
@@ -128,8 +228,18 @@
   color: rgba(59, 47, 34, 0.45);
 }
 
+.todo-meta {
+  font-size: 11.5px;
+  color: rgba(59, 47, 34, 0.55);
+}
+
+.todo-item.done .todo-meta {
+  color: rgba(59, 47, 34, 0.35);
+}
+
 .todo-del {
   flex-shrink: 0;
+  margin-top: 1px;
   background: none;
   border: none;
   color: rgba(59, 47, 34, 0.35);

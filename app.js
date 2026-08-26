@@ -9,6 +9,12 @@ const APPS = [
     render: renderCounter,
   },
   {
+    id: "todo",
+    name: "สิ่งที่ต้องทำ",
+    icon: "📝",
+    render: renderTodo,
+  },
+  {
     id: "wonglao",
     name: "วงเหล้า",
     icon: "🍻",
@@ -61,13 +67,13 @@ function renderHome() {
         </div>
         <button class="changelog-btn" id="changelogBtn" title="ประวัติการอัปเดต">🕘</button>
       </div>
-      <div class="todo-widget" id="todoWidget"></div>
+      <div class="todo-notice" id="todoNotice"></div>
       <div class="grid" id="grid"></div>
       ${APPS.length === 0 ? '<div class="empty-hint">ยังไม่มีเครื่องมือ — จะเพิ่มเข้ามาเรื่อยๆ</div>' : ""}
     </div>
   `;
   document.getElementById("changelogBtn").addEventListener("click", () => navigate("changelog"));
-  renderTodo(document.getElementById("todoWidget"));
+  renderTodoNotice(document.getElementById("todoNotice"));
   const grid = document.getElementById("grid");
   APPS.forEach((app) => {
     const btn = document.createElement("button");
