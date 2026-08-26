@@ -1,6 +1,7 @@
 /* บวก/ลบ — .step-row/.step-chip/.reset-btn are shared, defined in style.css */
 
 .counter {
+  position: relative;
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -40,7 +41,7 @@
 .big-btn {
   width: 92px;
   height: 92px;
-  border-radius: 50%;
+  border-radius: var(--radius-circle);
   border: none;
   font-size: 40px;
   font-weight: 300;
@@ -64,4 +65,128 @@
 .big-btn.plus {
   background: var(--green);
   box-shadow: 0 4px 14px rgba(52,199,89,0.35);
+}
+
+.counter-history {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  z-index: 5;
+}
+
+.counter-history-toggle {
+  position: relative;
+  background: var(--card);
+  border: none;
+  color: var(--text);
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.counter-history-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  min-width: 16px;
+  height: 16px;
+  border-radius: var(--radius-pill);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 3px;
+}
+
+.counter-history-panel {
+  position: absolute;
+  top: 44px;
+  right: 0;
+  width: min(80vw, 280px);
+  background: var(--card);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  padding: 12px;
+}
+
+.counter-history-panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.counter-history-clear {
+  background: none;
+  border: none;
+  color: var(--sub);
+  font-size: 12px;
+  cursor: pointer;
+  padding: 4px 2px;
+}
+
+.counter-history-list {
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.counter-history-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 13px;
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.counter-history-item:last-child {
+  border-bottom: none;
+}
+
+.counter-history-delta {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--green);
+  min-width: 40px;
+}
+
+.counter-history-delta.negative {
+  color: var(--red);
+}
+
+.counter-history-time {
+  flex: 1;
+  color: var(--sub);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.counter-history-del {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  color: var(--sub);
+  font-size: 16px;
+  width: 22px;
+  height: 22px;
+  cursor: pointer;
+}
+
+.counter-history-empty {
+  text-align: center;
+  color: var(--sub);
+  font-size: 13px;
+  padding: 8px 0;
 }
