@@ -6,6 +6,13 @@ const CHANGELOG_TAG_LABEL = { added: "เพิ่ม", changed: "แก้ไ�
 
 const CHANGELOG_DATA = [
   {
+    version: "v30",
+    date: "26 ส.ค. 2569",
+    items: [
+      { type: "added", text: "เครื่องมือ บวก/ลบ — เพิ่มอนิเมชันตอนกดบวก/ลบ (ตัวเลขเด้ง + ตัวเลข +/- ลอยขึ้น)" },
+    ],
+  },
+  {
     version: "v29",
     date: "26 ส.ค. 2569",
     items: [

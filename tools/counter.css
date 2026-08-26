@@ -11,6 +11,7 @@
 }
 
 .counter-display-wrap {
+  position: relative;
   flex: 1;
   display: flex;
   align-items: center;
@@ -27,6 +28,42 @@
 
 .counter-display.negative {
   color: var(--red);
+}
+
+.counter-display.bump {
+  animation: counterBump var(--duration-slow) var(--ease-bounce);
+}
+
+@keyframes counterBump {
+  0% { transform: scale(1); }
+  45% { transform: scale(1.18); }
+  100% { transform: scale(1); }
+}
+
+.counter-float {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  font-size: 28px;
+  font-weight: 700;
+  pointer-events: none;
+  opacity: 0;
+  animation: counterFloat 0.7s ease forwards;
+}
+
+.counter-float.plus {
+  color: var(--green);
+}
+
+.counter-float.minus {
+  color: var(--red);
+}
+
+@keyframes counterFloat {
+  0% { opacity: 0; transform: translate(-50%, -50%); }
+  20% { opacity: 1; transform: translate(-50%, calc(-50% - 14px)); }
+  75% { opacity: 1; transform: translate(-50%, calc(-50% - 44px)); }
+  100% { opacity: 0; transform: translate(-50%, calc(-50% - 60px)); }
 }
 
 .buttons-row {

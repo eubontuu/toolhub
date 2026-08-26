@@ -29,7 +29,7 @@ function renderCounter(container) {
   container.innerHTML = `
     <div class="counter">
       <div class="counter-history" id="historySection"></div>
-      <div class="counter-display-wrap">
+      <div class="counter-display-wrap" id="displayWrap">
         <div class="counter-display" id="display">${state.value}</div>
       </div>
       <div class="step-row">
@@ -48,8 +48,21 @@ function renderCounter(container) {
   `;
 
   const display = container.querySelector("#display");
+  const displayWrap = container.querySelector("#displayWrap");
   const chips = container.querySelectorAll(".step-chip[data-step]");
   const customBtn = container.querySelector("#customStep");
+
+  function playChangeAnimation(delta) {
+    display.classList.remove("bump");
+    void display.offsetWidth;
+    display.classList.add("bump");
+
+    const float = document.createElement("div");
+    float.className = `counter-float ${delta > 0 ? "plus" : "minus"}`;
+    float.textContent = `${delta > 0 ? "+" : ""}${delta}`;
+    displayWrap.appendChild(float);
+    setTimeout(() => float.remove(), 700);
+  }
 
   function updateChipHighlight() {
     let matched = false;
@@ -90,6 +103,7 @@ function renderCounter(container) {
     state.history.unshift({ delta: state.step, time: Date.now() });
     saveCounterState(state);
     updateDisplay();
+    playChangeAnimation(state.step);
     renderHistorySection();
   });
 
@@ -98,6 +112,7 @@ function renderCounter(container) {
     state.history.unshift({ delta: -state.step, time: Date.now() });
     saveCounterState(state);
     updateDisplay();
+    playChangeAnimation(-state.step);
     renderHistorySection();
   });
 
