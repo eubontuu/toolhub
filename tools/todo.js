@@ -1,4 +1,5 @@
-// To do list — no dependency on other tool files
+// To do list — Home-screen widget (embedded directly in #todoWidget by renderHome in app.js,
+// not a routed tool). No dependency on other tool files.
 
 function loadTodoState() {
   try {
@@ -28,37 +29,36 @@ function renderTodo(container) {
     const doneCount = state.items.filter((item) => item.done).length;
 
     container.innerHTML = `
-      <div class="todo-wrap">
-        <div class="todo-input-row">
-          <input type="text" id="todoInput" class="todo-input" placeholder="เพิ่มสิ่งที่ต้องทำ..." />
-          <button class="todo-add-btn" id="todoAddBtn">เพิ่ม</button>
-        </div>
-        <div class="todo-list" id="todoList">
-          ${
-            total === 0
-              ? `<div class="todo-empty">ยังไม่มีรายการ — เพิ่มสิ่งที่ต้องทำได้เลย</div>`
-              : state.items
-                  .map(
-                    (item) => `
-              <div class="todo-item ${item.done ? "done" : ""}">
-                <button class="todo-check" data-id="${item.id}">${item.done ? "✓" : ""}</button>
-                <span class="todo-text">${item.text}</span>
-                <button class="todo-del" data-id="${item.id}">×</button>
-              </div>
-            `
-                  )
-                  .join("")
-          }
-        </div>
+      <div class="todo-title">📝 สิ่งที่ต้องทำ</div>
+      <div class="todo-input-row">
+        <input type="text" id="todoInput" class="todo-input" placeholder="เขียนสิ่งที่ต้องทำ..." />
+        <button class="todo-add-btn" id="todoAddBtn">+</button>
+      </div>
+      <div class="todo-list" id="todoList">
         ${
-          total > 0
-            ? `<div class="todo-footer">
-                <span class="todo-count">เสร็จแล้ว ${doneCount}/${total}</span>
-                ${doneCount > 0 ? `<button class="reset-btn" id="todoClearDone">ลบที่เสร็จแล้ว</button>` : ""}
-              </div>`
-            : ""
+          total === 0
+            ? `<div class="todo-empty">ยังไม่มีรายการ — เขียนสิ่งที่ต้องทำได้เลย</div>`
+            : state.items
+                .map(
+                  (item) => `
+            <div class="todo-item ${item.done ? "done" : ""}">
+              <button class="todo-check" data-id="${item.id}">${item.done ? "✓" : ""}</button>
+              <span class="todo-text">${item.text}</span>
+              <button class="todo-del" data-id="${item.id}">×</button>
+            </div>
+          `
+                )
+                .join("")
         }
       </div>
+      ${
+        total > 0
+          ? `<div class="todo-footer">
+              <span class="todo-count">เสร็จแล้ว ${doneCount}/${total}</span>
+              ${doneCount > 0 ? `<button class="reset-btn" id="todoClearDone">ลบที่เสร็จแล้ว</button>` : ""}
+            </div>`
+          : ""
+      }
     `;
 
     const input = container.querySelector("#todoInput");

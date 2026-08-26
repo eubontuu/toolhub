@@ -48,7 +48,15 @@ const APPS = [
 
 Routing is a single-page hash router (`#app/<id>`, plus the special `#changelog` route below), handled by `render()`/`renderHome()`/`renderToolShell()` near the top of `app.js`. `renderToolShell(title, renderFn)` draws the back-button header (given a title string) and calls `renderFn(container)` to fill `.tool-body` — it's not tied to an `APPS` entry, which is what lets `#changelog` reuse it too.
 
-**To add a new top-level tool:** create `tools/yourtool.js` with a `renderYourTool(container)` function and `tools/yourtool.css` for its styles, add both `<script src="tools/yourtool.js"></script>` (before the `app.js` tag) and `<link rel="stylesheet" href="tools/yourtool.css">` to `index.html`, push an entry onto `APPS` in `app.js`, and add both new files to `PRECACHE_URLS` in `sw.js`.
+**To add a new top-level tool ("แอป"):** create `tools/yourtool.js` with a `renderYourTool(container)` function and `tools/yourtool.css` for its styles, add both `<script src="tools/yourtool.js"></script>` (before the `app.js` tag) and `<link rel="stylesheet" href="tools/yourtool.css">` to `index.html`, push an entry onto `APPS` in `app.js`, and add both new files to `PRECACHE_URLS` in `sw.js`.
+
+### Home-screen widgets ("วิดเจ็ต")
+
+Not every home-screen feature needs a tap-through screen. A **widget** is usable directly on the Home screen — no navigation required — as opposed to an **"แอป"** (`APPS` entry), which always opens behind `renderToolShell`'s back-button header.
+
+สิ่งที่ต้องทำ (to do list) is the first of these: `renderHome()` in `app.js` renders a `<div class="todo-widget" id="todoWidget">` between the banner and the icon grid, then calls `renderTodo(document.getElementById("todoWidget"))` (from `tools/todo.js`) to fill it. `renderTodo` owns its own state (`localStorage` key `toolhub.todo`) and re-renders itself on every add/check/delete — same self-contained pattern as any tool's render function, just not routed through `APPS`/`renderToolShell`. It's still registered in `PRECACHE_URLS` and loaded via `<script>`/`<link>` in `index.html` like any other tool file.
+
+**To add a new home-screen widget:** write `tools/yourwidget.js` with a `renderYourWidget(container)` function (state + re-render, same shape as a tool), add its `<script>`/`<link>` tags to `index.html` and both files to `PRECACHE_URLS`, then in `renderHome()` add a container div and call `renderYourWidget(...)` on it — do **not** add an `APPS` entry, since that would make it tap-through instead of directly usable.
 
 ### การอัปเดต (changelog)
 

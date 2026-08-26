@@ -9,6 +9,11 @@ This file is auto-loaded by Claude Code at the start of every session in this re
 - Live: https://eubontuu.github.io/toolhub/ — Repo: https://github.com/eubontuu/toolhub (GitHub user `eubontuu`) — deploys from `main` on push.
 - Files: `index.html`, `app.js` (shell/router only), `tools/*.js` + `tools/*.css` (one JS + one CSS file per tool), `style.css` (shell/shared styles only), `sw.js` (service worker), `manifest.json`, `icons/`.
 
+## คำศัพท์ที่ใช้เรียก UI แต่ละแบบ (ใช้คำเหล่านี้คุยกับ owner ให้ตรงกัน)
+- **แอป** — เครื่องมือเต็มจอที่กดเข้าไปจากไอคอนในหน้าแรก มี `renderToolShell` (หัวข้อ + ปุ่มย้อนกลับ) ครอบ, ลงทะเบียนใน `APPS` ใน `app.js`. เช่น บวก/ลบ, วงเหล้า, เตรียมเดินป่า.
+- **แถบ** — แท็บ/เกมย่อยภายในแอป วงเหล้า (เช่น ไพ่ Ohana, ไพ่สุ่ม, สุ่มเลข, Chwazi, Flash Quiz) เลือกจากเมนูกริดของ `renderWongLaoMenu` ใน `tools/wonglao-core.js`.
+- **วิดเจ็ต** — ส่วนที่ฝังอยู่บนหน้าแรกเลย ใช้งานได้ทันทีไม่ต้องกดเข้าไปที่ไหน (ต่างจาก "แอป" ที่ต้องกดเข้าไปก่อน) เช่น สิ่งที่ต้องทำ (`tools/todo.js`, เรียกผ่าน `renderTodo(#todoWidget)` ใน `renderHome()`) — ไม่ได้ลงทะเบียนใน `APPS`, ไม่มีเส้นทาง route ของตัวเอง.
+
 ## File section map (avoid reading the whole file)
 Both `app.js` and `style.css` were split (2026-08) into a small shell file plus one file per tool under `tools/` — every file is small enough to `Read` whole when you touch it, so you should almost never need to read more than the one JS + one CSS file the task touches.
 
@@ -19,7 +24,7 @@ Both `app.js` and `style.css` were split (2026-08) into a small shell file plus 
 `tools/*.js` + matching `tools/*.css` — one JS+CSS pair per tool/sub-game, both loaded in this order in `index.html` (order matters for JS: no bundler, no modules, everything is global scope; CSS order mostly doesn't matter since each tool's classes are uniquely prefixed):
 ```
 tools/counter.js + .css              บวก/ลบ — standalone
-tools/todo.js + .css                 สิ่งที่ต้องทำ (to do list) — standalone
+tools/todo.js + .css                 สิ่งที่ต้องทำ — Home-screen widget (renderTodo(#todoWidget) called from renderHome in app.js), not a routed APPS tool
 tools/wonglao-core.js + .css         วงเหล้า shared state (WONGLAO_DEFAULT_STATE), menu/dispatcher, สุ่มคน, shuffleArray() util, .wl-action-btn + .picker-*/.name-chip shared styles — load first, other wonglao-*.js depend on it
 tools/wonglao-ohana.js + .css        ไพ่ Ohana
 tools/wonglao-randomcard.js + .css   ไพ่สุ่ม (biggest sub-game file; its custom-input UI reuses wonglao-core.css's .picker-*/.name-chip)

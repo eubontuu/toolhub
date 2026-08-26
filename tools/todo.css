@@ -1,117 +1,168 @@
-/* To do list */
+/* To do list — Home-screen widget, styled like a paper notepad */
 
-.todo-wrap {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-  padding: 16px 20px calc(var(--safe-bottom) + 16px);
+.todo-widget {
+  position: relative;
+  background: #f4ecd8;
+  color: #3b2f22;
+  border-radius: 10px;
+  padding: 16px 16px 12px 26px;
+  margin-bottom: 22px;
+  box-shadow: var(--shadow-lg);
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent 32px,
+    rgba(59, 47, 34, 0.14) 33px
+  );
+  background-position: 0 44px;
+}
+
+.todo-widget::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 15px;
+  width: 1.5px;
+  background: rgba(178, 58, 46, 0.4);
+}
+
+.todo-title {
+  font-size: 14px;
+  font-weight: 800;
+  margin-bottom: 12px;
+  letter-spacing: 0.01em;
 }
 
 .todo-input-row {
   display: flex;
+  align-items: center;
   gap: 10px;
-  margin-bottom: 16px;
+  margin-bottom: 4px;
 }
 
 .todo-input {
   flex: 1;
   min-width: 0;
-  background: var(--card);
+  background: none;
   border: none;
-  border-radius: var(--radius-sm);
-  color: var(--text);
-  padding: 12px 14px;
-  font-size: 15px;
+  border-bottom: 1.5px dashed rgba(59, 47, 34, 0.35);
+  color: #3b2f22;
+  padding: 6px 2px;
+  font-size: 14.5px;
+  font-style: italic;
+}
+
+.todo-input::placeholder {
+  color: rgba(59, 47, 34, 0.45);
+  font-style: italic;
+}
+
+.todo-input:focus {
+  outline: none;
+  border-bottom-color: #b23a2e;
 }
 
 .todo-add-btn {
-  background: var(--accent);
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #b23a2e;
   border: none;
-  color: #fff;
+  color: #fdf6ea;
+  font-size: 17px;
   font-weight: 700;
-  padding: 0 20px;
-  border-radius: var(--radius-sm);
-  font-size: 15px;
+  line-height: 1;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .todo-list {
-  flex: 1;
+  max-height: 230px;
   overflow-y: auto;
-  min-height: 0;
 }
 
 .todo-item {
   display: flex;
   align-items: center;
   gap: 10px;
-  background: var(--card);
-  border-radius: var(--radius-md);
-  padding: 12px 14px;
-  margin-bottom: 8px;
+  padding: 7px 0;
+  min-height: 32px;
 }
 
 .todo-check {
   flex-shrink: 0;
-  width: 24px;
-  height: 24px;
-  border-radius: var(--radius-circle);
-  border: 1.5px solid var(--sub);
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  border: 1.5px solid rgba(59, 47, 34, 0.5);
   background: none;
-  color: var(--accent);
-  font-size: 14px;
-  font-weight: 700;
+  color: #b23a2e;
+  font-size: 12px;
+  font-weight: 800;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  padding: 0;
 }
 
 .todo-item.done .todo-check {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: #fff;
+  background: #b23a2e;
+  border-color: #b23a2e;
+  color: #fdf6ea;
 }
 
 .todo-text {
   flex: 1;
   min-width: 0;
-  font-size: 15px;
+  font-size: 14.5px;
   word-break: break-word;
 }
 
 .todo-item.done .todo-text {
   text-decoration: line-through;
-  color: var(--sub);
+  color: rgba(59, 47, 34, 0.45);
 }
 
 .todo-del {
   flex-shrink: 0;
   background: none;
   border: none;
-  color: var(--sub);
-  font-size: 18px;
-  width: 26px;
-  height: 26px;
+  color: rgba(59, 47, 34, 0.35);
+  font-size: 16px;
+  width: 22px;
+  height: 22px;
   cursor: pointer;
 }
 
 .todo-empty {
-  color: var(--sub);
+  color: rgba(59, 47, 34, 0.5);
   font-size: 13px;
   text-align: center;
-  padding: 40px 0;
+  padding: 16px 0 6px;
+  font-style: italic;
 }
 
 .todo-footer {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding-top: 10px;
+  padding-top: 8px;
+  margin-top: 2px;
+  border-top: 1px dashed rgba(59, 47, 34, 0.2);
 }
 
 .todo-count {
-  color: var(--sub);
-  font-size: 13px;
+  color: rgba(59, 47, 34, 0.6);
+  font-size: 12px;
+}
+
+.todo-footer .reset-btn {
+  color: rgba(178, 58, 46, 0.75);
+  font-size: 12px;
+  padding: 4px 8px;
 }

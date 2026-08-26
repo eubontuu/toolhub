@@ -6,6 +6,13 @@ const CHANGELOG_TAG_LABEL = { added: "เพิ่ม", changed: "แก้ไ�
 
 const CHANGELOG_DATA = [
   {
+    version: "v34",
+    date: "26 ส.ค. 2569",
+    items: [
+      { type: "changed", text: "สิ่งที่ต้องทำ — ย้ายมาอยู่บนหน้าแรกเลย ใช้งานได้ทันทีไม่ต้องกดเข้าไปในแอป พร้อมดีไซน์ใหม่แบบกระดาษโน้ต" },
+    ],
+  },
+  {
     version: "v33",
     date: "26 ส.ค. 2569",
     items: [
