@@ -86,13 +86,28 @@ function renderOhanaGame(body, state) {
     const rank = state.ohanaLast.slice(0, -1);
     const suit = state.ohanaLast.slice(-1);
     const isRed = suit === "♥" || suit === "♦";
-    showOhanaOverlay(rank, suit, isRed, OHANA_RULES[rank], state.ohanaDeck.length > 0 ? drawNextOhanaCard : null);
+    const deckEmpty = state.ohanaDeck.length === 0;
+    showOhanaOverlay(
+      rank,
+      suit,
+      isRed,
+      OHANA_RULES[rank],
+      deckEmpty ? null : drawNextOhanaCard,
+      deckEmpty ? startNextOhanaRound : null
+    );
+  }
+
+  function startNextOhanaRound() {
+    state.ohanaDeck = buildOhanaDeck();
+    state.ohanaLast = null;
+    saveWongLaoState(state);
+    draw();
   }
 
   draw();
 }
 
-function showOhanaOverlay(rank, suit, isRed, ruleText, onNext) {
+function showOhanaOverlay(rank, suit, isRed, ruleText, onNext, onNewRound) {
   const overlay = document.createElement("div");
   overlay.className = "ohana-overlay reveal-overlay";
   overlay.innerHTML = `
@@ -102,6 +117,7 @@ function showOhanaOverlay(rank, suit, isRed, ruleText, onNext) {
     </div>
     <div class="ohana-overlay-rule">${ruleText}</div>
     ${onNext ? `<button class="ohana-overlay-next-btn" id="ohanaOverlayNextBtn">จั่วใบถัดไป</button>` : ""}
+    ${onNewRound ? `<button class="ohana-overlay-next-btn" id="ohanaOverlayNewRoundBtn">เริ่มตาถัดไป</button>` : ""}
     <div class="ohana-overlay-hint">แตะที่ไหนก็ได้เพื่อปิด</div>
   `;
   overlay.addEventListener("click", () => overlay.remove());
@@ -110,6 +126,13 @@ function showOhanaOverlay(rank, suit, isRed, ruleText, onNext) {
       e.stopPropagation();
       overlay.remove();
       onNext();
+    });
+  }
+  if (onNewRound) {
+    overlay.querySelector("#ohanaOverlayNewRoundBtn").addEventListener("click", (e) => {
+      e.stopPropagation();
+      overlay.remove();
+      onNewRound();
     });
   }
   document.body.appendChild(overlay);

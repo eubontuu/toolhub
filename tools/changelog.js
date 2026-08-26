@@ -6,6 +6,13 @@ const CHANGELOG_TAG_LABEL = { added: "เพิ่ม", changed: "แก้ไ�
 
 const CHANGELOG_DATA = [
   {
+    version: "v57",
+    date: "26 ส.ค. 2569",
+    items: [
+      { type: "added", text: "ไพ่ Ohana — ตอนไพ่หมดกอง ปุ่มในหน้าเผยไพ่ใบสุดท้ายเปลี่ยนเป็น \"เริ่มตาถัดไป\" กดสับไพ่ใหม่ครบ 52 ใบได้เลย" },
+    ],
+  },
+  {
     version: "v56",
     date: "26 ส.ค. 2569",
     items: [
