@@ -161,12 +161,12 @@ function renderHome() {
           <div class="theme-picker" id="themePicker">
             <button class="icon-action-btn theme-btn" id="themeToggleBtn">ธีม</button>
           </div>
-          <button class="icon-action-btn" id="changelogBtn" title="ประวัติการอัปเดต">🕘</button>
         </div>
       </div>
       <div class="todo-widget" id="todoWidget"></div>
       <div class="grid" id="grid"></div>
       ${APPS.length === 0 ? '<div class="empty-hint">ยังไม่มีเครื่องมือ — จะเพิ่มเข้ามาเรื่อยๆ</div>' : ""}
+      <button class="changelog-fab" id="changelogBtn">Update log</button>
     </div>
   `;
   document.getElementById("changelogBtn").addEventListener("click", () => navigate("changelog"));

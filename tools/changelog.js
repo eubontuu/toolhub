@@ -6,6 +6,13 @@ const CHANGELOG_TAG_LABEL = { added: "เพิ่ม", changed: "แก้ไ�
 
 const CHANGELOG_DATA = [
   {
+    version: "v49",
+    date: "26 ส.ค. 2569",
+    items: [
+      { type: "changed", text: "ย้ายปุ่มดูประวัติการอัปเดตจากมุมขวาบนไปมุมขวาล่าง เปลี่ยนจากไอคอน 🕘 เป็นข้อความ \"Update log\"" },
+    ],
+  },
+  {
     version: "v48",
     date: "26 ส.ค. 2569",
     items: [

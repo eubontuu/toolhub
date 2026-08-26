@@ -24,7 +24,7 @@ tools/wonglao-wheel.{js,css}         สุ่มเลข (เดิมชื�
 tools/wonglao-chwazi.{js,css}        Chwazi
 tools/wonglao-quiz.{js,css}          Flash Quiz
 tools/hikeprep.{js,css}              เตรียมเดินป่า
-tools/changelog.{js,css}             การอัปเดต (changelog) — data + render, shown from a 🕘 button on Home
+tools/changelog.{js,css}             การอัปเดต (changelog) — data + render, shown from the "Update log" button on Home
 sw.js                                service worker: offline cache + update mechanism
 manifest.json                        PWA metadata (name, icons, display mode)
 icons/                               app icons (192, 512, apple-touch-icon)
@@ -62,7 +62,7 @@ Not every home-screen feature needs a tap-through screen. A **widget** is fully 
 
 ### การอัปเดต (changelog)
 
-A 🕘 button in the top-right of the Home screen navigates to `#changelog`, which `render()` special-cases to call `renderToolShell("การอัปเดต", renderChangelog)`. `renderChangelog` and its data both live in `tools/changelog.js` — `CHANGELOG_DATA` is a plain array of `{ version, date, items: [{ type: "added"|"changed"|"removed", text }] }`, newest entry first, hand-written in Thai (not auto-generated from git log).
+The "Update log" button, fixed to the bottom-right corner of the Home screen (`.changelog-fab` in `style.css`), navigates to `#changelog`, which `render()` special-cases to call `renderToolShell("การอัปเดต", renderChangelog)`. `renderChangelog` and its data both live in `tools/changelog.js` — `CHANGELOG_DATA` is a plain array of `{ version, date, items: [{ type: "added"|"changed"|"removed", text }] }`, newest entry first, hand-written in Thai (not auto-generated from git log).
 
 **Update this on every ship the owner would care about** (new feature, visible fix, something removed) by pushing a new object onto the *front* of `CHANGELOG_DATA` in `tools/changelog.js`. Skip it for pure-internal changes (refactors with no behavior change, doc updates) unless they're worth mentioning for transparency. The `version` field is cosmetic — by convention it echoes the `CACHE_VERSION` you're bumping in the same change, but nothing enforces that link.
 

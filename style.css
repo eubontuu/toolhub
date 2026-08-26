@@ -202,6 +202,22 @@ html, body {
   z-index: 10;
 }
 
+.changelog-fab {
+  position: fixed;
+  bottom: calc(var(--safe-bottom) + 16px);
+  right: 16px;
+  background: var(--card);
+  color: var(--text);
+  border: none;
+  border-radius: var(--radius-pill);
+  padding: 10px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  box-shadow: var(--shadow-lg);
+  cursor: pointer;
+  z-index: 20;
+}
+
 .theme-panel-label {
   font-size: 11px;
   color: var(--sub);
