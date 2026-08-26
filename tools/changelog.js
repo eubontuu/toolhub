@@ -6,6 +6,13 @@ const CHANGELOG_TAG_LABEL = { added: "เพิ่ม", changed: "แก้ไ�
 
 const CHANGELOG_DATA = [
   {
+    version: "v42",
+    date: "26 ส.ค. 2569",
+    items: [
+      { type: "changed", text: "สิ่งที่ต้องทำ — สีเปลี่ยนตามธีมที่เลือกแล้ว (เดิมเป็นสีกระดาษครีมตายตัว)" },
+    ],
+  },
+  {
     version: "v41",
     date: "26 ส.ค. 2569",
     items: [
