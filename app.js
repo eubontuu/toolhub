@@ -9,6 +9,12 @@ const APPS = [
     render: renderCounter,
   },
   {
+    id: "todo",
+    name: "สิ่งที่ต้องทำ",
+    icon: "📝",
+    render: renderTodo,
+  },
+  {
     id: "wonglao",
     name: "วงเหล้า",
     icon: "🍻",

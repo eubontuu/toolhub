@@ -1,5 +1,5 @@
 // bump CACHE_VERSION every time you ship a change — that's what makes the update visible
-const CACHE_VERSION = "v32";
+const CACHE_VERSION = "v33";
 const CACHE_NAME = `toolhub-${CACHE_VERSION}`;
 
 const PRECACHE_URLS = [
@@ -9,6 +9,7 @@ const PRECACHE_URLS = [
   "app.js",
   "manifest.json",
   "tools/counter.js",
+  "tools/todo.js",
   "tools/wonglao-core.js",
   "tools/wonglao-ohana.js",
   "tools/wonglao-randomcard.js",
@@ -18,6 +19,7 @@ const PRECACHE_URLS = [
   "tools/hikeprep.js",
   "tools/changelog.js",
   "tools/counter.css",
+  "tools/todo.css",
   "tools/wonglao-core.css",
   "tools/wonglao-ohana.css",
   "tools/wonglao-randomcard.css",

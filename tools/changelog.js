@@ -6,6 +6,13 @@ const CHANGELOG_TAG_LABEL = { added: "เพิ่ม", changed: "แก้ไ�
 
 const CHANGELOG_DATA = [
   {
+    version: "v33",
+    date: "26 ส.ค. 2569",
+    items: [
+      { type: "added", text: "เพิ่มเครื่องมือ สิ่งที่ต้องทำ (to do list) — เพิ่ม/ติ๊กเสร็จ/ลบรายการ บันทึกในเครื่อง" },
+    ],
+  },
+  {
     version: "v32",
     date: "26 ส.ค. 2569",
     items: [

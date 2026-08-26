@@ -19,6 +19,7 @@ Both `app.js` and `style.css` were split (2026-08) into a small shell file plus 
 `tools/*.js` + matching `tools/*.css` — one JS+CSS pair per tool/sub-game, both loaded in this order in `index.html` (order matters for JS: no bundler, no modules, everything is global scope; CSS order mostly doesn't matter since each tool's classes are uniquely prefixed):
 ```
 tools/counter.js + .css              บวก/ลบ — standalone
+tools/todo.js + .css                 สิ่งที่ต้องทำ (to do list) — standalone
 tools/wonglao-core.js + .css         วงเหล้า shared state (WONGLAO_DEFAULT_STATE), menu/dispatcher, สุ่มคน, shuffleArray() util, .wl-action-btn + .picker-*/.name-chip shared styles — load first, other wonglao-*.js depend on it
 tools/wonglao-ohana.js + .css        ไพ่ Ohana
 tools/wonglao-randomcard.js + .css   ไพ่สุ่ม (biggest sub-game file; its custom-input UI reuses wonglao-core.css's .picker-*/.name-chip)
