@@ -6,6 +6,13 @@ const CHANGELOG_TAG_LABEL = { added: "เพิ่ม", changed: "แก้ไ�
 
 const CHANGELOG_DATA = [
   {
+    version: "v50",
+    date: "26 ส.ค. 2569",
+    items: [
+      { type: "changed", text: "แก้ปัดขอบซ้ายเพื่อย้อนกลับ ที่เคยใช้ไม่ได้บนมือถือจริง (เบราว์เซอร์แย่งท่าปัดไปทำ back/forward เอง) — ตอนนี้ควรใช้งานได้แล้ว" },
+    ],
+  },
+  {
     version: "v49",
     date: "26 ส.ค. 2569",
     items: [

@@ -101,6 +101,10 @@ html, body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans Thai", sans-serif;
   overscroll-behavior-y: contain;
   user-select: none;
+  /* Without this, the browser reserves horizontal edge swipes for its own back/forward
+     navigation gesture and our touchstart/touchend swipe-back handler in app.js never
+     reliably sees them. pan-y still lets normal vertical scrolling work everywhere. */
+  touch-action: pan-y;
 }
 
 #app {
