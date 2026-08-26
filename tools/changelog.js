@@ -6,6 +6,13 @@ const CHANGELOG_TAG_LABEL = { added: "เพิ่ม", changed: "แก้ไ�
 
 const CHANGELOG_DATA = [
   {
+    version: "v24",
+    date: "26 ส.ค. 2569",
+    items: [
+      { type: "changed", text: "เปลี่ยนไอคอนแอป (หน้าจอโฮม) เป็นรูปหมู 🐷" },
+    ],
+  },
+  {
     version: "v23",
     date: "26 ส.ค. 2569",
     items: [
