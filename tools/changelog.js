@@ -6,6 +6,13 @@ const CHANGELOG_TAG_LABEL = { added: "เพิ่ม", changed: "แก้ไ�
 
 const CHANGELOG_DATA = [
   {
+    version: "v43",
+    date: "26 ส.ค. 2569",
+    items: [
+      { type: "changed", text: "แถบเลือกธีม — กดเลือกธีมแล้วแถบไม่ปิดทันที จะปิดก็ต่อเมื่อกดพื้นที่ว่างข้างนอก ทำให้ลองเปรียบเทียบหลายธีมได้ง่ายขึ้น" },
+    ],
+  },
+  {
     version: "v42",
     date: "26 ส.ค. 2569",
     items: [

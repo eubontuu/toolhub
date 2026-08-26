@@ -106,7 +106,9 @@ function setupThemePicker(container) {
         const id = swatch.dataset.themeId;
         saveTheme(id);
         applyTheme(id);
-        closePanel();
+        panel
+          .querySelectorAll(".theme-swatch")
+          .forEach((s) => s.classList.toggle("active", s.dataset.themeId === id));
       });
     });
 
