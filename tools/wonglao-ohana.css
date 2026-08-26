@@ -125,6 +125,18 @@
   opacity: 1;
 }
 
+.ohana-overlay-next-btn {
+  background: #fff;
+  color: #1a1a1a;
+  border: none;
+  padding: 16px 40px;
+  border-radius: var(--radius-pill);
+  font-size: 18px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+}
+
 .ohana-overlay-hint {
   color: var(--sub);
   font-size: 13px;

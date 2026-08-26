@@ -30,8 +30,21 @@
   font-size: 40px;
 }
 
+.dice-die {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
 .dice-face {
   line-height: 1;
+}
+
+.dice-num {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--sub);
 }
 
 .dice-sum {
@@ -153,6 +166,19 @@
 
 .dice-overlay.show .dice-overlay-faces {
   transform: scale(1);
+}
+
+.dice-overlay-die {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.dice-overlay-num {
+  font-size: 20px;
+  font-weight: 800;
+  color: #fff;
 }
 
 .dice-overlay-sum {

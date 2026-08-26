@@ -92,6 +92,7 @@ function renderHikePrep(container) {
     const cd = hikeDaysBetween(today, HIKE_TRIP_DATE);
     const countdownText = cd > 0 ? `เหลืออีก ${cd} วันก่อนทริป` : cd === 0 ? "ออกเดินทางวันนี้!" : "ทริปผ่านไปแล้ว";
     const backlog = HIKE_DAYS.filter((d) => d.d <= today && !hikeGetDone(d.d));
+    const upcoming = today >= first ? HIKE_DAYS.find((d) => d.d > today) : null;
 
     container.innerHTML = `
       <div class="hike-widget-title">🥾 เตรียมเดินป่า</div>
@@ -118,6 +119,20 @@ function renderHikePrep(container) {
             `;
                 })
                 .join("")
+        }
+        ${
+          upcoming
+            ? `
+          <div class="hike-widget-item upcoming">
+            <div class="hike-widget-item-body">
+              <span class="hike-widget-item-title">${upcoming.title}${upcoming.key ? " ⭐" : ""}</span>
+              <span class="hike-widget-item-meta">${hikeFmtShortDate(upcoming.d)} (${upcoming.dow.slice(0, 3)}) · ${
+                hikeDaysBetween(today, upcoming.d) === 1 ? "พรุ่งนี้" : `อีก ${hikeDaysBetween(today, upcoming.d)} วัน`
+              }</span>
+            </div>
+          </div>
+        `
+            : ""
         }
       </div>
     `;

@@ -5,6 +5,14 @@ const WHEEL_MAX_OPTIONS = [6, 10, 20, 52];
 const DICE_COUNT_OPTIONS = [1, 2, 3, 4, 5, 6];
 const DICE_FACES = ["", "⚀", "⚁", "⚂", "⚃", "⚄", "⚅"];
 
+function diceDisplayFaceHtml(v) {
+  return `<span class="dice-die"><span class="dice-face">${DICE_FACES[v]}</span><span class="dice-num">${v}</span></span>`;
+}
+
+function diceOverlayFaceHtml(v) {
+  return `<span class="dice-overlay-die"><span class="dice-overlay-face">${DICE_FACES[v]}</span><span class="dice-overlay-num">${v}</span></span>`;
+}
+
 function renderWheelGame(body, state) {
   function draw() {
     const mode = state.wheelMode || "number";
@@ -91,7 +99,7 @@ function renderWheelGame(body, state) {
     const last = state.diceLast;
     return `
       <div class="dice-display ${last ? "" : "empty"}" id="diceDisplay">${
-        last ? last.map((v) => `<span class="dice-face">${DICE_FACES[v]}</span>`).join("") : "🎲"
+        last ? last.map((v) => diceDisplayFaceHtml(v)).join("") : "🎲"
       }</div>
       ${last ? `<div class="dice-sum">รวม ${last.reduce((a, b) => a + b, 0)}</div>` : ""}
       <div class="step-row">
@@ -120,13 +128,13 @@ function renderWheelGame(body, state) {
       const rollOnce = () => Array.from({ length: state.diceCount }, () => 1 + Math.floor(Math.random() * 6));
       const spin = setInterval(() => {
         display.innerHTML = rollOnce()
-          .map((v) => `<span class="dice-face">${DICE_FACES[v]}</span>`)
+          .map((v) => diceDisplayFaceHtml(v))
           .join("");
         ticks++;
         if (ticks > 10) {
           clearInterval(spin);
           const finalVals = rollOnce();
-          display.innerHTML = finalVals.map((v) => `<span class="dice-face">${DICE_FACES[v]}</span>`).join("");
+          display.innerHTML = finalVals.map((v) => diceDisplayFaceHtml(v)).join("");
           state.diceLast = finalVals;
           saveWongLaoState(state);
           draw();
@@ -156,7 +164,7 @@ function showDiceOverlay(values) {
   const overlay = document.createElement("div");
   overlay.className = "dice-overlay reveal-overlay";
   overlay.innerHTML = `
-    <div class="dice-overlay-faces">${values.map((v) => `<span class="dice-overlay-face">${DICE_FACES[v]}</span>`).join("")}</div>
+    <div class="dice-overlay-faces">${values.map((v) => diceOverlayFaceHtml(v)).join("")}</div>
     <div class="dice-overlay-sum">รวม ${values.reduce((a, b) => a + b, 0)}</div>
     <div class="wheel-overlay-hint">แตะที่ไหนก็ได้เพื่อปิด</div>
   `;

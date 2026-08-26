@@ -68,13 +68,7 @@ function renderOhanaGame(body, state) {
     });
 
     body.querySelector("#drawCardBtn").addEventListener("click", () => {
-      state.ohanaLast = state.ohanaDeck.pop();
-      saveWongLaoState(state);
-      draw();
-      const newRank = state.ohanaLast.slice(0, -1);
-      const newSuit = state.ohanaLast.slice(-1);
-      const newIsRed = newSuit === "♥" || newSuit === "♦";
-      showOhanaOverlay(newRank, newSuit, newIsRed, OHANA_RULES[newRank]);
+      drawNextOhanaCard();
     });
 
     body.querySelector("#reshuffleBtn").addEventListener("click", () => {
@@ -85,10 +79,20 @@ function renderOhanaGame(body, state) {
     });
   }
 
+  function drawNextOhanaCard() {
+    state.ohanaLast = state.ohanaDeck.pop();
+    saveWongLaoState(state);
+    draw();
+    const rank = state.ohanaLast.slice(0, -1);
+    const suit = state.ohanaLast.slice(-1);
+    const isRed = suit === "♥" || suit === "♦";
+    showOhanaOverlay(rank, suit, isRed, OHANA_RULES[rank], state.ohanaDeck.length > 0 ? drawNextOhanaCard : null);
+  }
+
   draw();
 }
 
-function showOhanaOverlay(rank, suit, isRed, ruleText) {
+function showOhanaOverlay(rank, suit, isRed, ruleText, onNext) {
   const overlay = document.createElement("div");
   overlay.className = "ohana-overlay reveal-overlay";
   overlay.innerHTML = `
@@ -97,9 +101,17 @@ function showOhanaOverlay(rank, suit, isRed, ruleText) {
       <span class="ohana-suit">${suit}</span>
     </div>
     <div class="ohana-overlay-rule">${ruleText}</div>
+    ${onNext ? `<button class="ohana-overlay-next-btn" id="ohanaOverlayNextBtn">จั่วใบถัดไป</button>` : ""}
     <div class="ohana-overlay-hint">แตะที่ไหนก็ได้เพื่อปิด</div>
   `;
   overlay.addEventListener("click", () => overlay.remove());
+  if (onNext) {
+    overlay.querySelector("#ohanaOverlayNextBtn").addEventListener("click", (e) => {
+      e.stopPropagation();
+      overlay.remove();
+      onNext();
+    });
+  }
   document.body.appendChild(overlay);
   void overlay.offsetHeight;
   overlay.classList.add("show");
