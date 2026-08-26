@@ -6,6 +6,13 @@ const CHANGELOG_TAG_LABEL = { added: "เพิ่ม", changed: "แก้ไ�
 
 const CHANGELOG_DATA = [
   {
+    version: "v54",
+    date: "26 ส.ค. 2569",
+    items: [
+      { type: "added", text: "Flash Quiz — เพิ่มปุ่ม \"ดูเฉลย\" ข้างๆ ไพ่ที่หงายอยู่ตรงกลาง ดูเฉลยของคำถามที่เปิดล่าสุดได้เลยโดยไม่ต้องเปิดไพ่ใหม่" },
+    ],
+  },
+  {
     version: "v53",
     date: "26 ส.ค. 2569",
     items: [

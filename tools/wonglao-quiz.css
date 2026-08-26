@@ -15,8 +15,43 @@
   font-size: 13px;
 }
 
+.quiz-card-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.quiz-side-answer-btn {
+  flex-shrink: 0;
+  background: var(--card);
+  border: 1.5px solid var(--accent);
+  color: var(--accent);
+  padding: 10px 16px;
+  border-radius: var(--radius-pill);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.quiz-side-answer-text {
+  flex-shrink: 1;
+  min-width: 90px;
+  max-width: 140px;
+  background: var(--card);
+  border-radius: var(--radius-md);
+  padding: 10px 12px;
+  font-size: 12.5px;
+  color: var(--accent);
+  font-weight: 700;
+  text-align: center;
+  line-height: 1.4;
+}
+
 .quiz-card {
-  width: min(80vw, 300px);
+  width: min(70vw, 260px);
   min-height: 180px;
   border-radius: 18px;
   background: linear-gradient(155deg, #2d8cf0, #f5c518);

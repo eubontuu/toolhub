@@ -74,8 +74,11 @@ function renderFlashQuizGame(body, state) {
     body.innerHTML = `
       <div class="quiz-wrap">
         <div class="quiz-count">เหลือ ${state.quizDeck.length} ข้อ</div>
-        <div class="quiz-card ${state.quizLast ? "" : "empty"}">
-          <span class="quiz-card-text">${state.quizLast || "❓"}</span>
+        <div class="quiz-card-row">
+          <div class="quiz-card ${state.quizLast ? "" : "empty"}">
+            <span class="quiz-card-text">${state.quizLast || "❓"}</span>
+          </div>
+          ${state.quizLast ? `<button class="quiz-side-answer-btn" id="quizSideAnswerBtn">ดูเฉลย</button>` : ""}
         </div>
         <button class="wl-action-btn" id="quizDrawBtn" ${deckEmpty ? "disabled" : ""}>เปิดคำถาม</button>
         <div class="quiz-secondary-row">
@@ -84,6 +87,14 @@ function renderFlashQuizGame(body, state) {
         </div>
       </div>
     `;
+
+    const sideAnswerBtn = body.querySelector("#quizSideAnswerBtn");
+    if (sideAnswerBtn) {
+      sideAnswerBtn.addEventListener("click", () => {
+        const match = FLASH_QUIZ_QA.find((item) => item.q === state.quizLast);
+        sideAnswerBtn.outerHTML = `<div class="quiz-side-answer-text">${match ? match.a : ""}</div>`;
+      });
+    }
 
     body.querySelector("#quizDrawBtn").addEventListener("click", () => {
       state.quizLast = state.quizDeck.pop();
