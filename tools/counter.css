@@ -41,7 +41,7 @@
 .big-btn {
   width: 92px;
   height: 92px;
-  border-radius: 50%;
+  border-radius: var(--radius-circle);
   border: none;
   font-size: 40px;
   font-weight: 300;
@@ -81,7 +81,7 @@
   color: var(--text);
   width: 36px;
   height: 36px;
-  border-radius: 10px;
+  border-radius: var(--radius-sm);
   font-size: 16px;
   display: flex;
   align-items: center;
@@ -99,7 +99,7 @@
   font-weight: 700;
   min-width: 16px;
   height: 16px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -112,8 +112,8 @@
   right: 0;
   width: min(80vw, 280px);
   background: var(--card);
-  border-radius: 14px;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
   padding: 12px;
 }
 
