@@ -6,6 +6,13 @@ const CHANGELOG_TAG_LABEL = { added: "เพิ่ม", changed: "แก้ไ�
 
 const CHANGELOG_DATA = [
   {
+    version: "v21",
+    date: "26 ส.ค. 2569",
+    items: [
+      { type: "changed", text: "เปลี่ยนชื่อหน้าแรกเป็น \"คลังแสงของ Moo oudd\" และข้อความต้อนรับใหม่" },
+    ],
+  },
+  {
     version: "v20",
     date: "26 ส.ค. 2569",
     items: [
