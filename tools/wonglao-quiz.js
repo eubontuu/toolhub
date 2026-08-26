@@ -108,16 +108,29 @@ function renderFlashQuizGame(body, state) {
 }
 
 function showQuizOverlay(questionText) {
+  const match = FLASH_QUIZ_QA.find((item) => item.q === questionText);
   const overlay = document.createElement("div");
   overlay.className = "quiz-overlay";
   overlay.innerHTML = `
     <div class="quiz-overlay-card">
       <span class="quiz-overlay-text">${questionText}</span>
     </div>
+    <button class="quiz-overlay-answer-btn" id="quizOverlayAnswerBtn">ดูเฉลย</button>
+    <div class="quiz-overlay-answer" id="quizOverlayAnswer"></div>
     <div class="quiz-overlay-hint">แตะที่ไหนก็ได้เพื่อปิด</div>
   `;
   overlay.addEventListener("click", () => overlay.remove());
   document.body.appendChild(overlay);
+
+  const answerBtn = overlay.querySelector("#quizOverlayAnswerBtn");
+  const answerEl = overlay.querySelector("#quizOverlayAnswer");
+  answerBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    answerEl.textContent = match ? `เฉลย: ${match.a}` : "";
+    answerEl.classList.add("show");
+    answerBtn.remove();
+  });
+
   void overlay.offsetHeight;
   overlay.classList.add("show");
 }

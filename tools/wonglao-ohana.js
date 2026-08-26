@@ -56,9 +56,16 @@ function renderOhanaGame(body, state) {
         </div>
         <div class="ohana-rule" id="ohanaRule">${last ? OHANA_RULES[rank] : "กดจั่วไพ่เพื่อเริ่ม"}</div>
         <button class="wl-action-btn" id="drawCardBtn" ${deckEmpty ? "disabled" : ""}>จั่วไพ่</button>
-        <button class="reset-btn" id="reshuffleBtn">${deckEmpty ? "สับไพ่ใหม่ (ครบ 52 ใบ)" : "สับไพ่ใหม่"}</button>
+        <div class="ohana-secondary-row">
+          <button class="reset-btn" id="reshuffleBtn">${deckEmpty ? "สับไพ่ใหม่ (ครบ 52 ใบ)" : "สับไพ่ใหม่"}</button>
+          <button class="reset-btn" id="viewRemainingBtn">🃏 ดูไพ่ที่เหลือ</button>
+        </div>
       </div>
     `;
+
+    body.querySelector("#viewRemainingBtn").addEventListener("click", () => {
+      showOhanaRemainingOverlay(state.ohanaDeck);
+    });
 
     body.querySelector("#drawCardBtn").addEventListener("click", () => {
       state.ohanaLast = state.ohanaDeck.pop();
@@ -93,6 +100,49 @@ function showOhanaOverlay(rank, suit, isRed, ruleText) {
     <div class="ohana-overlay-hint">แตะที่ไหนก็ได้เพื่อปิด</div>
   `;
   overlay.addEventListener("click", () => overlay.remove());
+  document.body.appendChild(overlay);
+  void overlay.offsetHeight;
+  overlay.classList.add("show");
+}
+
+function showOhanaRemainingOverlay(deck) {
+  const overlay = document.createElement("div");
+  overlay.className = "ohana-remaining-overlay";
+
+  const groups = OHANA_SUITS.map((suit) => {
+    const isRed = suit === "♥" || suit === "♦";
+    const ranks = OHANA_RANKS.filter((rank) => deck.includes(rank + suit));
+    return { suit, isRed, ranks };
+  }).filter((g) => g.ranks.length > 0);
+
+  overlay.innerHTML = `
+    <div class="ohana-remaining-header">
+      <button class="back-btn" id="ohanaRemainingClose">‹</button>
+      <div class="ohana-remaining-title">ไพ่ที่เหลือ (${deck.length} ใบ)</div>
+    </div>
+    <div class="ohana-remaining-list">
+      ${
+        groups.length === 0
+          ? `<div class="ohana-remaining-empty">ไม่มีไพ่เหลือแล้ว</div>`
+          : groups
+              .map(
+                (g) => `
+        <div class="ohana-remaining-group">
+          <div class="ohana-remaining-suit-label ${g.isRed ? "red" : ""}">${g.suit} (${g.ranks.length} ใบ)</div>
+          <div class="ohana-remaining-chips">
+            ${g.ranks
+              .map((rank) => `<span class="ohana-remaining-chip ${g.isRed ? "red" : ""}">${rank}</span>`)
+              .join("")}
+          </div>
+        </div>
+      `
+              )
+              .join("")
+      }
+    </div>
+  `;
+
+  overlay.querySelector("#ohanaRemainingClose").addEventListener("click", () => overlay.remove());
   document.body.appendChild(overlay);
   void overlay.offsetHeight;
   overlay.classList.add("show");

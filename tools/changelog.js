@@ -6,6 +6,14 @@ const CHANGELOG_TAG_LABEL = { added: "เพิ่ม", changed: "แก้ไ�
 
 const CHANGELOG_DATA = [
   {
+    version: "v32",
+    date: "26 ส.ค. 2569",
+    items: [
+      { type: "added", text: "ไพ่ Ohana — เพิ่มปุ่ม \"ดูไพ่ที่เหลือ\" ดูรายการไพ่ทั้งหมดที่ยังไม่ถูกจั่ว แยกตามดอก" },
+      { type: "added", text: "Flash Quiz — ตอนเปิดคำถามเต็มจอ เพิ่มปุ่ม \"ดูเฉลย\" ดูเฉลยของข้อนั้นได้เลย" },
+    ],
+  },
+  {
     version: "v31",
     date: "26 ส.ค. 2569",
     items: [
