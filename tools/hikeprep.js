@@ -3,6 +3,7 @@
 // "เสร็จแล้ว" to clear a day off the list. No tap-through screen. No dependency on other tool files.
 
 const HIKE_TRIP_DATE = "2026-10-01";
+const HIKE_WIDGET_HIDE_AFTER = "2026-09-10"; // widget disappears from Home starting the day after this date
 
 const HIKE_DAYS = [
   { d: "2026-08-24", dow: "จันทร์", wk: 1, type: "strength", title: "Strength พื้นฐาน", detail: "สควอท 2x18, ลันจ์ 2x15/ขา, กลูทบริดจ์ 2x20, แพลงก์ 2x40วิ + ยืดเหยียด 10 นาที" },
@@ -88,6 +89,11 @@ function hikeSetDone(dstr, val) {
 function renderHikePrep(container) {
   function draw() {
     const today = hikeTodayStr();
+    if (today > HIKE_WIDGET_HIDE_AFTER) {
+      container.style.display = "none";
+      return;
+    }
+    container.style.display = "";
     const first = HIKE_DAYS[0].d;
     const cd = hikeDaysBetween(today, HIKE_TRIP_DATE);
     const countdownText = cd > 0 ? `เหลืออีก ${cd} วันก่อนทริป` : cd === 0 ? "ออกเดินทางวันนี้!" : "ทริปผ่านไปแล้ว";

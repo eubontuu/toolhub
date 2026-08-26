@@ -6,6 +6,14 @@ const CHANGELOG_TAG_LABEL = { added: "เพิ่ม", changed: "แก้ไ�
 
 const CHANGELOG_DATA = [
   {
+    version: "v58",
+    date: "26 ส.ค. 2569",
+    items: [
+      { type: "added", text: "Flash Quiz — เพิ่มคำถามใหม่อีก 20 ข้อ (รวมเป็น 73 ข้อ)" },
+      { type: "added", text: "เตรียมเดินป่า — วิดเจ็ตจะหายไปจากหน้าแรกอัตโนมัติหลังวันที่ 10 ก.ย. 2569" },
+    ],
+  },
+  {
     version: "v57",
     date: "26 ส.ค. 2569",
     items: [
