@@ -312,34 +312,23 @@
   text-align: center;
 }
 
-.counter-name-direction-row {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 14px;
-}
-
-.counter-name-dir-btn {
-  flex: 1;
-  background: var(--card-hi);
-  border: 1.5px solid transparent;
-  border-radius: var(--radius-sm);
-  padding: 10px;
-  font-size: 14px;
+.counter-name-direction-badge {
+  display: block;
+  width: fit-content;
+  margin: 0 auto 14px;
+  padding: 6px 16px;
+  border-radius: var(--radius-pill);
+  font-size: 13px;
   font-weight: 700;
-  color: var(--text);
-  cursor: pointer;
+  color: #fff;
 }
 
-.counter-name-dir-btn.give.active {
+.counter-name-direction-badge.give {
   background: var(--red);
-  border-color: var(--red);
-  color: #fff;
 }
 
-.counter-name-dir-btn.receive.active {
+.counter-name-direction-badge.receive {
   background: var(--green);
-  border-color: var(--green);
-  color: #fff;
 }
 
 .counter-name-input {

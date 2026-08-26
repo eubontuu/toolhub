@@ -17,19 +17,16 @@ function loadCounterState() {
   return { value: 0, step: 5, history: [], showHistory: false, names: [], showNames: false };
 }
 
-function showCounterNameOverlay(state, onConfirm) {
+function showCounterNameOverlay(state, direction, onConfirm) {
   const overlay = document.createElement("div");
   overlay.className = "counter-name-overlay reveal-overlay";
-  let direction = "give";
   const knownNames = [...new Set(state.names.map((n) => n.name))];
+  const directionLabel = direction === "give" ? "ให้" : "ได้";
 
   overlay.innerHTML = `
     <div class="counter-name-card">
       <div class="counter-name-title">เพิ่มไปยังรายชื่อ</div>
-      <div class="counter-name-direction-row">
-        <button class="counter-name-dir-btn give active" id="dirGive">ให้</button>
-        <button class="counter-name-dir-btn receive" id="dirReceive">ได้</button>
-      </div>
+      <div class="counter-name-direction-badge ${direction}">${directionLabel}</div>
       <input type="text" id="counterNameInput" class="counter-name-input" placeholder="พิมพ์ชื่อ..." />
       ${
         knownNames.length > 0
@@ -49,20 +46,7 @@ function showCounterNameOverlay(state, onConfirm) {
   overlay.classList.add("show");
 
   const input = overlay.querySelector("#counterNameInput");
-  const dirGiveBtn = overlay.querySelector("#dirGive");
-  const dirReceiveBtn = overlay.querySelector("#dirReceive");
   input.focus();
-
-  dirGiveBtn.addEventListener("click", () => {
-    direction = "give";
-    dirGiveBtn.classList.add("active");
-    dirReceiveBtn.classList.remove("active");
-  });
-  dirReceiveBtn.addEventListener("click", () => {
-    direction = "receive";
-    dirReceiveBtn.classList.add("active");
-    dirGiveBtn.classList.remove("active");
-  });
 
   overlay.querySelectorAll(".counter-name-chip").forEach((chip) => {
     chip.addEventListener("click", () => {
@@ -79,7 +63,7 @@ function showCounterNameOverlay(state, onConfirm) {
     const name = input.value.trim();
     if (!name) return;
     overlay.remove();
-    onConfirm(name, direction);
+    onConfirm(name);
   });
   input.addEventListener("keydown", (e) => {
     if (e.key === "Enter") overlay.querySelector("#counterNameConfirm").click();
@@ -216,10 +200,15 @@ function renderCounter(container) {
   });
 
   container.querySelector("#addToNamesBtn").addEventListener("click", () => {
-    showCounterNameOverlay(state, (name, direction) => {
+    if (state.value === 0) {
+      alert("ตอนนี้ตัวเลขเป็น 0 อยู่ ต้องมีตัวเลขก่อนถึงจะเพิ่มไปยังรายชื่อได้");
+      return;
+    }
+    const direction = state.value < 0 ? "give" : "receive";
+    showCounterNameOverlay(state, direction, (name) => {
       const oldValue = state.value;
-      const delta = direction === "give" ? -state.step : state.step;
-      state.value += delta;
+      const delta = oldValue;
+      state.value = 0;
       state.history.unshift({ delta, time: Date.now() });
       addToNameTotal(state, name, delta);
       saveCounterState(state);
