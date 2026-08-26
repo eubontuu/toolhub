@@ -28,10 +28,39 @@ function formatTodoDate(dateStr) {
   return d.toLocaleDateString("th-TH", { day: "numeric", month: "short", year: "numeric" });
 }
 
+function todoDaysUntil(dateStr) {
+  if (!dateStr) return null;
+  const due = new Date(dateStr + "T00:00:00");
+  if (isNaN(due.getTime())) return null;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return Math.round((due.getTime() - today.getTime()) / 86400000);
+}
+
+function todoCountdownLabel(daysLeft) {
+  if (daysLeft === null) return "";
+  if (daysLeft < 0) return `เกินกำหนด ${Math.abs(daysLeft)} วัน`;
+  if (daysLeft === 0) return "วันนี้";
+  if (daysLeft === 1) return "พรุ่งนี้";
+  return `เหลืออีก ${daysLeft} วัน`;
+}
+
+function todoUrgencyClass(item) {
+  if (item.done || !item.date) return "";
+  const daysLeft = todoDaysUntil(item.date);
+  if (daysLeft === null) return "";
+  if (daysLeft <= 3) return "todo-due-urgent";
+  if (daysLeft <= 5) return "todo-due-soon";
+  return "";
+}
+
 function todoMetaLine(item) {
   const parts = [];
   const dateLabel = formatTodoDate(item.date);
-  if (dateLabel) parts.push(`📅 ${dateLabel}`);
+  if (dateLabel) {
+    const countdown = todoCountdownLabel(todoDaysUntil(item.date));
+    parts.push(`📅 ${dateLabel}${countdown ? ` (${countdown})` : ""}`);
+  }
   if (item.subject) parts.push(item.subject);
   return parts.join(" · ");
 }
@@ -58,18 +87,20 @@ function renderTodo(container) {
           total === 0
             ? `<div class="todo-empty">ยังไม่มีรายการ — เขียนสิ่งที่ต้องทำได้เลย</div>`
             : state.items
-                .map(
-                  (item) => `
-            <div class="todo-item ${item.done ? "done" : ""}">
-              <button class="todo-check" data-id="${item.id}">${item.done ? "✓" : ""}</button>
+                .map((item) => {
+                  const urgency = todoUrgencyClass(item);
+                  const meta = todoMetaLine(item);
+                  return `
+            <div class="todo-item ${item.done ? "done" : ""} ${urgency}">
+              <button class="todo-check ${item.done ? "done" : ""}" data-id="${item.id}">${item.done ? "เสร็จแล้ว" : ""}</button>
               <div class="todo-item-body">
                 <span class="todo-text">${item.text}</span>
-                ${todoMetaLine(item) ? `<span class="todo-meta">${todoMetaLine(item)}</span>` : ""}
+                ${meta ? `<span class="todo-meta">${meta}</span>` : ""}
               </div>
               <button class="todo-del" data-id="${item.id}">×</button>
             </div>
-          `
-                )
+          `;
+                })
                 .join("")
         }
       </div>

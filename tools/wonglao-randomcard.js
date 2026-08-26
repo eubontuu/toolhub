@@ -259,9 +259,7 @@ function renderRcSetupScreen(body, state) {
   const restoreBtn = body.querySelector("#rcRestoreBtn");
   if (restoreBtn) {
     restoreBtn.addEventListener("click", () => {
-      state.rcExcluded = [];
-      saveWongLaoState(state);
-      renderRcSetupScreen(body, state);
+      showRcRestoreOverlay(state, () => renderRcSetupScreen(body, state));
     });
   }
 
@@ -362,6 +360,68 @@ function renderRcDrawScreen(body, state) {
     saveWongLaoState(state);
     renderRcSetupScreen(body, state);
   });
+}
+
+function showRcRestoreOverlay(state, onRestore) {
+  const overlay = document.createElement("div");
+  overlay.className = "rc-restore-overlay";
+  const selected = new Set();
+
+  function draw() {
+    const excluded = state.rcExcluded;
+    overlay.innerHTML = `
+      <div class="rc-restore-header">
+        <button class="back-btn" id="rcRestoreClose">‹</button>
+        <div class="rc-restore-title">กู้คืนรายการที่ลบ (${excluded.length})</div>
+      </div>
+      <div class="rc-restore-actions">
+        <button class="step-chip" id="rcSelectAllBtn">${selected.size === excluded.length ? "ยกเลิกเลือกทั้งหมด" : "เลือกทั้งหมด"}</button>
+        <button class="wl-action-btn" id="rcRestoreSelectedBtn" ${selected.size === 0 ? "disabled" : ""}>กู้คืนที่เลือก (${selected.size})</button>
+      </div>
+      <div class="rc-restore-list">
+        ${excluded
+          .map(
+            (text, i) => `
+          <label class="rc-restore-item">
+            <input type="checkbox" class="rc-restore-check" data-i="${i}" ${selected.has(i) ? "checked" : ""} />
+            <span>${text}</span>
+          </label>
+        `
+          )
+          .join("")}
+      </div>
+    `;
+
+    overlay.querySelector("#rcRestoreClose").addEventListener("click", () => overlay.remove());
+
+    overlay.querySelector("#rcSelectAllBtn").addEventListener("click", () => {
+      if (selected.size === excluded.length) selected.clear();
+      else excluded.forEach((_, i) => selected.add(i));
+      draw();
+    });
+
+    overlay.querySelectorAll(".rc-restore-check").forEach((cb) => {
+      cb.addEventListener("change", () => {
+        const i = Number(cb.dataset.i);
+        if (cb.checked) selected.add(i);
+        else selected.delete(i);
+        draw();
+      });
+    });
+
+    const restoreSelectedBtn = overlay.querySelector("#rcRestoreSelectedBtn");
+    restoreSelectedBtn.addEventListener("click", () => {
+      state.rcExcluded = excluded.filter((_, i) => !selected.has(i));
+      saveWongLaoState(state);
+      overlay.remove();
+      onRestore();
+    });
+  }
+
+  draw();
+  document.body.appendChild(overlay);
+  void overlay.offsetHeight;
+  overlay.classList.add("show");
 }
 
 function showRcOverlay(text) {

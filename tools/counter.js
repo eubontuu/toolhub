@@ -135,9 +135,14 @@ function renderCounter(container) {
   });
 
   container.querySelector("#reset").addEventListener("click", () => {
+    const oldValue = state.value;
+    if (oldValue !== 0) {
+      state.history.unshift({ delta: -oldValue, time: Date.now() });
+    }
     state.value = 0;
     saveCounterState(state);
     updateDisplay();
+    renderHistorySection();
   });
 
   function renderHistorySection() {
