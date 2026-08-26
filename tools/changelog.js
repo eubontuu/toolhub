@@ -6,6 +6,13 @@ const CHANGELOG_TAG_LABEL = { added: "เพิ่ม", changed: "แก้ไ�
 
 const CHANGELOG_DATA = [
   {
+    version: "v39",
+    date: "26 ส.ค. 2569",
+    items: [
+      { type: "added", text: "เพิ่มระบบธีมมืด/สว่าง — กดปุ่ม ☀️/🌙 มุมขวาบนของหน้าแรกเพื่อสลับได้ จำค่าไว้ในเครื่อง" },
+    ],
+  },
+  {
     version: "v38",
     date: "26 ส.ค. 2569",
     items: [

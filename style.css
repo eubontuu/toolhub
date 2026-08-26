@@ -32,6 +32,20 @@
   --duration-base: 0.25s;
   --duration-slow: 0.4s;
   --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --hairline: rgba(255, 255, 255, 0.06);
+}
+
+/* Light theme override — toggled via data-theme="light" on <html> (see app.js applyTheme()).
+   Structural colors only (bg/card/text/sub) — per-tool "flavor" colors (Ohana gradient, wheel
+   rainbow, counter's green/red, etc.) intentionally stay the same in both themes; see the design
+   tokens note above. Default is dark (no attribute) — this block only fires when explicitly set. */
+:root[data-theme="light"] {
+  --bg: #f4f5f7;
+  --card: #ffffff;
+  --card-hi: #eceef2;
+  --text: #14161a;
+  --sub: #6b7280;
+  --hairline: rgba(0, 0, 0, 0.08);
 }
 
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -101,7 +115,13 @@ html, body {
   margin: 0;
 }
 
-.changelog-btn {
+.home-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.icon-action-btn {
   flex-shrink: 0;
   background: var(--card);
   border: none;

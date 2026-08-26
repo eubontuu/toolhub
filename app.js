@@ -24,6 +24,34 @@ const APPS = [
 
 const root = document.getElementById("app");
 
+// ---------- Theme (dark/light) ----------
+
+const THEME_KEY = "toolhub.theme";
+
+function loadTheme() {
+  try {
+    return localStorage.getItem(THEME_KEY) || "dark";
+  } catch (e) {
+    return "dark";
+  }
+}
+
+function saveTheme(theme) {
+  localStorage.setItem(THEME_KEY, theme);
+}
+
+function themeIcon(theme) {
+  return theme === "light" ? "🌙" : "☀️";
+}
+
+function applyTheme(theme) {
+  document.documentElement.setAttribute("data-theme", theme);
+  const meta = document.querySelector('meta[name="theme-color"]');
+  if (meta) meta.content = theme === "light" ? "#f4f5f7" : "#0f1115";
+}
+
+applyTheme(loadTheme());
+
 function navigate(route) {
   location.hash = route;
 }
@@ -59,7 +87,10 @@ function renderHome() {
           <h1>🐷 คลังแสงของ หมูอุ๊ด</h1>
           <p class="sub">ยินดีต้อนรับสู่คลังแสงอัจฉริยะ ของตระกูลหมู เชิญเดินชมได้เต็มที่ เลือกหยิบสิ่งที่อยากได้ เชิญครับ อู๊ด อู๊ดดดด</p>
         </div>
-        <button class="changelog-btn" id="changelogBtn" title="ประวัติการอัปเดต">🕘</button>
+        <div class="home-actions">
+          <button class="icon-action-btn" id="themeToggleBtn" title="สลับธีมมืด/สว่าง">${themeIcon(loadTheme())}</button>
+          <button class="icon-action-btn" id="changelogBtn" title="ประวัติการอัปเดต">🕘</button>
+        </div>
       </div>
       <div class="todo-widget" id="todoWidget"></div>
       <div class="grid" id="grid"></div>
@@ -67,6 +98,13 @@ function renderHome() {
     </div>
   `;
   document.getElementById("changelogBtn").addEventListener("click", () => navigate("changelog"));
+  const themeBtn = document.getElementById("themeToggleBtn");
+  themeBtn.addEventListener("click", () => {
+    const next = loadTheme() === "light" ? "dark" : "light";
+    saveTheme(next);
+    applyTheme(next);
+    themeBtn.textContent = themeIcon(next);
+  });
   renderTodo(document.getElementById("todoWidget"));
   const grid = document.getElementById("grid");
   APPS.forEach((app) => {
