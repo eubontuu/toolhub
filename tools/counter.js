@@ -28,6 +28,7 @@ function renderCounter(container) {
 
   container.innerHTML = `
     <div class="counter">
+      <div class="counter-history" id="historySection"></div>
       <div class="counter-display-wrap">
         <div class="counter-display" id="display">${state.value}</div>
       </div>
@@ -43,7 +44,6 @@ function renderCounter(container) {
         <button class="big-btn plus" id="plus">+</button>
       </div>
       <button class="reset-btn" id="reset">รีเซ็ตเป็น 0</button>
-      <div class="counter-history" id="historySection"></div>
     </div>
   `;
 
@@ -111,36 +111,35 @@ function renderCounter(container) {
     const box = container.querySelector("#historySection");
     const count = state.history.length;
     box.innerHTML = `
-      <div class="counter-history-controls">
-        <button class="reset-btn" id="historyToggle">${
-          state.showHistory ? "ซ่อนประวัติ" : `ดูประวัติ (${count})`
-        }</button>
-        ${
-          state.showHistory && count > 0
-            ? `<button class="reset-btn" id="historyClearAll">ลบประวัติทั้งหมด</button>`
-            : ""
-        }
-      </div>
+      <button class="counter-history-toggle" id="historyToggle" title="ประวัติ">
+        🕘${count > 0 ? `<span class="counter-history-badge">${count}</span>` : ""}
+      </button>
       ${
         state.showHistory
-          ? `<div class="counter-history-list">
-              ${
-                count === 0
-                  ? `<div class="counter-history-empty">ยังไม่มีประวัติ</div>`
-                  : state.history
-                      .map(
-                        (h, i) => `
-                <div class="counter-history-item">
-                  <span class="counter-history-delta ${h.delta < 0 ? "negative" : ""}">${
-                          h.delta > 0 ? "+" : ""
-                        }${h.delta}</span>
-                  <span class="counter-history-time">${formatHistoryTime(h.time)}</span>
-                  <button class="counter-history-del" data-i="${i}">×</button>
-                </div>
-              `
-                      )
-                      .join("")
-              }
+          ? `<div class="counter-history-panel">
+              <div class="counter-history-panel-head">
+                <span>ประวัติ</span>
+                ${count > 0 ? `<button class="counter-history-clear" id="historyClearAll">ลบทั้งหมด</button>` : ""}
+              </div>
+              <div class="counter-history-list">
+                ${
+                  count === 0
+                    ? `<div class="counter-history-empty">ยังไม่มีประวัติ</div>`
+                    : state.history
+                        .map(
+                          (h, i) => `
+                  <div class="counter-history-item">
+                    <span class="counter-history-delta ${h.delta < 0 ? "negative" : ""}">${
+                            h.delta > 0 ? "+" : ""
+                          }${h.delta}</span>
+                    <span class="counter-history-time">${formatHistoryTime(h.time)}</span>
+                    <button class="counter-history-del" data-i="${i}">×</button>
+                  </div>
+                `
+                        )
+                        .join("")
+                }
+              </div>
             </div>`
           : ""
       }
