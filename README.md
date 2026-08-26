@@ -17,10 +17,10 @@ index.html                          entry point; loads style.css + every tool's 
 app.js                               app shell only: APPS registry, router, boot
 style.css                            shared/shell styles only: :root vars, base, Home, generic tool screen, small shared components
 tools/counter.{js,css}               บวก/ลบ
-tools/wonglao-core.{js,css}          วงเหล้า shared state, menu/router, สุ่มคน, shuffleArray util, shared wonglao styles
+tools/wonglao-core.{js,css}          วงเหล้า shared state, menu/router, shuffleArray util, shared wonglao styles
 tools/wonglao-ohana.{js,css}         ไพ่ Ohana
 tools/wonglao-randomcard.{js,css}    ไพ่สุ่ม
-tools/wonglao-wheel.{js,css}         สุ่มเลข (เดิมชื่อ "วงล้อ")
+tools/wonglao-wheel.{js,css}         สุ่ม (เดิมชื่อ "วงล้อ"/"สุ่มเลข") — 2 โหมด: สุ่มเลข + ลูกเต๋า
 tools/wonglao-chwazi.{js,css}        Chwazi
 tools/wonglao-quiz.{js,css}          Flash Quiz
 tools/hikeprep.{js,css}              เตรียมเดินป่า
@@ -77,10 +77,9 @@ Sub-games and their render functions:
 
 | id | label | render function |
 |---|---|---|
-| `picker` | สุ่มคน | `renderPickerGame` |
 | `ohana` | ไพ่ Ohana | `renderOhanaGame` |
 | `randomcard` | ไพ่สุ่ม | `renderRandomCardGame` |
-| `wheel` | สุ่มเลข | `renderWheelGame` |
+| `wheel` | สุ่ม | `renderWheelGame` |
 | `chwazi` | Chwazi | `renderChwaziGame` |
 | `quiz` | Flash Quiz | `renderFlashQuizGame` |
 
@@ -90,7 +89,7 @@ All six share one state blob (see Persistence below), loaded/saved via `loadWong
 
 ### Fullscreen "reveal" overlays
 
-Ohana, ไพ่สุ่ม, สุ่มเลข's spin result, and Flash Quiz's question all use a fullscreen overlay pattern for the "reveal" moment: a full-viewport `position:fixed` div is appended to `document.body` (not the tool container), animated in via a CSS class toggle, and removed on tap. Look at `showOhanaOverlay`, `showRcOverlay`, `showWheelOverlay`, `showQuizOverlay` for the pattern — copy one of these for any future "big reveal" moment. This is a standing house style: every game with a card/question "open" action should use it.
+Ohana, ไพ่สุ่ม, สุ่ม's spin/dice result, and Flash Quiz's question all use a fullscreen overlay pattern for the "reveal" moment: a full-viewport `position:fixed` div is appended to `document.body` (not the tool container), animated in via a CSS class toggle, and removed on tap. Look at `showOhanaOverlay`, `showRcOverlay`, `showWheelOverlay`, `showDiceOverlay`, `showQuizOverlay` for the pattern — copy one of these for any future "big reveal" moment. This is a standing house style: every game with a card/question "open" action should use it.
 
 **Important gotcha:** the animation-in trigger must use the forced-reflow technique, not double-`requestAnimationFrame`:
 

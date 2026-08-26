@@ -1,4 +1,4 @@
-/* วงล้อ — reuses .step-row/.step-chip from style.css */
+/* สุ่ม — reuses .step-row/.step-chip from style.css */
 
 .wheel-wrap {
   flex: 1;
@@ -8,6 +8,35 @@
   justify-content: center;
   gap: 24px;
   padding-bottom: 12px;
+}
+
+.wheel-mode-row {
+  display: flex;
+  gap: 8px;
+}
+
+.dice-display {
+  min-height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 52px;
+}
+
+.dice-display.empty {
+  color: var(--sub);
+  font-size: 40px;
+}
+
+.dice-face {
+  line-height: 1;
+}
+
+.dice-sum {
+  color: var(--sub);
+  font-size: 13px;
 }
 
 .wheel-display {
@@ -87,5 +116,57 @@
 }
 
 .wheel-overlay.show .wheel-overlay-hint {
+  opacity: 1;
+}
+
+.dice-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(5, 6, 10, 0.92);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  z-index: 1000;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  padding: 24px;
+}
+
+.dice-overlay.show {
+  opacity: 1;
+}
+
+.dice-overlay-faces {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 14px;
+  max-width: min(85vw, 400px);
+  font-size: 64px;
+  color: #fff;
+  transform: scale(0.6);
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.dice-overlay.show .dice-overlay-faces {
+  transform: scale(1);
+}
+
+.dice-overlay-sum {
+  color: #fff;
+  font-size: 18px;
+  font-weight: 700;
+  opacity: 0;
+  transition: opacity 0.3s ease 0.35s;
+}
+
+.dice-overlay.show .dice-overlay-sum {
+  opacity: 1;
+}
+
+.dice-overlay.show .wheel-overlay-hint {
   opacity: 1;
 }

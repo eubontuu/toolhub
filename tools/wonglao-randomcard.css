@@ -39,7 +39,7 @@
 }
 
 .rc-list {
-  max-height: 200px;
+  max-height: 340px;
   overflow-y: auto;
   background: var(--card);
   border-radius: 12px;

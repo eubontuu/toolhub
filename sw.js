@@ -1,5 +1,5 @@
 // bump CACHE_VERSION every time you ship a change — that's what makes the update visible
-const CACHE_VERSION = "v52";
+const CACHE_VERSION = "v53";
 const CACHE_NAME = `toolhub-${CACHE_VERSION}`;
 
 const PRECACHE_URLS = [
@@ -31,7 +31,6 @@ const PRECACHE_URLS = [
   "icons/emoji/abacus.svg",
   "icons/emoji/beers.svg",
   "icons/emoji/boot.svg",
-  "icons/emoji/dart.svg",
   "icons/emoji/joker.svg",
   "icons/emoji/flower-card.svg",
   "icons/emoji/ferris-wheel.svg",

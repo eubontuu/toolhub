@@ -1,4 +1,6 @@
-// เตรียมเดินป่า — no dependency on other tool files
+// เตรียมเดินป่า — Home-screen widget (renderHikePrep fills #hikeWidget, called from renderHome
+// in app.js). Shows the accumulating backlog of past/today days not yet marked done — tap
+// "เสร็จแล้ว" to clear a day off the list. No tap-through screen. No dependency on other tool files.
 
 const HIKE_TRIP_DATE = "2026-10-01";
 
@@ -44,29 +46,16 @@ const HIKE_DAYS = [
   { d: "2026-10-01", dow: "พฤหัสบดี", wk: 6, type: "trip", title: "วันเดินทาง", detail: "🎒 วันเดินทาง/เริ่มทริป — ขอให้สนุกและปลอดภัย!" },
 ];
 
-const HIKE_TYPE_LABEL = { strength: "Strength", cardio: "Cardio", ruck: "สะพายเป้ (พื้นราบ)", trail: "เดินไกล (พื้นราบ)", rest: "พัก", taper: "Taper", trip: "ทริป" };
-const HIKE_PHASE_BY_WEEK = {
-  1: "สัปดาห์ 1-2 · สร้างพื้นฐาน",
-  2: "สัปดาห์ 1-2 · สร้างพื้นฐาน",
-  3: "สัปดาห์ 3-4 · เพิ่มความหนัก + สะพายเป้",
-  4: "สัปดาห์ 3-4 · เพิ่มความหนัก + สะพายเป้",
-  5: "สัปดาห์ 5 · จำลองสถานการณ์จริง",
-  6: "สัปดาห์ 6 · ลดความหนัก (Taper)",
-};
-const HIKE_TIP_BY_TYPE = {
-  strength: "ทำท่าให้ถูกฟอร์มดีกว่าทำเร็วแต่ท่าเพี้ยน",
-  cardio: "รักษาจังหวะหายใจสม่ำเสมอ ไม่ต้องเร่งความเร็ว",
-  ruck: "สะพายเป้ให้แนบลำตัว น้ำหนักอยู่ที่สะโพกไม่ใช่บ่า เร่งจังหวะเดินเพื่อชดเชยพื้นราบ",
-  trail: "พกน้ำ ของว่าง และแจ้งเส้นทาง/เวลากลับให้คนที่บ้านทราบ",
-  rest: "พักคือส่วนหนึ่งของการฝึก ร่างกายฟื้นตัวและแข็งแรงขึ้นตอนนี้",
-  taper: "อย่าฝึกหนักช่วงนี้ เป้าหมายคือเก็บแรงไว้ให้เต็มที่",
-  trip: "เดินจังหวะตัวเอง ดื่มน้ำสม่ำเสมอ ขอให้เที่ยวสนุก",
-};
-
 function hikeFmtThaiDate(dstr) {
   const months = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
   const p = dstr.split("-");
   return `${parseInt(p[2], 10)} ${months[parseInt(p[1], 10) - 1]} ${parseInt(p[0], 10) + 543}`;
+}
+
+function hikeFmtShortDate(dstr) {
+  const months = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
+  const p = dstr.split("-");
+  return `${parseInt(p[2], 10)} ${months[parseInt(p[1], 10) - 1]}`;
 }
 
 function hikeTodayStr() {
@@ -97,164 +86,49 @@ function hikeSetDone(dstr, val) {
 }
 
 function renderHikePrep(container) {
-  container.innerHTML = `
-    <div class="hike-wrap">
-      <p class="hike-sub">แผน 6 สัปดาห์ ไม่ใช้อุปกรณ์ยิม ไม่มีบันได/เนิน · เริ่ม 24 ส.ค. — ทริป 1 ต.ค. 2026</p>
-
-      <div class="hike-hero">
-        <div class="hike-countdown">
-          <div class="hike-countdown-num" id="hikeCountdownNum">—</div>
-          <div class="hike-countdown-lbl" id="hikeCountdownLbl">วันก่อนทริป</div>
-        </div>
-        <div class="hike-hero-body">
-          <span class="hike-hero-phase" id="hikeHeroPhase">กำลังโหลด…</span>
-          <span class="hike-hero-date" id="hikeHeroDate"></span>
-        </div>
-      </div>
-
-      <div class="hike-today-card" id="hikeTodayCard">
-        <div class="hike-today-head">
-          <span class="hike-today-label">วันนี้ต้องทำ</span>
-          <span class="hike-badge" id="hikeTodayBadge"></span>
-        </div>
-        <div class="hike-today-title" id="hikeTodayTitle"></div>
-        <div class="hike-today-detail" id="hikeTodayDetail"></div>
-        <label class="hike-check-row" id="hikeTodayCheckRow" style="display:none">
-          <input type="checkbox" id="hikeTodayCheck" />
-          <span>ทำแล้ววันนี้</span>
-        </label>
-        <div class="hike-today-tip" id="hikeTodayTip"></div>
-      </div>
-
-      <div class="hike-progress-line">
-        <span id="hikeProgressText">0/${HIKE_DAYS.length} วัน</span>
-        <div class="hike-progress-track"><div class="hike-progress-fill" id="hikeProgressFill" style="width:0%"></div></div>
-      </div>
-
-      <div class="hike-plan-title">ตารางเต็ม 6 สัปดาห์</div>
-      <div id="hikeWeeks"></div>
-
-      <div class="hike-plan-title">Tips ก่อนและระหว่างทริป</div>
-      <div class="hike-tip-grid">
-        <div class="hike-tip-card"><span class="hike-tip-h">รองเท้า</span><p>ใส่รองเท้าเดินป่าคู่จริงซ้อมล่วงหน้าอย่างน้อย 2-3 สัปดาห์ ให้เท้าปรับตัวก่อนวันจริง</p></div>
-        <div class="hike-tip-card"><span class="hike-tip-h">น้ำหนักเป้</span><p>ใช้เป้จริง + ขวดน้ำหรือหนังสือแทนดัมเบล เพิ่มน้ำหนักทีละน้อยไม่เกิน 10%/สัปดาห์</p></div>
-        <div class="hike-tip-card"><span class="hike-tip-h">ป้องกันแผลพอง</span><p>แปะพลาสเตอร์จุดเสี่ยงก่อนเริ่มเดิน ไม่ต้องรอให้แผลเกิดก่อนค่อยแปะ</p></div>
-        <div class="hike-tip-card"><span class="hike-tip-h">น้ำ &amp; เกลือแร่</span><p>จิบน้ำทีละน้อยบ่อยๆ ดีกว่ารอกระหายแล้วดื่มทีเดียวเยอะ พกเกลือแร่/ถั่วกันตะคริว</p></div>
-        <div class="hike-tip-card"><span class="hike-tip-h">จังหวะการเดิน</span><p>เดินจังหวะสม่ำเสมอตามกำลังตัวเอง อย่าเร่งตามคนอื่นในช่วงแรกของเส้นทาง</p></div>
-        <div class="hike-tip-card"><span class="hike-tip-h">การฟื้นฟู</span><p>นอนให้พอระหว่างซ้อม กล้ามเนื้อฟื้นตัวตอนนอนไม่ใช่ตอนออกกำลัง หากปวดข้อให้พัก อย่าฝืน</p></div>
-        <div class="hike-tip-card"><span class="hike-tip-h">ไม่ได้ฝึกขึ้นเขามาก่อน</span><p>โปรแกรมนี้ฝึกบนพื้นราบทั้งหมด วันจริงตอนขึ้นเนิน/เขาอาจเหนื่อยกว่าที่ซ้อมมา ให้เดินช้าลงกว่าปกติช่วงขึ้นเขา พักบ่อยขึ้น และฟังจังหวะหัวใจตัวเองเป็นหลัก</p></div>
-      </div>
-
-      <div class="hike-footer">อัปเดตตนเองได้ทุกวัน · ข้อมูลเก็บไว้ในเครื่องนี้เท่านั้น</div>
-    </div>
-  `;
-
-  function renderProgress() {
-    let done = 0;
-    HIKE_DAYS.forEach((d) => {
-      if (hikeGetDone(d.d)) done++;
-    });
-    container.querySelector("#hikeProgressText").textContent = `${done}/${HIKE_DAYS.length} วัน`;
-    container.querySelector("#hikeProgressFill").style.width = `${Math.round((done / HIKE_DAYS.length) * 100)}%`;
-  }
-
-  function renderWeeks() {
-    const weeksEl = container.querySelector("#hikeWeeks");
+  function draw() {
     const today = hikeTodayStr();
-    const byWeek = {};
-    HIKE_DAYS.forEach((d) => {
-      (byWeek[d.wk] = byWeek[d.wk] || []).push(d);
-    });
+    const first = HIKE_DAYS[0].d;
+    const cd = hikeDaysBetween(today, HIKE_TRIP_DATE);
+    const countdownText = cd > 0 ? `เหลืออีก ${cd} วันก่อนทริป` : cd === 0 ? "ออกเดินทางวันนี้!" : "ทริปผ่านไปแล้ว";
+    const backlog = HIKE_DAYS.filter((d) => d.d <= today && !hikeGetDone(d.d));
 
-    weeksEl.innerHTML = Object.keys(byWeek)
-      .sort((a, b) => a - b)
-      .map((wk) => {
-        const containsToday = byWeek[wk].some((d) => d.d === today);
-        const rows = byWeek[wk]
-          .map((d) => {
-            const done = hikeGetDone(d.d);
-            return `
-              <div class="hike-day-row ${done ? "done" : ""}">
-                <span class="hike-day-check"><input type="checkbox" ${done ? "checked" : ""} data-date="${d.d}" /></span>
-                <span class="hike-day-date">${d.d.slice(8, 10)}/${d.d.slice(5, 7)}<span class="hike-dow">${d.dow.slice(0, 3)}</span></span>
-                <span class="hike-day-main"><div class="hike-day-title">${d.title}${d.key ? " ⭐" : ""}</div><div class="hike-day-text">${d.detail}</div></span>
-                <span class="hike-badge ${d.type}">${HIKE_TYPE_LABEL[d.type]}</span>
+    container.innerHTML = `
+      <div class="hike-widget-title">🥾 เตรียมเดินป่า</div>
+      <div class="hike-widget-countdown">${countdownText}</div>
+      <div class="hike-widget-list">
+        ${
+          today < first
+            ? `<div class="hike-widget-empty">โปรแกรมเริ่ม ${hikeFmtThaiDate(first)}</div>`
+            : backlog.length === 0
+            ? `<div class="hike-widget-empty">ทำครบทุกวันแล้ว เยี่ยมมาก! 🎉</div>`
+            : backlog
+                .map((d) => {
+                  const overdue = d.d < today;
+                  return `
+              <div class="hike-widget-item ${overdue ? "overdue" : ""}">
+                <div class="hike-widget-item-body">
+                  <span class="hike-widget-item-title">${d.title}${d.key ? " ⭐" : ""}</span>
+                  <span class="hike-widget-item-meta">${hikeFmtShortDate(d.d)} (${d.dow.slice(0, 3)})${
+                    overdue ? " · เลยกำหนดแล้ว" : " · วันนี้"
+                  }</span>
+                </div>
+                <button class="hike-widget-done-btn" data-date="${d.d}">เสร็จแล้ว</button>
               </div>
             `;
-          })
-          .join("");
-        return `
-          <details class="hike-week" ${containsToday ? "open" : ""}>
-            <summary><span>สัปดาห์ ${wk}</span><span class="hike-week-phase">${HIKE_PHASE_BY_WEEK[wk]}</span><span class="hike-chev">›</span></summary>
-            ${rows}
-          </details>
-        `;
-      })
-      .join("");
+                })
+                .join("")
+        }
+      </div>
+    `;
 
-    weeksEl.querySelectorAll('input[type="checkbox"]').forEach((cb) => {
-      cb.addEventListener("change", () => {
-        hikeSetDone(cb.dataset.date, cb.checked);
-        render();
+    container.querySelectorAll(".hike-widget-done-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        hikeSetDone(btn.dataset.date, true);
+        draw();
       });
     });
   }
 
-  function render() {
-    const today = hikeTodayStr();
-    const first = HIKE_DAYS[0].d;
-    const cd = hikeDaysBetween(today, HIKE_TRIP_DATE);
-
-    container.querySelector("#hikeCountdownNum").textContent = cd >= 0 ? cd : "ไป!";
-    container.querySelector("#hikeCountdownLbl").textContent =
-      cd > 0 ? "วันก่อนทริป" : cd === 0 ? "ออกเดินทางวันนี้" : "ระหว่างทริป/หลังทริป";
-    container.querySelector("#hikeHeroDate").textContent = hikeFmtThaiDate(today);
-
-    const entry = HIKE_DAYS.find((d) => d.d === today) || null;
-    container.querySelector("#hikeHeroPhase").textContent = entry
-      ? HIKE_PHASE_BY_WEEK[entry.wk]
-      : today < first
-      ? "ยังไม่เริ่มโปรแกรม"
-      : "หลังทริป";
-
-    const card = container.querySelector("#hikeTodayCard");
-    const badge = container.querySelector("#hikeTodayBadge");
-    const titleEl = container.querySelector("#hikeTodayTitle");
-    const detailEl = container.querySelector("#hikeTodayDetail");
-    const tipEl = container.querySelector("#hikeTodayTip");
-    const checkRow = container.querySelector("#hikeTodayCheckRow");
-    const checkbox = container.querySelector("#hikeTodayCheck");
-
-    if (entry) {
-      card.className = `hike-today-card ${entry.key ? "is-key" : ""}`;
-      badge.className = `hike-badge ${entry.type}`;
-      badge.textContent = HIKE_TYPE_LABEL[entry.type];
-      titleEl.textContent = entry.title;
-      detailEl.textContent = entry.detail;
-      tipEl.textContent = `Tip: ${HIKE_TIP_BY_TYPE[entry.type]}`;
-      checkRow.style.display = "flex";
-      checkbox.checked = hikeGetDone(entry.d);
-      checkbox.onchange = () => {
-        hikeSetDone(entry.d, checkbox.checked);
-        renderWeeks();
-        renderProgress();
-      };
-    } else {
-      badge.textContent = "";
-      checkRow.style.display = "none";
-      tipEl.textContent = "";
-      if (today < first) {
-        titleEl.textContent = "ยังไม่ถึงวันเริ่มโปรแกรม";
-        detailEl.textContent = "โปรแกรมเริ่ม 24 ส.ค. 2026 — เตรียมรองเท้าและเป้ให้พร้อมระหว่างนี้";
-      } else {
-        titleEl.textContent = "ไปเดินป่าแล้ว! 🌲";
-        detailEl.textContent = "ขอให้สนุกและปลอดภัยตลอดทริปนะ";
-      }
-    }
-
-    renderWeeks();
-    renderProgress();
-  }
-
-  render();
+  draw();
 }

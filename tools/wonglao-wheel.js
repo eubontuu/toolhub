@@ -1,25 +1,55 @@
-// วงล้อ — depends on saveWongLaoState (tools/wonglao-core.js, must load first)
+// สุ่ม (เดิมชื่อ "สุ่มเลข") — depends on saveWongLaoState (tools/wonglao-core.js, must load first)
+// สองโหมด: สุ่มเลข (wheelMax/wheelLast) และ ลูกเต๋า (diceCount/diceLast)
 
 const WHEEL_MAX_OPTIONS = [6, 10, 20, 52];
+const DICE_COUNT_OPTIONS = [1, 2, 3, 4, 5, 6];
+const DICE_FACES = ["", "⚀", "⚁", "⚂", "⚃", "⚄", "⚅"];
 
 function renderWheelGame(body, state) {
   function draw() {
+    const mode = state.wheelMode || "number";
     body.innerHTML = `
       <div class="wheel-wrap">
-        <div class="wheel-display ${state.wheelLast === null ? "empty" : ""}" id="wheelDisplay">${
-          state.wheelLast === null ? "?" : state.wheelLast
-        }</div>
-        <div class="step-row">
-          <div class="step-label">เลือกเลขสูงสุด (สุ่มตั้งแต่ 1 ถึงเลขนี้)</div>
-          ${WHEEL_MAX_OPTIONS.map(
-            (n) => `<button class="step-chip ${state.wheelMax === n ? "active" : ""}" data-max="${n}">${n}</button>`
-          ).join("")}
-          <button class="step-chip" id="wheelCustomMax">กำหนดเอง</button>
+        <div class="wheel-mode-row">
+          <button class="step-chip ${mode === "number" ? "active" : ""}" id="wheelModeNumberBtn">สุ่มเลข</button>
+          <button class="step-chip ${mode === "dice" ? "active" : ""}" id="wheelModeDiceBtn">ลูกเต๋า</button>
         </div>
-        <button class="wl-action-btn" id="spinBtn">หมุน</button>
+        ${mode === "number" ? renderWheelNumberMode() : renderWheelDiceMode()}
       </div>
     `;
 
+    body.querySelector("#wheelModeNumberBtn").addEventListener("click", () => {
+      state.wheelMode = "number";
+      saveWongLaoState(state);
+      draw();
+    });
+    body.querySelector("#wheelModeDiceBtn").addEventListener("click", () => {
+      state.wheelMode = "dice";
+      saveWongLaoState(state);
+      draw();
+    });
+
+    if (mode === "number") wireWheelNumberMode();
+    else wireWheelDiceMode();
+  }
+
+  function renderWheelNumberMode() {
+    return `
+      <div class="wheel-display ${state.wheelLast === null ? "empty" : ""}" id="wheelDisplay">${
+        state.wheelLast === null ? "?" : state.wheelLast
+      }</div>
+      <div class="step-row">
+        <div class="step-label">เลือกเลขสูงสุด (สุ่มตั้งแต่ 1 ถึงเลขนี้)</div>
+        ${WHEEL_MAX_OPTIONS.map(
+          (n) => `<button class="step-chip ${state.wheelMax === n ? "active" : ""}" data-max="${n}">${n}</button>`
+        ).join("")}
+        <button class="step-chip" id="wheelCustomMax">กำหนดเอง</button>
+      </div>
+      <button class="wl-action-btn" id="spinBtn">หมุน</button>
+    `;
+  }
+
+  function wireWheelNumberMode() {
     body.querySelectorAll(".step-chip[data-max]").forEach((chip) => {
       chip.addEventListener("click", () => {
         state.wheelMax = Number(chip.dataset.max);
@@ -57,6 +87,55 @@ function renderWheelGame(body, state) {
     });
   }
 
+  function renderWheelDiceMode() {
+    const last = state.diceLast;
+    return `
+      <div class="dice-display ${last ? "" : "empty"}" id="diceDisplay">${
+        last ? last.map((v) => `<span class="dice-face">${DICE_FACES[v]}</span>`).join("") : "🎲"
+      }</div>
+      ${last ? `<div class="dice-sum">รวม ${last.reduce((a, b) => a + b, 0)}</div>` : ""}
+      <div class="step-row">
+        <div class="step-label">จำนวนลูกเต๋า</div>
+        ${DICE_COUNT_OPTIONS.map(
+          (n) => `<button class="step-chip ${state.diceCount === n ? "active" : ""}" data-dice="${n}">${n}</button>`
+        ).join("")}
+      </div>
+      <button class="wl-action-btn" id="rollBtn">ทอยลูกเต๋า</button>
+    `;
+  }
+
+  function wireWheelDiceMode() {
+    body.querySelectorAll(".step-chip[data-dice]").forEach((chip) => {
+      chip.addEventListener("click", () => {
+        state.diceCount = Number(chip.dataset.dice);
+        saveWongLaoState(state);
+        draw();
+      });
+    });
+
+    body.querySelector("#rollBtn").addEventListener("click", () => {
+      const display = body.querySelector("#diceDisplay");
+      display.classList.remove("empty");
+      let ticks = 0;
+      const rollOnce = () => Array.from({ length: state.diceCount }, () => 1 + Math.floor(Math.random() * 6));
+      const spin = setInterval(() => {
+        display.innerHTML = rollOnce()
+          .map((v) => `<span class="dice-face">${DICE_FACES[v]}</span>`)
+          .join("");
+        ticks++;
+        if (ticks > 10) {
+          clearInterval(spin);
+          const finalVals = rollOnce();
+          display.innerHTML = finalVals.map((v) => `<span class="dice-face">${DICE_FACES[v]}</span>`).join("");
+          state.diceLast = finalVals;
+          saveWongLaoState(state);
+          draw();
+          showDiceOverlay(finalVals);
+        }
+      }, 70);
+    });
+  }
+
   draw();
 }
 
@@ -65,6 +144,20 @@ function showWheelOverlay(value) {
   overlay.className = "wheel-overlay reveal-overlay";
   overlay.innerHTML = `
     <div class="wheel-overlay-circle"><span>${value}</span></div>
+    <div class="wheel-overlay-hint">แตะที่ไหนก็ได้เพื่อปิด</div>
+  `;
+  overlay.addEventListener("click", () => overlay.remove());
+  document.body.appendChild(overlay);
+  void overlay.offsetHeight;
+  overlay.classList.add("show");
+}
+
+function showDiceOverlay(values) {
+  const overlay = document.createElement("div");
+  overlay.className = "dice-overlay reveal-overlay";
+  overlay.innerHTML = `
+    <div class="dice-overlay-faces">${values.map((v) => `<span class="dice-overlay-face">${DICE_FACES[v]}</span>`).join("")}</div>
+    <div class="dice-overlay-sum">รวม ${values.reduce((a, b) => a + b, 0)}</div>
     <div class="wheel-overlay-hint">แตะที่ไหนก็ได้เพื่อปิด</div>
   `;
   overlay.addEventListener("click", () => overlay.remove());

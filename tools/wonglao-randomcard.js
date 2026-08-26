@@ -239,14 +239,14 @@ function renderRcSetupScreen(body, state) {
         ).join("")}
       </div>
 
+      <button class="wl-action-btn" id="rcStartBtn">เริ่มเปิดไพ่</button>
+
       <div class="rc-advanced-label">เพิ่มบทลงโทษของคุณเอง (ไม่บังคับ)</div>
       <div class="picker-input-row">
         <input type="text" id="rcCustomInput" placeholder="พิมพ์บทลงโทษของคุณเองแล้วกดเพิ่ม" />
         <button id="rcAddCustomBtn">เพิ่ม</button>
       </div>
       <div class="picker-list" id="rcCustomList"></div>
-
-      <button class="wl-action-btn" id="rcStartBtn">เริ่มเปิดไพ่</button>
     </div>
   `;
 
@@ -320,11 +320,11 @@ function renderRcDrawScreen(body, state) {
 
   body.innerHTML = `
     <div class="rc-draw">
+      <button class="wl-action-btn" id="rcDrawBtn" ${deckEmpty ? "disabled" : ""}>เปิดไพ่</button>
       <div class="rc-count">เหลือ ${state.rcDeck.length} ใบ</div>
       <div class="rc-card ${state.rcLast ? "" : "empty"}">
         <span class="rc-card-text">${state.rcLast || "🎴"}</span>
       </div>
-      <button class="wl-action-btn" id="rcDrawBtn" ${deckEmpty ? "disabled" : ""}>เปิดไพ่</button>
       <div class="rc-tool-row">
         <button class="rc-tool-btn" id="rcReshuffleBtn"><span class="rc-tool-icon">🔀</span><span class="rc-tool-label">สับไพ่ใหม่</span></button>
         <button class="rc-tool-btn" id="rcDeleteBtn" ${state.rcLast ? "" : "disabled"}><span class="rc-tool-icon">🗑️</span><span class="rc-tool-label">ลบใบนี้ทิ้ง</span></button>

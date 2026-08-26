@@ -16,13 +16,6 @@ const APPS = [
     iconImg: "icons/emoji/beers.svg",
     render: renderWongLao,
   },
-  {
-    id: "hikeprep",
-    name: "เตรียมเดินป่า",
-    icon: "🥾",
-    iconImg: "icons/emoji/boot.svg",
-    render: renderHikePrep,
-  },
 ];
 
 const root = document.getElementById("app");
@@ -157,16 +150,15 @@ function renderHome() {
     <div class="home">
       <div class="home-top">
         <div class="home-banner">
-          <h1>🐷 คลังแสงของ หมูอุ๊ด</h1>
-          <p class="sub">ยินดีต้อนรับสู่คลังแสงอัจฉริยะ ของตระกูลหมู เชิญเดินชมได้เต็มที่ เลือกหยิบสิ่งที่อยากได้ เชิญครับ อู๊ด อู๊ดดดด</p>
-        </div>
-        <div class="home-actions">
           <div class="theme-picker" id="themePicker">
             <button class="icon-action-btn theme-btn" id="themeToggleBtn">ธีม</button>
           </div>
+          <h1>🐷 คลังแสงของ หมูอุ๊ด</h1>
+          <p class="sub">ยินดีต้อนรับสู่คลังแสงอัจฉริยะ ของตระกูลหมู เชิญเดินชมได้เต็มที่ เลือกหยิบสิ่งที่อยากได้ เชิญครับ อู๊ด อู๊ดดดด</p>
         </div>
       </div>
       <div class="todo-widget" id="todoWidget"></div>
+      <div class="hike-widget" id="hikeWidget"></div>
       <div class="grid" id="grid"></div>
       ${APPS.length === 0 ? '<div class="empty-hint">ยังไม่มีเครื่องมือ — จะเพิ่มเข้ามาเรื่อยๆ</div>' : ""}
       <button class="changelog-fab" id="changelogBtn">Update log</button>
@@ -175,6 +167,7 @@ function renderHome() {
   document.getElementById("changelogBtn").addEventListener("click", () => navigate("changelog"));
   setupThemePicker(document.getElementById("themePicker"));
   renderTodo(document.getElementById("todoWidget"));
+  renderHikePrep(document.getElementById("hikeWidget"));
   const grid = document.getElementById("grid");
   APPS.forEach((app) => {
     const btn = document.createElement("button");
@@ -228,7 +221,7 @@ document.addEventListener(
     const dy = touch.clientY - swipeStartY;
     if (dx < SWIPE_THRESHOLD || Math.abs(dx) < Math.abs(dy) * 1.5) return;
 
-    // close a top reveal card (Ohana/ไพ่สุ่ม/สุ่มเลข/Flash Quiz) before navigating, if one is open
+    // close a top reveal card (Ohana/ไพ่สุ่ม/สุ่ม/Flash Quiz) before navigating, if one is open
     const openOverlay = document.querySelector(".reveal-overlay.show");
     if (openOverlay) {
       openOverlay.click();

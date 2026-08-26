@@ -132,19 +132,25 @@ html, body {
 .home-top {
   display: flex;
   align-items: flex-start;
-  justify-content: space-between;
   gap: 12px;
   margin-bottom: 24px;
 }
 
 .home-banner {
+  position: relative;
   flex: 1;
   min-width: 0;
   background: linear-gradient(135deg, var(--card-hi), var(--card));
   border-left: 4px solid #ff6b9d;
   border-radius: 4px 16px 16px 4px; /* intentional asymmetric shape, not a scale value */
-  padding: 16px 18px;
+  padding: 16px 60px 16px 18px;
   box-shadow: var(--shadow-lg);
+}
+
+.home-banner .theme-picker {
+  position: absolute;
+  top: 12px;
+  right: 12px;
 }
 
 .home h1 {
@@ -167,12 +173,6 @@ html, body {
   font-size: 13.5px;
   line-height: 1.55;
   margin: 0;
-}
-
-.home-actions {
-  display: flex;
-  gap: 8px;
-  flex-shrink: 0;
 }
 
 .icon-action-btn {
