@@ -52,6 +52,22 @@ function renderCounter(container) {
   const chips = container.querySelectorAll(".step-chip[data-step]");
   const customBtn = container.querySelector("#customStep");
 
+  function animateCountUp(fromValue, toValue) {
+    const duration = 400;
+    const startTime = performance.now();
+
+    function frame(now) {
+      const t = Math.min((now - startTime) / duration, 1);
+      const eased = 1 - Math.pow(1 - t, 3);
+      const current = t < 1 ? Math.round(fromValue + (toValue - fromValue) * eased) : toValue;
+      display.textContent = current;
+      display.classList.toggle("negative", current < 0);
+      if (t < 1) requestAnimationFrame(frame);
+    }
+
+    requestAnimationFrame(frame);
+  }
+
   function playChangeAnimation(delta) {
     display.classList.remove("bump");
     void display.offsetWidth;
@@ -99,19 +115,21 @@ function renderCounter(container) {
   });
 
   container.querySelector("#plus").addEventListener("click", () => {
+    const oldValue = state.value;
     state.value += state.step;
     state.history.unshift({ delta: state.step, time: Date.now() });
     saveCounterState(state);
-    updateDisplay();
+    animateCountUp(oldValue, state.value);
     playChangeAnimation(state.step);
     renderHistorySection();
   });
 
   container.querySelector("#minus").addEventListener("click", () => {
+    const oldValue = state.value;
     state.value -= state.step;
     state.history.unshift({ delta: -state.step, time: Date.now() });
     saveCounterState(state);
-    updateDisplay();
+    animateCountUp(oldValue, state.value);
     playChangeAnimation(-state.step);
     renderHistorySection();
   });

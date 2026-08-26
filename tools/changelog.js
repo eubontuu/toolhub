@@ -6,6 +6,13 @@ const CHANGELOG_TAG_LABEL = { added: "เพิ่ม", changed: "แก้ไ�
 
 const CHANGELOG_DATA = [
   {
+    version: "v36",
+    date: "26 ส.ค. 2569",
+    items: [
+      { type: "changed", text: "เครื่องมือ บวก/ลบ — ตัวเลขนับไล่ขึ้น/ลงทีละหน่วยตอนกดบวก/ลบ แทนที่จะเปลี่ยนทันที" },
+    ],
+  },
+  {
     version: "v35",
     date: "26 ส.ค. 2569",
     items: [
