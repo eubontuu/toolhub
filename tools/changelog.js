@@ -6,6 +6,13 @@ const CHANGELOG_TAG_LABEL = { added: "เพิ่ม", changed: "แก้ไ�
 
 const CHANGELOG_DATA = [
   {
+    version: "v20",
+    date: "26 ส.ค. 2569",
+    items: [
+      { type: "changed", text: "จัดโครงสร้าง CSS ใหม่เหมือนกับโค้ด JS — แยกเป็นไฟล์ย่อยต่อเครื่องมือ ไม่กระทบหน้าตาแอป" },
+    ],
+  },
+  {
     version: "v19",
     date: "26 ส.ค. 2569",
     items: [

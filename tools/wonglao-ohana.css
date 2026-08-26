@@ -1,0 +1,137 @@
+/* ไพ่ Ohana */
+
+.ohana-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 22px;
+  padding-bottom: 12px;
+}
+
+.ohana-count {
+  color: var(--sub);
+  font-size: 13px;
+}
+
+.ohana-card {
+  width: 160px;
+  height: 224px;
+  border-radius: 16px;
+  background: #f5f2ea;
+  color: #1a1a1a;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 22px rgba(0,0,0,0.45);
+  font-weight: 800;
+}
+
+.ohana-card.red {
+  color: #d3252f;
+}
+
+.ohana-card.empty {
+  font-size: 52px;
+  background: var(--card);
+  box-shadow: none;
+}
+
+.ohana-rank {
+  font-size: 56px;
+  line-height: 1;
+}
+
+.ohana-suit {
+  font-size: 40px;
+  margin-top: 4px;
+}
+
+.ohana-rule {
+  font-size: 17px;
+  font-weight: 700;
+  text-align: center;
+  min-height: 46px;
+  padding: 0 12px;
+}
+
+.ohana-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(5, 6, 10, 0.92);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 28px;
+  z-index: 1000;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  padding: 24px;
+}
+
+.ohana-overlay.show {
+  opacity: 1;
+}
+
+.ohana-overlay-card {
+  width: min(72vw, 300px);
+  aspect-ratio: 5 / 7;
+  border-radius: 22px;
+  background: #f5f2ea;
+  color: #1a1a1a;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  box-shadow: 0 16px 48px rgba(0,0,0,0.6);
+  transform: rotateY(90deg) scale(0.75);
+  transition: transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.ohana-overlay.show .ohana-overlay-card {
+  transform: rotateY(0deg) scale(1);
+}
+
+.ohana-overlay-card.red {
+  color: #d3252f;
+}
+
+.ohana-overlay-card .ohana-rank {
+  font-size: 100px;
+  line-height: 1;
+}
+
+.ohana-overlay-card .ohana-suit {
+  font-size: 68px;
+  margin-top: 10px;
+}
+
+.ohana-overlay-rule {
+  color: #fff;
+  font-size: 22px;
+  font-weight: 700;
+  text-align: center;
+  padding: 0 16px;
+  opacity: 0;
+  transition: opacity 0.3s ease 0.3s;
+}
+
+.ohana-overlay.show .ohana-overlay-rule {
+  opacity: 1;
+}
+
+.ohana-overlay-hint {
+  color: var(--sub);
+  font-size: 13px;
+  opacity: 0;
+  transition: opacity 0.3s ease 0.35s;
+}
+
+.ohana-overlay.show .ohana-overlay-hint {
+  opacity: 1;
+}

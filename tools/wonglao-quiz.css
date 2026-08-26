@@ -1,0 +1,41 @@
+/* Flash Quiz */
+
+.quiz-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding-bottom: 12px;
+}
+
+.quiz-count {
+  color: var(--sub);
+  font-size: 13px;
+}
+
+.quiz-card {
+  width: min(80vw, 300px);
+  min-height: 180px;
+  border-radius: 18px;
+  background: linear-gradient(155deg, #2d8cf0, #f5c518);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.45);
+}
+
+.quiz-card.empty {
+  background: var(--card);
+  font-size: 52px;
+}
+
+.quiz-card-text {
+  font-size: 20px;
+  font-weight: 700;
+  text-align: center;
+  line-height: 1.5;
+}

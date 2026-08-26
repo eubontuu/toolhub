@@ -1,0 +1,67 @@
+/* บวก/ลบ — .step-row/.step-chip/.reset-btn are shared, defined in style.css */
+
+.counter {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 24px calc(var(--safe-bottom) + 24px);
+}
+
+.counter-display-wrap {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.counter-display {
+  font-size: 96px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -2px;
+}
+
+.counter-display.negative {
+  color: var(--red);
+}
+
+.buttons-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 28px;
+  width: 100%;
+  margin-bottom: 18px;
+}
+
+.big-btn {
+  width: 92px;
+  height: 92px;
+  border-radius: 50%;
+  border: none;
+  font-size: 40px;
+  font-weight: 300;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.big-btn:active {
+  transform: scale(0.94);
+}
+
+.big-btn.minus {
+  background: var(--red);
+  box-shadow: 0 4px 14px rgba(255,69,58,0.35);
+}
+
+.big-btn.plus {
+  background: var(--green);
+  box-shadow: 0 4px 14px rgba(52,199,89,0.35);
+}

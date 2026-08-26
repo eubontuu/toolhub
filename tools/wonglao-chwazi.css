@@ -1,0 +1,54 @@
+/* Chwazi */
+
+.chwazi-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  padding-bottom: 12px;
+}
+
+.chwazi-hint {
+  text-align: center;
+  color: var(--sub);
+  font-size: 14px;
+  padding: 10px 12px;
+  transition: opacity 0.2s ease;
+}
+
+.chwazi-hint.hidden {
+  opacity: 0;
+}
+
+.chwazi-area {
+  flex: 1;
+  position: relative;
+  touch-action: none;
+  overflow: hidden;
+  border-radius: 16px;
+  background: var(--card);
+}
+
+.chwazi-dot {
+  position: absolute;
+  width: 56px;
+  height: 56px;
+  margin-left: -28px;
+  margin-top: -28px;
+  border-radius: 50%;
+  background: var(--accent);
+  opacity: 0.85;
+  transition: background 0.25s ease, transform 0.25s ease, opacity 0.25s ease;
+}
+
+.chwazi-dot.winner {
+  background: var(--green);
+  transform: scale(1.6);
+  box-shadow: 0 0 24px 8px rgba(52,199,89,0.6);
+}
+
+.chwazi-dot.loser {
+  background: #3a3f4a;
+  opacity: 0.35;
+  transform: scale(0.8);
+}

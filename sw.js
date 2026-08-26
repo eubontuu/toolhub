@@ -1,5 +1,5 @@
 // bump CACHE_VERSION every time you ship a change — that's what makes the update visible
-const CACHE_VERSION = "v19";
+const CACHE_VERSION = "v20";
 const CACHE_NAME = `toolhub-${CACHE_VERSION}`;
 
 const PRECACHE_URLS = [
@@ -17,6 +17,15 @@ const PRECACHE_URLS = [
   "tools/wonglao-quiz.js",
   "tools/hikeprep.js",
   "tools/changelog.js",
+  "tools/counter.css",
+  "tools/wonglao-core.css",
+  "tools/wonglao-ohana.css",
+  "tools/wonglao-randomcard.css",
+  "tools/wonglao-wheel.css",
+  "tools/wonglao-chwazi.css",
+  "tools/wonglao-quiz.css",
+  "tools/hikeprep.css",
+  "tools/changelog.css",
 ];
 
 self.addEventListener("install", (event) => {

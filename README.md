@@ -13,24 +13,24 @@ The owner wanted a single app icon on their phone that bundles several small per
 ## File map
 
 ```
-index.html                    entry point; loads style.css + every script in order, registers sw.js
-app.js                        app shell only: APPS registry, router, boot
-tools/counter.js              บวก/ลบ
-tools/wonglao-core.js         วงเหล้า shared state, menu/router, สุ่มคน, shuffleArray util
-tools/wonglao-ohana.js        ไพ่ Ohana
-tools/wonglao-randomcard.js   ไพ่สุ่ม
-tools/wonglao-wheel.js        วงล้อ
-tools/wonglao-chwazi.js       Chwazi
-tools/wonglao-quiz.js         Flash Quiz
-tools/hikeprep.js             เตรียมเดินป่า
-tools/changelog.js            การอัปเดต (changelog) — data + render, shown from a 🕘 button on Home
-style.css                     everything: all styling, one file, organized by section
-sw.js                         service worker: offline cache + update mechanism
-manifest.json                 PWA metadata (name, icons, display mode)
-icons/                        app icons (192, 512, apple-touch-icon)
+index.html                          entry point; loads style.css + every tool's css/js in order, registers sw.js
+app.js                               app shell only: APPS registry, router, boot
+style.css                            shared/shell styles only: :root vars, base, Home, generic tool screen, small shared components
+tools/counter.{js,css}               บวก/ลบ
+tools/wonglao-core.{js,css}          วงเหล้า shared state, menu/router, สุ่มคน, shuffleArray util, shared wonglao styles
+tools/wonglao-ohana.{js,css}         ไพ่ Ohana
+tools/wonglao-randomcard.{js,css}    ไพ่สุ่ม
+tools/wonglao-wheel.{js,css}         วงล้อ
+tools/wonglao-chwazi.{js,css}        Chwazi
+tools/wonglao-quiz.{js,css}          Flash Quiz
+tools/hikeprep.{js,css}              เตรียมเดินป่า
+tools/changelog.{js,css}             การอัปเดต (changelog) — data + render, shown from a 🕘 button on Home
+sw.js                                service worker: offline cache + update mechanism
+manifest.json                        PWA metadata (name, icons, display mode)
+icons/                               app icons (192, 512, apple-touch-icon)
 ```
 
-There is no bundler, no `node_modules`, no `package.json`, no ES modules — every file is a plain classic `<script>` tag, so **everything lives in one shared global scope and load order in `index.html` matters**. `tools/wonglao-core.js` defines `shuffleArray`, `saveWongLaoState`/`loadWongLaoState`, and the menu/dispatcher, so it must load before the other `tools/wonglao-*.js` files, which in turn must all load before `app.js` (whose `APPS` array references `renderCounter`/`renderWongLao`/`renderHikePrep` by name at top-level). Edit the files directly and reload.
+There is no bundler, no `node_modules`, no `package.json`, no ES modules — every JS file is a plain classic `<script>` tag and every CSS file a plain `<link rel="stylesheet">`, so **everything lives in one shared global scope/cascade and load order in `index.html` matters for JS**. `tools/wonglao-core.js` defines `shuffleArray`, `saveWongLaoState`/`loadWongLaoState`, and the menu/dispatcher, so it must load before the other `tools/wonglao-*.js` files, which in turn must all load before `app.js` (whose `APPS` array references `renderCounter`/`renderWongLao`/`renderHikePrep` by name at top-level). CSS order is much less strict — each tool's classes are uniquely prefixed (`.ohana-*`, `.rc-*`, `.hike-*`, ...) so files rarely compete; the one place order-independence is relied on is `.wl-menu .grid` in `wonglao-core.css` overriding the shared `.grid` from `style.css`, which works regardless of link order because the compound selector has higher specificity. Edit the files directly and reload.
 
 ## Architecture
 
@@ -48,7 +48,7 @@ const APPS = [
 
 Routing is a single-page hash router (`#app/<id>`, plus the special `#changelog` route below), handled by `render()`/`renderHome()`/`renderToolShell()` near the top of `app.js`. `renderToolShell(title, renderFn)` draws the back-button header (given a title string) and calls `renderFn(container)` to fill `.tool-body` — it's not tied to an `APPS` entry, which is what lets `#changelog` reuse it too.
 
-**To add a new top-level tool:** create `tools/yourtool.js` with a `renderYourTool(container)` function, add its `<script src="tools/yourtool.js"></script>` to `index.html` *before* the `app.js` tag, push an entry onto `APPS` in `app.js`, add its CSS section, and add the new file to `PRECACHE_URLS` in `sw.js`.
+**To add a new top-level tool:** create `tools/yourtool.js` with a `renderYourTool(container)` function and `tools/yourtool.css` for its styles, add both `<script src="tools/yourtool.js"></script>` (before the `app.js` tag) and `<link rel="stylesheet" href="tools/yourtool.css">` to `index.html`, push an entry onto `APPS` in `app.js`, and add both new files to `PRECACHE_URLS` in `sw.js`.
 
 ### การอัปเดต (changelog)
 
@@ -73,7 +73,7 @@ Sub-games and their render functions:
 
 All six share one state blob (see Persistence below), loaded/saved via `loadWongLaoState()` / `saveWongLaoState()`.
 
-**To add a new wonglao sub-game:** add an entry to `WONGLAO_TABS` and its default fields to `WONGLAO_DEFAULT_STATE` (both in `tools/wonglao-core.js`), add a branch in `renderWongLaoGame`'s dispatcher (also in `wonglao-core.js`), then write the render function — either inline in `wonglao-core.js` for something small, or its own `tools/wonglao-yourgame.js` (register it in `index.html` and `PRECACHE_URLS` like any other tool file) for something bigger.
+**To add a new wonglao sub-game:** add an entry to `WONGLAO_TABS` and its default fields to `WONGLAO_DEFAULT_STATE` (both in `tools/wonglao-core.js`), add a branch in `renderWongLaoGame`'s dispatcher (also in `wonglao-core.js`), then write the render function and its styles — either inline in `wonglao-core.js`/`.css` for something small, or its own `tools/wonglao-yourgame.js` + `.css` (register both in `index.html` and `PRECACHE_URLS` like any other tool file) for something bigger.
 
 ### Fullscreen "reveal" overlays
 
@@ -114,10 +114,10 @@ This app is installed via Safari "Add to Home Screen" on iOS (no App Store, no A
 `sw.js` uses a cache-first / stale-while-revalidate strategy: on every request it serves the cached file instantly (if present) and re-fetches in the background to update the cache for *next* time. The cache is versioned:
 
 ```js
-const CACHE_VERSION = "v18";   // <-- bump this on every deploy that changes any precached file
+const CACHE_VERSION = "v20";   // <-- bump this on every deploy that changes any precached file
 ```
 
-**You must bump `CACHE_VERSION` every time you change `app.js`, any `tools/*.js`, `style.css`, `index.html`, or `manifest.json`.** If you don't, installed clients may keep serving the old cached files indefinitely, because the `install` step only re-fetches everything when the service worker script itself (`sw.js`) is byte-different from what's currently registered. A version bump is what makes `sw.js` different. If you add a new `tools/*.js` file, also add it to `PRECACHE_URLS` in `sw.js` — a file missing from that list still works (fetched on demand and cached lazily via the stale-while-revalidate handler) but won't be available offline on first load.
+**You must bump `CACHE_VERSION` every time you change `app.js`, any `tools/*.js`/`tools/*.css`, `style.css`, `index.html`, or `manifest.json`.** If you don't, installed clients may keep serving the old cached files indefinitely, because the `install` step only re-fetches everything when the service worker script itself (`sw.js`) is byte-different from what's currently registered. A version bump is what makes `sw.js` different. If you add a new `tools/*.js`/`tools/*.css` file, also add it to `PRECACHE_URLS` in `sw.js` — a file missing from that list still works (fetched on demand and cached lazily via the stale-while-revalidate handler) but won't be available offline on first load.
 
 Even with the bump, a real device may need the app **closed and reopened twice** to show new content: the first reopen is what lets the browser notice `sw.js` changed and finish installing the new cache in the background; only the *second* reopen is guaranteed to render from the new cache. This is normal stale-while-revalidate behavior, not a bug — just something to tell the user when handing off an update.
 
@@ -135,6 +135,8 @@ python -m http.server 8080
 # open http://localhost:8080 (or http://<your-LAN-ip>:8080 from a phone on the same WiFi)
 ```
 
+**Check nothing is already listening on port 8080 before starting a new server** (e.g. `netstat -ano | grep ':8080.*LISTENING'` on Windows/git-bash, kill any stale PID first). Two servers racing on the same port serve stale files non-deterministically and looks exactly like a caching bug — this cost a real debugging detour once.
+
 Because of the service worker caching described above, **when testing local changes in a browser that already visited this origin before**, you likely need to clear the old service worker/cache before a plain reload will show your edit:
 
 ```js
@@ -150,7 +152,7 @@ for (const k of keys) await caches.delete(k);
 ## Deployment
 
 ```bash
-git add app.js tools/ style.css sw.js   # (or whichever files changed)
+git add app.js tools/ style.css sw.js index.html   # (or whichever files changed)
 git commit -m "..."
 git push
 ```
