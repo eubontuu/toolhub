@@ -9,10 +9,53 @@ function loadCounterState() {
       const state = JSON.parse(raw);
       if (!Array.isArray(state.history)) state.history = [];
       if (typeof state.showHistory !== "boolean") state.showHistory = false;
+      if (!Array.isArray(state.names)) state.names = [];
+      if (typeof state.showNames !== "boolean") state.showNames = false;
       return state;
     }
   } catch (e) {}
-  return { value: 0, step: 5, history: [], showHistory: false };
+  return { value: 0, step: 5, history: [], showHistory: false, names: [], showNames: false };
+}
+
+function showCounterNameOverlay(onConfirm) {
+  const overlay = document.createElement("div");
+  overlay.className = "counter-name-overlay reveal-overlay";
+  overlay.innerHTML = `
+    <div class="counter-name-card">
+      <div class="counter-name-title">ใส่ชื่อ</div>
+      <input type="text" id="counterNameInput" class="counter-name-input" placeholder="พิมพ์ชื่อ..." />
+      <div class="counter-name-actions">
+        <button class="reset-btn" id="counterNameCancel">ยกเลิก</button>
+        <button class="counter-name-confirm" id="counterNameConfirm">ตกลง</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  void overlay.offsetHeight;
+  overlay.classList.add("show");
+
+  const input = overlay.querySelector("#counterNameInput");
+  input.focus();
+
+  overlay.addEventListener("click", (e) => {
+    if (e.target === overlay) overlay.remove();
+  });
+  overlay.querySelector("#counterNameCancel").addEventListener("click", () => overlay.remove());
+  overlay.querySelector("#counterNameConfirm").addEventListener("click", () => {
+    const name = input.value.trim();
+    if (!name) return;
+    overlay.remove();
+    onConfirm(name);
+  });
+  input.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") overlay.querySelector("#counterNameConfirm").click();
+  });
+}
+
+function addToNameTotal(state, name, delta) {
+  const existing = state.names.find((n) => n.name === name);
+  if (existing) existing.total += delta;
+  else state.names.push({ name, total: delta });
 }
 
 function formatHistoryTime(ts) {
@@ -28,9 +71,14 @@ function renderCounter(container) {
 
   container.innerHTML = `
     <div class="counter">
+      <div class="counter-names" id="namesSection"></div>
       <div class="counter-history" id="historySection"></div>
       <div class="counter-display-wrap" id="displayWrap">
         <div class="counter-display" id="display">${state.value}</div>
+      </div>
+      <div class="name-tag-row">
+        <button class="name-tag-btn give" id="nameGiveBtn">🏷️ ให้...</button>
+        <button class="name-tag-btn receive" id="nameReceiveBtn">🏷️ ได้...</button>
       </div>
       <div class="step-row">
         <div class="step-label">เลือกจำนวนที่จะบวก/ลบ</div>
@@ -134,6 +182,34 @@ function renderCounter(container) {
     renderHistorySection();
   });
 
+  container.querySelector("#nameGiveBtn").addEventListener("click", () => {
+    showCounterNameOverlay((name) => {
+      const oldValue = state.value;
+      state.value -= state.step;
+      state.history.unshift({ delta: -state.step, time: Date.now() });
+      addToNameTotal(state, name, -state.step);
+      saveCounterState(state);
+      animateCountUp(oldValue, state.value);
+      playChangeAnimation(-state.step);
+      renderHistorySection();
+      renderNamesSection();
+    });
+  });
+
+  container.querySelector("#nameReceiveBtn").addEventListener("click", () => {
+    showCounterNameOverlay((name) => {
+      const oldValue = state.value;
+      state.value += state.step;
+      state.history.unshift({ delta: state.step, time: Date.now() });
+      addToNameTotal(state, name, state.step);
+      saveCounterState(state);
+      animateCountUp(oldValue, state.value);
+      playChangeAnimation(state.step);
+      renderHistorySection();
+      renderNamesSection();
+    });
+  });
+
   container.querySelector("#reset").addEventListener("click", () => {
     const oldValue = state.value;
     if (oldValue !== 0) {
@@ -208,7 +284,75 @@ function renderCounter(container) {
     });
   }
 
+  function renderNamesSection() {
+    const box = container.querySelector("#namesSection");
+    const count = state.names.length;
+    box.innerHTML = `
+      <button class="counter-history-toggle" id="namesToggle" title="รายชื่อ">
+        รายชื่อ${count > 0 ? `<span class="counter-history-badge">${count}</span>` : ""}
+      </button>
+      ${
+        state.showNames
+          ? `<div class="counter-history-panel">
+              <div class="counter-history-panel-head">
+                <span>รายชื่อ</span>
+                ${count > 0 ? `<button class="counter-history-clear" id="namesClearAll">ลบทั้งหมด</button>` : ""}
+              </div>
+              <div class="counter-history-list">
+                ${
+                  count === 0
+                    ? `<div class="counter-history-empty">ยังไม่มีรายชื่อ</div>`
+                    : state.names
+                        .map((n, i) => {
+                          const statusClass = n.total < 0 ? "owe" : n.total > 0 ? "owed" : "settled";
+                          const statusText =
+                            n.total < 0
+                              ? `ต้องให้ ${n.name} จำนวน ${Math.abs(n.total)}`
+                              : n.total > 0
+                              ? `ต้องได้ ${n.name} จำนวน ${n.total}`
+                              : `${n.name} เคลียร์แล้ว`;
+                          return `
+                  <div class="counter-history-item">
+                    <span class="counter-name-status ${statusClass}">${statusText}</span>
+                    <button class="counter-history-del" data-i="${i}">×</button>
+                  </div>
+                `;
+                        })
+                        .join("")
+                }
+              </div>
+            </div>`
+          : ""
+      }
+    `;
+
+    box.querySelector("#namesToggle").addEventListener("click", () => {
+      state.showNames = !state.showNames;
+      saveCounterState(state);
+      renderNamesSection();
+    });
+
+    const clearAllBtn = box.querySelector("#namesClearAll");
+    if (clearAllBtn) {
+      clearAllBtn.addEventListener("click", () => {
+        if (!confirm("ลบรายชื่อทั้งหมด?")) return;
+        state.names = [];
+        saveCounterState(state);
+        renderNamesSection();
+      });
+    }
+
+    box.querySelectorAll(".counter-history-del").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        state.names.splice(Number(btn.dataset.i), 1);
+        saveCounterState(state);
+        renderNamesSection();
+      });
+    });
+  }
+
   updateChipHighlight();
   updateDisplay();
   renderHistorySection();
+  renderNamesSection();
 }

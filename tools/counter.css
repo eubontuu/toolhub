@@ -111,6 +111,18 @@
   z-index: 5;
 }
 
+.counter-names {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  z-index: 5;
+}
+
+.counter-names .counter-history-panel {
+  left: 0;
+  right: auto;
+}
+
 .counter-history-toggle {
   position: relative;
   background: var(--card);
@@ -227,4 +239,110 @@
   color: var(--sub);
   font-size: 13px;
   padding: 8px 0;
+}
+
+.counter-name-status {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.counter-name-status.owe {
+  color: var(--red);
+}
+
+.counter-name-status.owed {
+  color: var(--green);
+}
+
+.counter-name-status.settled {
+  color: var(--sub);
+}
+
+.name-tag-row {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+  margin-bottom: 14px;
+}
+
+.name-tag-btn {
+  flex: 1;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff;
+  cursor: pointer;
+}
+
+.name-tag-btn.give {
+  background: var(--red);
+}
+
+.name-tag-btn.receive {
+  background: var(--green);
+}
+
+.counter-name-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(5, 6, 10, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  padding: 24px;
+}
+
+.counter-name-overlay.show {
+  opacity: 1;
+}
+
+.counter-name-card {
+  width: min(90vw, 320px);
+  background: var(--card);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  box-shadow: var(--shadow-xl);
+}
+
+.counter-name-title {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 14px;
+  text-align: center;
+}
+
+.counter-name-input {
+  width: 100%;
+  background: var(--card-hi);
+  border: none;
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  padding: 12px;
+  font-size: 15px;
+  margin-bottom: 16px;
+}
+
+.counter-name-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.counter-name-actions button {
+  flex: 1;
+}
+
+.counter-name-confirm {
+  background: var(--accent);
+  border: none;
+  border-radius: var(--radius-sm);
+  color: #fff;
+  padding: 12px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
 }
