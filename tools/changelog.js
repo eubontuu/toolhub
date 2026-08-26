@@ -6,6 +6,13 @@ const CHANGELOG_TAG_LABEL = { added: "เพิ่ม", changed: "แก้ไ�
 
 const CHANGELOG_DATA = [
   {
+    version: "v25",
+    date: "26 ส.ค. 2569",
+    items: [
+      { type: "added", text: "เครื่องมือ บวก/ลบ เก็บประวัติทุกครั้งที่กดบวก/ลบ พร้อมเวลา ลบทีละรายการหรือลบทั้งหมดได้ (ลบทั้งหมดต้องยืนยันก่อน)" },
+    ],
+  },
+  {
     version: "v24",
     date: "26 ส.ค. 2569",
     items: [
