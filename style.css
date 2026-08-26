@@ -11,6 +11,11 @@
   --accent: #4c8dff;
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
+  /* Caps the whole app to a phone-proportioned column on tablets/desktops, centered,
+     instead of stretching every tile/icon/font to fill a much wider viewport — see
+     the "responsive on iPad" rule in CLAUDE.md before touching this or the fixed-
+     position elements that key off it (.changelog-fab, the *-restore/-qa overlays). */
+  --app-max-width: 520px;
 
   /* Design tokens (radius/shadow/motion) — introduced to replace one-off literals
      scattered per-tool. Only style.css and tools/counter.css consume these so far;
@@ -111,6 +116,8 @@ html, body {
   min-height: 100dvh;
   display: flex;
   flex-direction: column;
+  max-width: var(--app-max-width);
+  margin: 0 auto;
 }
 
 /* ---------- Home screen ---------- */
@@ -209,7 +216,7 @@ html, body {
 .changelog-fab {
   position: fixed;
   bottom: calc(var(--safe-bottom) + 16px);
-  right: 16px;
+  right: max(16px, calc((100vw - var(--app-max-width)) / 2 + 16px));
   background: var(--card);
   color: var(--text);
   border: none;
@@ -308,10 +315,12 @@ html, body {
 }
 
 .icon-img {
-  width: 100%;
-  height: 100%;
-  max-width: 34px;
-  max-height: 34px;
+  /* Percentage-based on purpose: scales with its tile (which itself is now bounded by
+     --app-max-width, not the raw device viewport) instead of a fixed px size that looked
+     tiny in wonglao's 3-column grid or on a stretched tablet viewport. Safe now that
+     these are SVG (icons/emoji/*.svg) — a raster source would blur when scaled up. */
+  width: 55%;
+  height: 55%;
   object-fit: contain;
 }
 

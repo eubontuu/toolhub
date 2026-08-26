@@ -211,6 +211,8 @@
 .rc-restore-overlay {
   position: fixed;
   inset: 0;
+  max-width: var(--app-max-width);
+  margin: 0 auto;
   background: var(--bg);
   z-index: 1000;
   display: flex;
