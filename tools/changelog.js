@@ -6,6 +6,13 @@ const CHANGELOG_TAG_LABEL = { added: "เพิ่ม", changed: "แก้ไ�
 
 const CHANGELOG_DATA = [
   {
+    version: "v59",
+    date: "26 ส.ค. 2569",
+    items: [
+      { type: "added", text: "Flash Quiz — เพิ่มปุ่ม \"ข้อถัดไป\" ในหน้าเผยคำถาม เปิดข้อต่อไปได้เลยไม่ต้องปิดก่อน (แบบเดียวกับไพ่ Ohana) พอคำถามหมดกอง ปุ่มเปลี่ยนเป็น \"สับคำถามใหม่\"" },
+    ],
+  },
+  {
     version: "v58",
     date: "26 ส.ค. 2569",
     items: [

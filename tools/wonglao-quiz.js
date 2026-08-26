@@ -118,10 +118,7 @@ function renderFlashQuizGame(body, state) {
     }
 
     body.querySelector("#quizDrawBtn").addEventListener("click", () => {
-      state.quizLast = state.quizDeck.pop();
-      saveWongLaoState(state);
-      draw();
-      showQuizOverlay(state.quizLast);
+      drawNextQuizQuestion();
     });
 
     body.querySelector("#quizReshuffleBtn").addEventListener("click", () => {
@@ -136,10 +133,25 @@ function renderFlashQuizGame(body, state) {
     });
   }
 
+  function drawNextQuizQuestion() {
+    state.quizLast = state.quizDeck.pop();
+    saveWongLaoState(state);
+    draw();
+    const deckEmpty = state.quizDeck.length === 0;
+    showQuizOverlay(state.quizLast, deckEmpty ? null : drawNextQuizQuestion, deckEmpty ? startNextQuizRound : null);
+  }
+
+  function startNextQuizRound() {
+    state.quizDeck = buildQuizDeck();
+    state.quizLast = null;
+    saveWongLaoState(state);
+    draw();
+  }
+
   draw();
 }
 
-function showQuizOverlay(questionText) {
+function showQuizOverlay(questionText, onNext, onNewRound) {
   const match = FLASH_QUIZ_QA.find((item) => item.q === questionText);
   const overlay = document.createElement("div");
   overlay.className = "quiz-overlay reveal-overlay";
@@ -149,6 +161,8 @@ function showQuizOverlay(questionText) {
     </div>
     <button class="quiz-overlay-answer-btn" id="quizOverlayAnswerBtn">ดูเฉลย</button>
     <div class="quiz-overlay-answer" id="quizOverlayAnswer"></div>
+    ${onNext ? `<button class="quiz-overlay-next-btn" id="quizOverlayNextBtn">ข้อถัดไป</button>` : ""}
+    ${onNewRound ? `<button class="quiz-overlay-next-btn" id="quizOverlayNewRoundBtn">สับคำถามใหม่</button>` : ""}
     <div class="quiz-overlay-hint">แตะที่ไหนก็ได้เพื่อปิด</div>
   `;
   overlay.addEventListener("click", () => overlay.remove());
@@ -162,6 +176,21 @@ function showQuizOverlay(questionText) {
     answerEl.classList.add("show");
     answerBtn.remove();
   });
+
+  if (onNext) {
+    overlay.querySelector("#quizOverlayNextBtn").addEventListener("click", (e) => {
+      e.stopPropagation();
+      overlay.remove();
+      onNext();
+    });
+  }
+  if (onNewRound) {
+    overlay.querySelector("#quizOverlayNewRoundBtn").addEventListener("click", (e) => {
+      e.stopPropagation();
+      overlay.remove();
+      onNewRound();
+    });
+  }
 
   void overlay.offsetHeight;
   overlay.classList.add("show");
