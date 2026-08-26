@@ -48,15 +48,35 @@ html, body {
   margin-bottom: 24px;
 }
 
+.home-banner {
+  flex: 1;
+  min-width: 0;
+  background: linear-gradient(135deg, var(--card-hi), var(--card));
+  border-left: 4px solid #ff6b9d;
+  border-radius: 4px 16px 16px 4px;
+  padding: 16px 18px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+}
+
 .home h1 {
-  font-size: 22px;
-  font-weight: 700;
-  margin: 0 0 4px;
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  margin: 0 0 6px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #ffb37a, #ff6b9d);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 .home .sub {
-  color: var(--sub);
-  font-size: 13px;
+  color: var(--text);
+  opacity: 0.75;
+  font-size: 13.5px;
+  line-height: 1.55;
   margin: 0;
 }
 

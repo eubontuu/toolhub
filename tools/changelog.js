@@ -6,6 +6,13 @@ const CHANGELOG_TAG_LABEL = { added: "เพิ่ม", changed: "แก้ไ�
 
 const CHANGELOG_DATA = [
   {
+    version: "v23",
+    date: "26 ส.ค. 2569",
+    items: [
+      { type: "changed", text: "ตกแต่งหัวข้อหน้าแรกใหม่ — การ์ดพื้นหลัง เส้นขอบสีชมพู ตัวอักษรไล่สี และไอคอนหมู 🐷" },
+    ],
+  },
+  {
     version: "v21",
     date: "26 ส.ค. 2569",
     items: [

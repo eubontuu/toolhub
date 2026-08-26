@@ -55,8 +55,8 @@ function renderHome() {
   root.innerHTML = `
     <div class="home">
       <div class="home-top">
-        <div>
-          <h1>คลังแสงของ หมูอุ๊ด</h1>
+        <div class="home-banner">
+          <h1>🐷 คลังแสงของ หมูอุ๊ด</h1>
           <p class="sub">ยินดีต้อนรับสู่คลังแสงอัจฉริยะ ของตระกูลหมู เดินเดินชมได้เต็มที่ เลือกหยิบสิ่งที่อยากได้ เชิญครับ</p>
         </div>
         <button class="changelog-btn" id="changelogBtn" title="ประวัติการอัปเดต">🕘</button>
