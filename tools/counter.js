@@ -17,13 +17,27 @@ function loadCounterState() {
   return { value: 0, step: 5, history: [], showHistory: false, names: [], showNames: false };
 }
 
-function showCounterNameOverlay(onConfirm) {
+function showCounterNameOverlay(state, onConfirm) {
   const overlay = document.createElement("div");
   overlay.className = "counter-name-overlay reveal-overlay";
+  let direction = "give";
+  const knownNames = [...new Set(state.names.map((n) => n.name))];
+
   overlay.innerHTML = `
     <div class="counter-name-card">
-      <div class="counter-name-title">ใส่ชื่อ</div>
+      <div class="counter-name-title">เพิ่มไปยังรายชื่อ</div>
+      <div class="counter-name-direction-row">
+        <button class="counter-name-dir-btn give active" id="dirGive">ให้</button>
+        <button class="counter-name-dir-btn receive" id="dirReceive">ได้</button>
+      </div>
       <input type="text" id="counterNameInput" class="counter-name-input" placeholder="พิมพ์ชื่อ..." />
+      ${
+        knownNames.length > 0
+          ? `<div class="counter-name-chip-row">
+              ${knownNames.map((n) => `<button class="counter-name-chip" data-name="${n}">${n}</button>`).join("")}
+            </div>`
+          : ""
+      }
       <div class="counter-name-actions">
         <button class="reset-btn" id="counterNameCancel">ยกเลิก</button>
         <button class="counter-name-confirm" id="counterNameConfirm">ตกลง</button>
@@ -35,7 +49,27 @@ function showCounterNameOverlay(onConfirm) {
   overlay.classList.add("show");
 
   const input = overlay.querySelector("#counterNameInput");
+  const dirGiveBtn = overlay.querySelector("#dirGive");
+  const dirReceiveBtn = overlay.querySelector("#dirReceive");
   input.focus();
+
+  dirGiveBtn.addEventListener("click", () => {
+    direction = "give";
+    dirGiveBtn.classList.add("active");
+    dirReceiveBtn.classList.remove("active");
+  });
+  dirReceiveBtn.addEventListener("click", () => {
+    direction = "receive";
+    dirReceiveBtn.classList.add("active");
+    dirGiveBtn.classList.remove("active");
+  });
+
+  overlay.querySelectorAll(".counter-name-chip").forEach((chip) => {
+    chip.addEventListener("click", () => {
+      input.value = chip.dataset.name;
+      input.focus();
+    });
+  });
 
   overlay.addEventListener("click", (e) => {
     if (e.target === overlay) overlay.remove();
@@ -45,7 +79,7 @@ function showCounterNameOverlay(onConfirm) {
     const name = input.value.trim();
     if (!name) return;
     overlay.remove();
-    onConfirm(name);
+    onConfirm(name, direction);
   });
   input.addEventListener("keydown", (e) => {
     if (e.key === "Enter") overlay.querySelector("#counterNameConfirm").click();
@@ -77,8 +111,7 @@ function renderCounter(container) {
         <div class="counter-display" id="display">${state.value}</div>
       </div>
       <div class="name-tag-row">
-        <button class="name-tag-btn give" id="nameGiveBtn">🏷️ ให้...</button>
-        <button class="name-tag-btn receive" id="nameReceiveBtn">🏷️ ได้...</button>
+        <button class="name-tag-btn single" id="addToNamesBtn">🏷️ เพิ่มไปยังรายชื่อ</button>
       </div>
       <div class="step-row">
         <div class="step-label">เลือกจำนวนที่จะบวก/ลบ</div>
@@ -182,29 +215,16 @@ function renderCounter(container) {
     renderHistorySection();
   });
 
-  container.querySelector("#nameGiveBtn").addEventListener("click", () => {
-    showCounterNameOverlay((name) => {
+  container.querySelector("#addToNamesBtn").addEventListener("click", () => {
+    showCounterNameOverlay(state, (name, direction) => {
       const oldValue = state.value;
-      state.value -= state.step;
-      state.history.unshift({ delta: -state.step, time: Date.now() });
-      addToNameTotal(state, name, -state.step);
+      const delta = direction === "give" ? -state.step : state.step;
+      state.value += delta;
+      state.history.unshift({ delta, time: Date.now() });
+      addToNameTotal(state, name, delta);
       saveCounterState(state);
       animateCountUp(oldValue, state.value);
-      playChangeAnimation(-state.step);
-      renderHistorySection();
-      renderNamesSection();
-    });
-  });
-
-  container.querySelector("#nameReceiveBtn").addEventListener("click", () => {
-    showCounterNameOverlay((name) => {
-      const oldValue = state.value;
-      state.value += state.step;
-      state.history.unshift({ delta: state.step, time: Date.now() });
-      addToNameTotal(state, name, state.step);
-      saveCounterState(state);
-      animateCountUp(oldValue, state.value);
-      playChangeAnimation(state.step);
+      playChangeAnimation(delta);
       renderHistorySection();
       renderNamesSection();
     });

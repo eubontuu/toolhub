@@ -276,12 +276,8 @@
   cursor: pointer;
 }
 
-.name-tag-btn.give {
-  background: var(--red);
-}
-
-.name-tag-btn.receive {
-  background: var(--green);
+.name-tag-btn.single {
+  background: var(--accent);
 }
 
 .counter-name-overlay {
@@ -316,6 +312,36 @@
   text-align: center;
 }
 
+.counter-name-direction-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.counter-name-dir-btn {
+  flex: 1;
+  background: var(--card-hi);
+  border: 1.5px solid transparent;
+  border-radius: var(--radius-sm);
+  padding: 10px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.counter-name-dir-btn.give.active {
+  background: var(--red);
+  border-color: var(--red);
+  color: #fff;
+}
+
+.counter-name-dir-btn.receive.active {
+  background: var(--green);
+  border-color: var(--green);
+  color: #fff;
+}
+
 .counter-name-input {
   width: 100%;
   background: var(--card-hi);
@@ -324,7 +350,24 @@
   color: var(--text);
   padding: 12px;
   font-size: 15px;
+  margin-bottom: 12px;
+}
+
+.counter-name-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
   margin-bottom: 16px;
+}
+
+.counter-name-chip {
+  background: var(--card-hi);
+  border: none;
+  border-radius: var(--radius-pill);
+  padding: 6px 12px;
+  font-size: 12px;
+  color: var(--text);
+  cursor: pointer;
 }
 
 .counter-name-actions {
