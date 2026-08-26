@@ -2,13 +2,17 @@
 // Must load before the other tools/wonglao-*.js files: they call saveWongLaoState/shuffleArray.
 
 const WONGLAO_TABS = [
-  { id: "picker", label: "สุ่มคน", icon: "🎯" },
-  { id: "ohana", label: "ไพ่ Ohana", icon: "🃏" },
-  { id: "randomcard", label: "ไพ่สุ่ม", icon: "🎴" },
-  { id: "wheel", label: "สุ่มเลข", icon: "🎡" },
-  { id: "chwazi", label: "Chwazi", icon: "🖐️" },
-  { id: "quiz", label: "Flash Quiz", icon: "⚡" },
+  { id: "picker", label: "สุ่มคน", icon: "🎯", iconImg: "icons/emoji/dart.svg" },
+  { id: "ohana", label: "ไพ่ Ohana", icon: "🃏", iconImg: "icons/emoji/joker.svg" },
+  { id: "randomcard", label: "ไพ่สุ่ม", icon: "🎴", iconImg: "icons/emoji/flower-card.svg" },
+  { id: "wheel", label: "สุ่มเลข", icon: "🎡", iconImg: "icons/emoji/ferris-wheel.svg" },
+  { id: "chwazi", label: "Chwazi", icon: "🖐️", iconImg: "icons/emoji/hand.svg" },
+  { id: "quiz", label: "Flash Quiz", icon: "⚡", iconImg: "icons/emoji/zap.svg" },
 ];
+
+function tabIconHtml(item, className) {
+  return item.iconImg ? `<img src="${item.iconImg}" alt="${item.label}" class="${className}" />` : item.icon;
+}
 
 const WONGLAO_DEFAULT_STATE = {
   tab: null,
@@ -75,7 +79,7 @@ function renderWongLaoMenu(container, state, draw) {
   WONGLAO_TABS.forEach((t) => {
     const btn = document.createElement("button");
     btn.className = "icon-btn";
-    btn.innerHTML = `<div class="icon-tile">${t.icon}</div><div class="icon-label">${t.label}</div>`;
+    btn.innerHTML = `<div class="icon-tile">${tabIconHtml(t, "icon-img")}</div><div class="icon-label">${t.label}</div>`;
     btn.addEventListener("click", () => {
       state.tab = t.id;
       saveWongLaoState(state);
@@ -91,7 +95,7 @@ function renderWongLaoGame(container, state, draw) {
     <div class="wl-game">
       <div class="wl-game-header">
         <button class="back-btn" id="wlBack">‹</button>
-        <div class="wl-game-title">${meta.icon} ${meta.label}</div>
+        <div class="wl-game-title">${tabIconHtml(meta, "wl-game-title-icon")} ${meta.label}</div>
       </div>
       <div class="wl-game-body" id="wlGameBody"></div>
     </div>

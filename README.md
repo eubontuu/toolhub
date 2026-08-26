@@ -28,6 +28,7 @@ tools/changelog.{js,css}             การอัปเดต (changelog) —
 sw.js                                service worker: offline cache + update mechanism
 manifest.json                        PWA metadata (name, icons, display mode)
 icons/                               app icons (192, 512, apple-touch-icon)
+icons/emoji/                         Twemoji SVGs used as APPS/WONGLAO_TABS icon images (CC-BY 4.0, see index.html body comment) — see tabIconHtml() in wonglao-core.js
 ```
 
 There is no bundler, no `node_modules`, no `package.json`, no ES modules — every JS file is a plain classic `<script>` tag and every CSS file a plain `<link rel="stylesheet">`, so **everything lives in one shared global scope/cascade and load order in `index.html` matters for JS**. `tools/wonglao-core.js` defines `shuffleArray`, `saveWongLaoState`/`loadWongLaoState`, and the menu/dispatcher, so it must load before the other `tools/wonglao-*.js` files, which in turn must all load before `app.js` (whose `APPS` array references `renderCounter`/`renderWongLao`/`renderHikePrep` by name at top-level). CSS order is much less strict — each tool's classes are uniquely prefixed (`.ohana-*`, `.rc-*`, `.hike-*`, ...) so files rarely compete; the one place order-independence is relied on is `.wl-menu .grid` in `wonglao-core.css` overriding the shared `.grid` from `style.css`, which works regardless of link order because the compound selector has higher specificity. Edit the files directly and reload.

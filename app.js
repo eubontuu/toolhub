@@ -6,18 +6,21 @@ const APPS = [
     id: "counter",
     name: "บวก/ลบ",
     icon: "±",
+    iconImg: "icons/emoji/abacus.svg",
     render: renderCounter,
   },
   {
     id: "wonglao",
     name: "วงเหล้า",
     icon: "🍻",
+    iconImg: "icons/emoji/beers.svg",
     render: renderWongLao,
   },
   {
     id: "hikeprep",
     name: "เตรียมเดินป่า",
     icon: "🥾",
+    iconImg: "icons/emoji/boot.svg",
     render: renderHikePrep,
   },
 ];
@@ -176,7 +179,7 @@ function renderHome() {
   APPS.forEach((app) => {
     const btn = document.createElement("button");
     btn.className = "icon-btn";
-    btn.innerHTML = `<div class="icon-tile">${app.icon}</div><div class="icon-label">${app.name}</div>`;
+    btn.innerHTML = `<div class="icon-tile">${app.iconImg ? `<img src="${app.iconImg}" alt="${app.name}" class="icon-img" />` : app.icon}</div><div class="icon-label">${app.name}</div>`;
     btn.addEventListener("click", () => navigate(`app/${app.id}`));
     grid.appendChild(btn);
   });

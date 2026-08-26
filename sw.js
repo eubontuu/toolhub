@@ -1,5 +1,5 @@
 // bump CACHE_VERSION every time you ship a change — that's what makes the update visible
-const CACHE_VERSION = "v50";
+const CACHE_VERSION = "v51";
 const CACHE_NAME = `toolhub-${CACHE_VERSION}`;
 
 const PRECACHE_URLS = [
@@ -28,6 +28,15 @@ const PRECACHE_URLS = [
   "tools/wonglao-quiz.css",
   "tools/hikeprep.css",
   "tools/changelog.css",
+  "icons/emoji/abacus.svg",
+  "icons/emoji/beers.svg",
+  "icons/emoji/boot.svg",
+  "icons/emoji/dart.svg",
+  "icons/emoji/joker.svg",
+  "icons/emoji/flower-card.svg",
+  "icons/emoji/ferris-wheel.svg",
+  "icons/emoji/hand.svg",
+  "icons/emoji/zap.svg",
 ];
 
 self.addEventListener("install", (event) => {

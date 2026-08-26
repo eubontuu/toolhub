@@ -6,6 +6,13 @@ const CHANGELOG_TAG_LABEL = { added: "เพิ่ม", changed: "แก้ไ�
 
 const CHANGELOG_DATA = [
   {
+    version: "v51",
+    date: "26 ส.ค. 2569",
+    items: [
+      { type: "changed", text: "ไอคอนแอปในหน้าแรกและแถบต่างๆ ในวงเหล้า เปลี่ยนจากอิโมจิเป็นภาพจริง (Twemoji) คมชัดขึ้นทุกขนาดจอ" },
+    ],
+  },
+  {
     version: "v50",
     date: "26 ส.ค. 2569",
     items: [
