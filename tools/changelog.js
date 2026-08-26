@@ -6,6 +6,13 @@ const CHANGELOG_TAG_LABEL = { added: "เพิ่ม", changed: "แก้ไ�
 
 const CHANGELOG_DATA = [
   {
+    version: "v27",
+    date: "26 ส.ค. 2569",
+    items: [
+      { type: "changed", text: "เริ่มใช้ค่ามาตรฐานกลาง (ขอบมน/เงา/จังหวะแอนิเมชัน) ใน style.css และเครื่องมือ บวก/ลบ เป็นจุดเริ่มของการปรับความสม่ำเสมอของดีไซน์ทั้งแอป — ไม่กระทบหน้าตาที่เห็น" },
+    ],
+  },
+  {
     version: "v26",
     date: "26 ส.ค. 2569",
     items: [
