@@ -6,6 +6,13 @@ const CHANGELOG_TAG_LABEL = { added: "เพิ่ม", changed: "แก้ไ�
 
 const CHANGELOG_DATA = [
   {
+    version: "v37",
+    date: "26 ส.ค. 2569",
+    items: [
+      { type: "added", text: "ปัดจากขอบซ้ายไปทางขวาเพื่อย้อนกลับได้ทุกหน้า (เหมือนปัดย้อนกลับของ iOS) แทนการกดปุ่มมุมซ้ายบนอย่างเดียว" },
+    ],
+  },
+  {
     version: "v36",
     date: "26 ส.ค. 2569",
     items: [

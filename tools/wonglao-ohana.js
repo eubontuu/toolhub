@@ -90,7 +90,7 @@ function renderOhanaGame(body, state) {
 
 function showOhanaOverlay(rank, suit, isRed, ruleText) {
   const overlay = document.createElement("div");
-  overlay.className = "ohana-overlay";
+  overlay.className = "ohana-overlay reveal-overlay";
   overlay.innerHTML = `
     <div class="ohana-overlay-card ${isRed ? "red" : ""}">
       <span class="ohana-rank">${rank}</span>

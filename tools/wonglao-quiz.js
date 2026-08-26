@@ -110,7 +110,7 @@ function renderFlashQuizGame(body, state) {
 function showQuizOverlay(questionText) {
   const match = FLASH_QUIZ_QA.find((item) => item.q === questionText);
   const overlay = document.createElement("div");
-  overlay.className = "quiz-overlay";
+  overlay.className = "quiz-overlay reveal-overlay";
   overlay.innerHTML = `
     <div class="quiz-overlay-card">
       <span class="quiz-overlay-text">${questionText}</span>

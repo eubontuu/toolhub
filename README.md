@@ -49,6 +49,8 @@ const APPS = [
 
 Routing is a single-page hash router (`#app/<id>`, plus the special `#changelog` route below), handled by `render()`/`renderHome()`/`renderToolShell()` near the top of `app.js`. `renderToolShell(title, renderFn)` draws the back-button header (given a title string) and calls `renderFn(container)` to fill `.tool-body` — it's not tied to an `APPS` entry, which is what lets `#changelog` reuse it too.
 
+**Edge-swipe-back:** `app.js` also attaches a global `touchstart`/`touchend` listener (bottom of the file) that treats a right-swipe starting within 24px of the left screen edge as "back." It doesn't call `navigate()` directly — it finds every `.back-btn` in the document with `document.querySelectorAll(".back-btn")` and clicks the *last* one, so nested back buttons (e.g. วงเหล้า's outer tool-shell back button plus its own inner sub-game back button) resolve correctly to whichever is visually "current," without the gesture needing to know the route hierarchy. It also checks for an open `.reveal-overlay.show` first and clicks that instead, so a swipe closes a reveal card (Ohana/ไพ่สุ่ม/etc.) rather than navigating the page underneath it — see the reveal-overlay rule in `CLAUDE.md`.
+
 **To add a new top-level tool ("แอป"):** create `tools/yourtool.js` with a `renderYourTool(container)` function and `tools/yourtool.css` for its styles, add both `<script src="tools/yourtool.js"></script>` (before the `app.js` tag) and `<link rel="stylesheet" href="tools/yourtool.css">` to `index.html`, push an entry onto `APPS` in `app.js`, and add both new files to `PRECACHE_URLS` in `sw.js`.
 
 ### Home-screen notice cards ("การ์ดแจ้งเตือน")

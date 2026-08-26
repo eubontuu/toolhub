@@ -366,7 +366,7 @@ function renderRcDrawScreen(body, state) {
 
 function showRcOverlay(text) {
   const overlay = document.createElement("div");
-  overlay.className = "rc-overlay";
+  overlay.className = "rc-overlay reveal-overlay";
   overlay.innerHTML = `
     <div class="rc-overlay-card"><span>${text}</span></div>
     <div class="rc-overlay-hint">แตะที่ไหนก็ได้เพื่อปิด</div>

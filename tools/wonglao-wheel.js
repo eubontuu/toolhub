@@ -62,7 +62,7 @@ function renderWheelGame(body, state) {
 
 function showWheelOverlay(value) {
   const overlay = document.createElement("div");
-  overlay.className = "wheel-overlay";
+  overlay.className = "wheel-overlay reveal-overlay";
   overlay.innerHTML = `
     <div class="wheel-overlay-circle"><span>${value}</span></div>
     <div class="wheel-overlay-hint">แตะที่ไหนก็ได้เพื่อปิด</div>

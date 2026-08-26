@@ -98,6 +98,48 @@ function renderToolShell(title, renderFn) {
   renderFn(document.getElementById("tool-body"));
 }
 
+// ---------- Swipe-right-to-go-back (edge swipe, mirrors the visible back button) ----------
+
+const SWIPE_EDGE_ZONE = 24;
+const SWIPE_THRESHOLD = 80;
+let swipeStartX = null;
+let swipeStartY = null;
+let swipeTracking = false;
+
+document.addEventListener(
+  "touchstart",
+  (e) => {
+    const touch = e.touches[0];
+    swipeTracking = touch.clientX <= SWIPE_EDGE_ZONE;
+    swipeStartX = touch.clientX;
+    swipeStartY = touch.clientY;
+  },
+  { passive: true }
+);
+
+document.addEventListener(
+  "touchend",
+  (e) => {
+    if (!swipeTracking) return;
+    swipeTracking = false;
+    const touch = e.changedTouches[0];
+    const dx = touch.clientX - swipeStartX;
+    const dy = touch.clientY - swipeStartY;
+    if (dx < SWIPE_THRESHOLD || Math.abs(dx) < Math.abs(dy) * 1.5) return;
+
+    // close a top reveal card (Ohana/ไพ่สุ่ม/สุ่มเลข/Flash Quiz) before navigating, if one is open
+    const openOverlay = document.querySelector(".reveal-overlay.show");
+    if (openOverlay) {
+      openOverlay.click();
+      return;
+    }
+    const backBtns = document.querySelectorAll(".back-btn");
+    const target = backBtns[backBtns.length - 1];
+    if (target) target.click();
+  },
+  { passive: true }
+);
+
 // ---------- Boot ----------
 
 window.addEventListener("hashchange", render);
