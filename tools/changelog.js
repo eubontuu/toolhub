@@ -6,6 +6,17 @@ const CHANGELOG_TAG_LABEL = { added: "เพิ่ม", changed: "แก้ไ�
 
 const CHANGELOG_DATA = [
   {
+    version: "v29",
+    date: "26 ส.ค. 2569",
+    items: [
+      { type: "added", text: "Flash Quiz — เพิ่มชุดคำถามง่ายๆ ที่ทุกคนตอบได้" },
+      { type: "added", text: "Flash Quiz — เพิ่มแถบ \"คำถาม/เฉลย\" ดูคำถามพร้อมเฉลยทั้งหมด ค้นหาได้" },
+      { type: "added", text: "Chwazi — เลือกจำนวนคนที่โดนได้ (1/2/3 หรือกำหนดเอง)" },
+      { type: "changed", text: "เปลี่ยนชื่อแถบ \"วงล้อ\" เป็น \"สุ่มเลข\"" },
+      { type: "changed", text: "ออกแบบหน้าไพ่สุ่มใหม่ ให้ดูง่ายขึ้น มีคำอธิบายและไอคอนบอกว่ากดตรงไหนได้บ้าง" },
+    ],
+  },
+  {
     version: "v28",
     date: "26 ส.ค. 2569",
     items: [

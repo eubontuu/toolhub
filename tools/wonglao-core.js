@@ -5,7 +5,7 @@ const WONGLAO_TABS = [
   { id: "picker", label: "สุ่มคน", icon: "🎯" },
   { id: "ohana", label: "ไพ่ Ohana", icon: "🃏" },
   { id: "randomcard", label: "ไพ่สุ่ม", icon: "🎴" },
-  { id: "wheel", label: "วงล้อ", icon: "🎡" },
+  { id: "wheel", label: "สุ่มเลข", icon: "🎡" },
   { id: "chwazi", label: "Chwazi", icon: "🖐️" },
   { id: "quiz", label: "Flash Quiz", icon: "⚡" },
 ];
@@ -25,6 +25,7 @@ const WONGLAO_DEFAULT_STATE = {
   rcShowList: false,
   wheelMax: 6,
   wheelLast: null,
+  chwaziWinnerCount: 1,
   quizDeck: null,
   quizLast: null,
 };

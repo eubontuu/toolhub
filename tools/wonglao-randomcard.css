@@ -9,6 +9,14 @@
   padding-bottom: 12px;
 }
 
+.rc-intro {
+  text-align: center;
+  color: var(--sub);
+  font-size: 13px;
+  line-height: 1.5;
+  margin-bottom: 14px;
+}
+
 .rc-total {
   color: var(--sub);
   font-size: 13px;
@@ -16,9 +24,18 @@
   margin-bottom: 10px;
 }
 
-.rc-setup > .reset-btn {
-  align-self: center;
-  margin-bottom: 8px;
+.rc-util-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.rc-advanced-label {
+  color: var(--sub);
+  font-size: 12px;
+  margin: 4px 0 8px;
 }
 
 .rc-list {
@@ -96,11 +113,42 @@
   line-height: 1.5;
 }
 
-.rc-draw-actions {
+.rc-tool-row {
   display: flex;
-  flex-wrap: wrap;
+  gap: 10px;
   justify-content: center;
-  gap: 8px 16px;
+}
+
+.rc-tool-btn {
+  background: none;
+  border: none;
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 14px;
+  min-width: 76px;
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+.rc-tool-btn:active:not(:disabled) {
+  background: var(--card);
+}
+
+.rc-tool-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.rc-tool-icon {
+  font-size: 20px;
+}
+
+.rc-tool-label {
+  font-size: 11px;
+  color: var(--sub);
 }
 
 .rc-overlay {

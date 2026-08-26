@@ -214,13 +214,16 @@ function renderRcSetupScreen(body, state) {
 
   body.innerHTML = `
     <div class="rc-setup">
+      <div class="rc-intro">เลือกจำนวนใบด้านล่าง แล้วกด "เริ่มเปิดไพ่" ได้เลย — ปรับแต่งเพิ่มเติมได้ถ้าต้องการ</div>
       <div class="rc-total">มีบทลงโทษทั้งหมด ${totalCount} ใบ (${builtInCount} มาตรฐาน + ${state.rcCustom.length} ที่คุณเพิ่มเอง)</div>
-      <button class="reset-btn" id="rcToggleList">${state.rcShowList ? "ซ่อนรายการ" : "ดูรายการทั้งหมด"}</button>
-      ${
-        state.rcExcluded.length > 0
-          ? `<button class="reset-btn" id="rcRestoreBtn">กู้คืนรายการที่ลบ (${state.rcExcluded.length})</button>`
-          : ""
-      }
+      <div class="rc-util-row">
+        <button class="step-chip" id="rcToggleList">📋 ${state.rcShowList ? "ซ่อนรายการ" : "ดูรายการทั้งหมด"}</button>
+        ${
+          state.rcExcluded.length > 0
+            ? `<button class="step-chip" id="rcRestoreBtn">♻️ กู้คืนรายการที่ลบ (${state.rcExcluded.length})</button>`
+            : ""
+        }
+      </div>
       ${
         state.rcShowList
           ? `<div class="rc-list">${listItems
@@ -236,6 +239,7 @@ function renderRcSetupScreen(body, state) {
         ).join("")}
       </div>
 
+      <div class="rc-advanced-label">เพิ่มบทลงโทษของคุณเอง (ไม่บังคับ)</div>
       <div class="picker-input-row">
         <input type="text" id="rcCustomInput" placeholder="พิมพ์บทลงโทษของคุณเองแล้วกดเพิ่ม" />
         <button id="rcAddCustomBtn">เพิ่ม</button>
@@ -323,10 +327,10 @@ function renderRcDrawScreen(body, state) {
         <span class="rc-card-text">${state.rcLast || "🎴"}</span>
       </div>
       <button class="wl-action-btn" id="rcDrawBtn" ${deckEmpty ? "disabled" : ""}>เปิดไพ่</button>
-      <div class="rc-draw-actions">
-        <button class="reset-btn" id="rcReshuffleBtn">สับไพ่ใหม่</button>
-        <button class="reset-btn" id="rcDeleteBtn" ${state.rcLast ? "" : "disabled"}>ลบใบนี้ทิ้ง</button>
-        <button class="reset-btn" id="rcSettingsBtn">ตั้งค่า</button>
+      <div class="rc-tool-row">
+        <button class="rc-tool-btn" id="rcReshuffleBtn"><span class="rc-tool-icon">🔀</span><span class="rc-tool-label">สับไพ่ใหม่</span></button>
+        <button class="rc-tool-btn" id="rcDeleteBtn" ${state.rcLast ? "" : "disabled"}><span class="rc-tool-icon">🗑️</span><span class="rc-tool-label">ลบใบนี้ทิ้ง</span></button>
+        <button class="rc-tool-btn" id="rcSettingsBtn"><span class="rc-tool-icon">⚙️</span><span class="rc-tool-label">ตั้งค่า</span></button>
       </div>
     </div>
   `;

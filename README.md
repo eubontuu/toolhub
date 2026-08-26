@@ -20,7 +20,7 @@ tools/counter.{js,css}               บวก/ลบ
 tools/wonglao-core.{js,css}          วงเหล้า shared state, menu/router, สุ่มคน, shuffleArray util, shared wonglao styles
 tools/wonglao-ohana.{js,css}         ไพ่ Ohana
 tools/wonglao-randomcard.{js,css}    ไพ่สุ่ม
-tools/wonglao-wheel.{js,css}         วงล้อ
+tools/wonglao-wheel.{js,css}         สุ่มเลข (เดิมชื่อ "วงล้อ")
 tools/wonglao-chwazi.{js,css}        Chwazi
 tools/wonglao-quiz.{js,css}          Flash Quiz
 tools/hikeprep.{js,css}              เตรียมเดินป่า
@@ -67,7 +67,7 @@ Sub-games and their render functions:
 | `picker` | สุ่มคน | `renderPickerGame` |
 | `ohana` | ไพ่ Ohana | `renderOhanaGame` |
 | `randomcard` | ไพ่สุ่ม | `renderRandomCardGame` |
-| `wheel` | วงล้อ | `renderWheelGame` |
+| `wheel` | สุ่มเลข | `renderWheelGame` |
 | `chwazi` | Chwazi | `renderChwaziGame` |
 | `quiz` | Flash Quiz | `renderFlashQuizGame` |
 
@@ -77,7 +77,7 @@ All six share one state blob (see Persistence below), loaded/saved via `loadWong
 
 ### Fullscreen "reveal" overlays
 
-Ohana and ไพ่สุ่ม (and วงล้อ's spin result) use a fullscreen overlay pattern for the "reveal" moment: a full-viewport `position:fixed` div is appended to `document.body` (not the tool container), animated in via a CSS class toggle, and removed on tap. Look at `showOhanaOverlay`, `showRcOverlay`, `showWheelOverlay` for the pattern — copy one of these for any future "big reveal" moment.
+Ohana, ไพ่สุ่ม, สุ่มเลข's spin result, and Flash Quiz's question all use a fullscreen overlay pattern for the "reveal" moment: a full-viewport `position:fixed` div is appended to `document.body` (not the tool container), animated in via a CSS class toggle, and removed on tap. Look at `showOhanaOverlay`, `showRcOverlay`, `showWheelOverlay`, `showQuizOverlay` for the pattern — copy one of these for any future "big reveal" moment. This is a standing house style: every game with a card/question "open" action should use it.
 
 **Important gotcha:** the animation-in trigger must use the forced-reflow technique, not double-`requestAnimationFrame`:
 
