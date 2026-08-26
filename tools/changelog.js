@@ -6,6 +6,13 @@ const CHANGELOG_TAG_LABEL = { added: "เพิ่ม", changed: "แก้ไ�
 
 const CHANGELOG_DATA = [
   {
+    version: "v41",
+    date: "26 ส.ค. 2569",
+    items: [
+      { type: "changed", text: "สิ่งที่ต้องทำ — ปรับสีให้อ่านง่ายขึ้น (ตัวหนังสือจาง/ตัวเอียงที่อ่านยากเดิม เปลี่ยนเป็นชัดเจนขึ้น)" },
+    ],
+  },
+  {
     version: "v40",
     date: "26 ส.ค. 2569",
     items: [

@@ -46,15 +46,14 @@
   min-width: 0;
   background: none;
   border: none;
-  border-bottom: 1.5px dashed rgba(59, 47, 34, 0.35);
+  border-bottom: 1.5px dashed rgba(59, 47, 34, 0.4);
   color: #3b2f22;
   padding: 6px 2px;
   font-size: 14.5px;
-  font-style: italic;
 }
 
 .todo-input::placeholder {
-  color: rgba(59, 47, 34, 0.45);
+  color: rgba(59, 47, 34, 0.58);
   font-style: italic;
 }
 
@@ -89,8 +88,8 @@
 .todo-optional-input {
   flex: 1;
   min-width: 0;
-  background: rgba(255, 255, 255, 0.35);
-  border: 1px solid rgba(59, 47, 34, 0.25);
+  background: rgba(255, 255, 255, 0.55);
+  border: 1px solid rgba(59, 47, 34, 0.35);
   border-radius: 6px;
   color: #3b2f22;
   padding: 6px 8px;
@@ -98,7 +97,7 @@
 }
 
 .todo-optional-input::placeholder {
-  color: rgba(59, 47, 34, 0.45);
+  color: rgba(59, 47, 34, 0.58);
 }
 
 .todo-list {
@@ -120,7 +119,7 @@
   width: 18px;
   height: 18px;
   border-radius: 4px;
-  border: 1.5px solid rgba(59, 47, 34, 0.5);
+  border: 1.5px solid rgba(59, 47, 34, 0.65);
   background: none;
   color: #b23a2e;
   font-size: 12px;
@@ -153,16 +152,16 @@
 
 .todo-item.done .todo-text {
   text-decoration: line-through;
-  color: rgba(59, 47, 34, 0.45);
+  color: rgba(59, 47, 34, 0.55);
 }
 
 .todo-meta {
   font-size: 11.5px;
-  color: rgba(59, 47, 34, 0.55);
+  color: rgba(59, 47, 34, 0.75);
 }
 
 .todo-item.done .todo-meta {
-  color: rgba(59, 47, 34, 0.35);
+  color: rgba(59, 47, 34, 0.45);
 }
 
 .todo-del {
@@ -170,7 +169,7 @@
   margin-top: 1px;
   background: none;
   border: none;
-  color: rgba(59, 47, 34, 0.35);
+  color: rgba(59, 47, 34, 0.5);
   font-size: 16px;
   width: 22px;
   height: 22px;
@@ -178,7 +177,7 @@
 }
 
 .todo-empty {
-  color: rgba(59, 47, 34, 0.5);
+  color: rgba(59, 47, 34, 0.62);
   font-size: 13px;
   text-align: center;
   padding: 16px 0 6px;
@@ -191,16 +190,16 @@
   justify-content: space-between;
   padding-top: 8px;
   margin-top: 2px;
-  border-top: 1px dashed rgba(59, 47, 34, 0.2);
+  border-top: 1px dashed rgba(59, 47, 34, 0.25);
 }
 
 .todo-count {
-  color: rgba(59, 47, 34, 0.6);
+  color: rgba(59, 47, 34, 0.75);
   font-size: 12px;
 }
 
 .todo-footer .reset-btn {
-  color: rgba(178, 58, 46, 0.75);
+  color: #b23a2e;
   font-size: 12px;
   padding: 4px 8px;
 }
