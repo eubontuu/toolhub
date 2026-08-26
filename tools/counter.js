@@ -137,7 +137,7 @@ function renderCounter(container) {
   container.querySelector("#reset").addEventListener("click", () => {
     const oldValue = state.value;
     if (oldValue !== 0) {
-      state.history.unshift({ delta: -oldValue, time: Date.now() });
+      state.history.unshift({ delta: -oldValue, time: Date.now(), isReset: true });
     }
     state.value = 0;
     saveCounterState(state);
@@ -169,7 +169,7 @@ function renderCounter(container) {
                   <div class="counter-history-item">
                     <span class="counter-history-delta ${h.delta < 0 ? "negative" : ""}">${
                             h.delta > 0 ? "+" : ""
-                          }${h.delta}</span>
+                          }${h.delta}${h.isReset ? " (รีเซ็ต)" : ""}</span>
                     <span class="counter-history-time">${formatHistoryTime(h.time)}</span>
                     <button class="counter-history-del" data-i="${i}">×</button>
                   </div>

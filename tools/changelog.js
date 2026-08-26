@@ -6,6 +6,13 @@ const CHANGELOG_TAG_LABEL = { added: "เพิ่ม", changed: "แก้ไ�
 
 const CHANGELOG_DATA = [
   {
+    version: "v45",
+    date: "26 ส.ค. 2569",
+    items: [
+      { type: "changed", text: "เครื่องมือ บวก/ลบ — รายการในประวัติที่เกิดจากการกดรีเซ็ต จะมีวงเล็บ (รีเซ็ต) กำกับ แยกจากการบวก/ลบปกติ" },
+    ],
+  },
+  {
     version: "v44",
     date: "26 ส.ค. 2569",
     items: [
