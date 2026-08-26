@@ -6,6 +6,13 @@ const CHANGELOG_TAG_LABEL = { added: "เพิ่ม", changed: "แก้ไ�
 
 const CHANGELOG_DATA = [
   {
+    version: "v38",
+    date: "26 ส.ค. 2569",
+    items: [
+      { type: "changed", text: "สิ่งที่ต้องทำ — กลับมาเป็นวิดเจ็ตแก้ไขได้ตรงหน้าแรกเลย (เพิ่ม/ติ๊ก/ลบ พร้อมวันที่และวิชา) ไม่ต้องกดเข้าไปหน้าแยกอีกแล้ว" },
+    ],
+  },
+  {
     version: "v37",
     date: "26 ส.ค. 2569",
     items: [

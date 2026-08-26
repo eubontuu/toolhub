@@ -1,91 +1,13 @@
-/* สิ่งที่ต้องทำ — paper-note look, shared by the Home notice card and the full page */
+/* สิ่งที่ต้องทำ — Home-screen widget, paper-note look, fully editable in place */
 
-/* ---------- Home-screen notice (read-only) ---------- */
-
-.todo-notice {
+.todo-widget {
   position: relative;
   background: #f4ecd8;
   color: #3b2f22;
   border-radius: 10px;
-  padding: 14px 16px 44px 26px;
+  padding: 16px 16px 12px 26px;
   margin-bottom: 22px;
   box-shadow: var(--shadow-lg);
-}
-
-.todo-notice::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 15px;
-  width: 1.5px;
-  background: rgba(178, 58, 46, 0.4);
-}
-
-.todo-notice-title {
-  font-size: 14px;
-  font-weight: 800;
-  margin-bottom: 10px;
-}
-
-.todo-notice-list {
-  display: flex;
-  flex-direction: column;
-  gap: 7px;
-}
-
-.todo-notice-item {
-  display: flex;
-  flex-direction: column;
-}
-
-.todo-notice-text {
-  font-size: 13.5px;
-  line-height: 1.4;
-}
-
-.todo-notice-meta {
-  font-size: 11px;
-  color: rgba(59, 47, 34, 0.55);
-}
-
-.todo-notice-more {
-  font-size: 12px;
-  color: rgba(59, 47, 34, 0.55);
-  font-style: italic;
-}
-
-.todo-notice-empty {
-  font-size: 13px;
-  color: rgba(59, 47, 34, 0.55);
-  font-style: italic;
-}
-
-.todo-notice-jump {
-  position: absolute;
-  right: 14px;
-  bottom: 12px;
-  background: #b23a2e;
-  border: none;
-  color: #fdf6ea;
-  font-size: 12px;
-  font-weight: 700;
-  padding: 6px 12px;
-  border-radius: var(--radius-pill);
-  cursor: pointer;
-}
-
-/* ---------- Full editable page ---------- */
-
-.todo-page {
-  position: relative;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-  background: #f4ecd8;
-  color: #3b2f22;
-  padding: 16px 16px calc(var(--safe-bottom) + 16px) 26px;
   background-image: repeating-linear-gradient(
     to bottom,
     transparent 0,
@@ -95,7 +17,7 @@
   background-position: 0 96px;
 }
 
-.todo-page::before {
+.todo-widget::before {
   content: "";
   position: absolute;
   top: 0;
@@ -103,6 +25,13 @@
   left: 15px;
   width: 1.5px;
   background: rgba(178, 58, 46, 0.4);
+}
+
+.todo-title {
+  font-size: 14px;
+  font-weight: 800;
+  margin-bottom: 12px;
+  letter-spacing: 0.01em;
 }
 
 .todo-input-row {
@@ -154,7 +83,7 @@
 .todo-optional-row {
   display: flex;
   gap: 10px;
-  margin-bottom: 14px;
+  margin-bottom: 12px;
 }
 
 .todo-optional-input {
@@ -173,16 +102,15 @@
 }
 
 .todo-list {
-  flex: 1;
+  max-height: 230px;
   overflow-y: auto;
-  min-height: 0;
 }
 
 .todo-item {
   display: flex;
   align-items: flex-start;
   gap: 10px;
-  padding: 8px 0;
+  padding: 7px 0;
   min-height: 32px;
 }
 

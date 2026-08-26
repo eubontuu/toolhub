@@ -1,6 +1,5 @@
-// สิ่งที่ต้องทำ — two parts, no dependency on other tool files:
-// - renderTodoNotice(container): read-only reminder card on the Home screen, jump button only
-// - renderTodo(container): the full editable page (registered as an APPS tool in app.js)
+// สิ่งที่ต้องทำ — Home-screen widget (renderTodo fills #todoWidget, called from renderHome
+// in app.js), fully editable right there, no tap-through screen. No dependency on other tool files.
 
 function loadTodoState() {
   try {
@@ -37,40 +36,6 @@ function todoMetaLine(item) {
   return parts.join(" · ");
 }
 
-// ---------- Home-screen notice (read-only) ----------
-
-function renderTodoNotice(container) {
-  const state = loadTodoState();
-  const pending = state.items.filter((item) => !item.done);
-  const shown = pending.slice(0, 4);
-  const extra = pending.length - shown.length;
-
-  container.innerHTML = `
-    <div class="todo-notice-title">📝 สิ่งที่ต้องทำ</div>
-    <div class="todo-notice-list">
-      ${
-        pending.length === 0
-          ? `<div class="todo-notice-empty">เคลียร์หมดแล้ว 🎉</div>`
-          : shown
-              .map(
-                (item) => `
-          <div class="todo-notice-item">
-            <span class="todo-notice-text">${item.text}</span>
-            ${todoMetaLine(item) ? `<span class="todo-notice-meta">${todoMetaLine(item)}</span>` : ""}
-          </div>
-        `
-              )
-              .join("") + (extra > 0 ? `<div class="todo-notice-more">+ อีก ${extra} รายการ</div>` : "")
-      }
-    </div>
-    <button class="todo-notice-jump" id="todoNoticeJump">ไปที่รายการ ›</button>
-  `;
-
-  container.querySelector("#todoNoticeJump").addEventListener("click", () => navigate("app/todo"));
-}
-
-// ---------- Full editable page ----------
-
 function renderTodo(container) {
   const state = loadTodoState();
 
@@ -79,44 +44,43 @@ function renderTodo(container) {
     const doneCount = state.items.filter((item) => item.done).length;
 
     container.innerHTML = `
-      <div class="todo-page">
-        <div class="todo-input-row">
-          <input type="text" id="todoInput" class="todo-input" placeholder="เขียนสิ่งที่ต้องทำ..." />
-          <button class="todo-add-btn" id="todoAddBtn">+</button>
-        </div>
-        <div class="todo-optional-row">
-          <input type="date" id="todoDateInput" class="todo-optional-input" />
-          <input type="text" id="todoSubjectInput" class="todo-optional-input" placeholder="วิชา (ไม่บังคับ)" />
-        </div>
-        <div class="todo-list" id="todoList">
-          ${
-            total === 0
-              ? `<div class="todo-empty">ยังไม่มีรายการ — เขียนสิ่งที่ต้องทำได้เลย</div>`
-              : state.items
-                  .map(
-                    (item) => `
-              <div class="todo-item ${item.done ? "done" : ""}">
-                <button class="todo-check" data-id="${item.id}">${item.done ? "✓" : ""}</button>
-                <div class="todo-item-body">
-                  <span class="todo-text">${item.text}</span>
-                  ${todoMetaLine(item) ? `<span class="todo-meta">${todoMetaLine(item)}</span>` : ""}
-                </div>
-                <button class="todo-del" data-id="${item.id}">×</button>
-              </div>
-            `
-                  )
-                  .join("")
-          }
-        </div>
+      <div class="todo-title">📝 สิ่งที่ต้องทำ</div>
+      <div class="todo-input-row">
+        <input type="text" id="todoInput" class="todo-input" placeholder="เขียนสิ่งที่ต้องทำ..." />
+        <button class="todo-add-btn" id="todoAddBtn">+</button>
+      </div>
+      <div class="todo-optional-row">
+        <input type="date" id="todoDateInput" class="todo-optional-input" />
+        <input type="text" id="todoSubjectInput" class="todo-optional-input" placeholder="วิชา (ไม่บังคับ)" />
+      </div>
+      <div class="todo-list" id="todoList">
         ${
-          total > 0
-            ? `<div class="todo-footer">
-                <span class="todo-count">เสร็จแล้ว ${doneCount}/${total}</span>
-                ${doneCount > 0 ? `<button class="reset-btn" id="todoClearDone">ลบที่เสร็จแล้ว</button>` : ""}
-              </div>`
-            : ""
+          total === 0
+            ? `<div class="todo-empty">ยังไม่มีรายการ — เขียนสิ่งที่ต้องทำได้เลย</div>`
+            : state.items
+                .map(
+                  (item) => `
+            <div class="todo-item ${item.done ? "done" : ""}">
+              <button class="todo-check" data-id="${item.id}">${item.done ? "✓" : ""}</button>
+              <div class="todo-item-body">
+                <span class="todo-text">${item.text}</span>
+                ${todoMetaLine(item) ? `<span class="todo-meta">${todoMetaLine(item)}</span>` : ""}
+              </div>
+              <button class="todo-del" data-id="${item.id}">×</button>
+            </div>
+          `
+                )
+                .join("")
         }
       </div>
+      ${
+        total > 0
+          ? `<div class="todo-footer">
+              <span class="todo-count">เสร็จแล้ว ${doneCount}/${total}</span>
+              ${doneCount > 0 ? `<button class="reset-btn" id="todoClearDone">ลบที่เสร็จแล้ว</button>` : ""}
+            </div>`
+          : ""
+      }
     `;
 
     const input = container.querySelector("#todoInput");

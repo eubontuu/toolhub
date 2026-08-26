@@ -41,7 +41,6 @@ There is no bundler, no `node_modules`, no `package.json`, no ES modules — eve
 ```js
 const APPS = [
   { id: "counter",  name: "บวก/ลบ",        icon: "±",  render: renderCounter },
-  { id: "todo",     name: "สิ่งที่ต้องทำ",  icon: "📝", render: renderTodo },
   { id: "wonglao",  name: "วงเหล้า",        icon: "🍻", render: renderWongLao },
   { id: "hikeprep", name: "เตรียมเดินป่า",  icon: "🥾", render: renderHikePrep },
 ];
@@ -53,13 +52,13 @@ Routing is a single-page hash router (`#app/<id>`, plus the special `#changelog`
 
 **To add a new top-level tool ("แอป"):** create `tools/yourtool.js` with a `renderYourTool(container)` function and `tools/yourtool.css` for its styles, add both `<script src="tools/yourtool.js"></script>` (before the `app.js` tag) and `<link rel="stylesheet" href="tools/yourtool.css">` to `index.html`, push an entry onto `APPS` in `app.js`, and add both new files to `PRECACHE_URLS` in `sw.js`.
 
-### Home-screen notice cards ("การ์ดแจ้งเตือน")
+### Home-screen widgets ("วิดเจ็ต")
 
-Some tools are worth surfacing a preview of on the Home screen, even though editing them still needs the full tap-through screen. A **notice card** is a **read-only** summary embedded directly on Home (no navigation required to see it), with a jump button that sends you to the real, editable **"แอป"** (`APPS` entry, opened behind `renderToolShell`'s back-button header) — it never lets you add/edit/delete inline itself.
+Not every home-screen feature needs a tap-through screen. A **widget** is fully usable directly on the Home screen — add/edit/delete right there — as opposed to an **"แอป"** (`APPS` entry), which always opens behind `renderToolShell`'s back-button header.
 
-สิ่งที่ต้องทำ (to do list) uses this split: `renderHome()` in `app.js` renders a `<div class="todo-notice" id="todoNotice">` between the banner and the icon grid, then calls `renderTodoNotice(document.getElementById("todoNotice"))` (from `tools/todo.js`) — it lists a few pending items plus a "ไปที่รายการ ›" button that calls `navigate("app/todo")`. The actual add/check/delete UI lives in `renderTodo(container)` in the same file, registered as a normal `APPS` entry (`id: "todo"`) and reached via `renderToolShell` like any other tool. Both functions read/write the same `localStorage` key (`toolhub.todo`) independently — `renderTodoNotice` just never mutates it.
+สิ่งที่ต้องทำ (to do list) is the current example: `renderHome()` in `app.js` renders a `<div class="todo-widget" id="todoWidget">` between the banner and the icon grid, then calls `renderTodo(document.getElementById("todoWidget"))` (from `tools/todo.js`) to fill it. `renderTodo` owns its own state (`localStorage` key `toolhub.todo`, items can carry an optional date/subject) and re-renders itself on every add/check/delete — same self-contained pattern as any tool's render function, just not routed through `APPS`/`renderToolShell`. It's still registered in `PRECACHE_URLS` and loaded via `<script>`/`<link>` in `index.html` like any other tool file.
 
-**To add a new notice card:** write a `renderYourThingNotice(container)` function in your tool's file that only reads state and renders a summary + a `navigate("app/yourtool")` jump button (no inline editing), add a container div for it in `renderHome()`, and keep the real editable UI as a normal `APPS`-registered tool.
+**To add a new home-screen widget:** write `tools/yourwidget.js` with a `renderYourWidget(container)` function (state + re-render, same shape as a tool), add its `<script>`/`<link>` tags to `index.html` and both files to `PRECACHE_URLS`, then in `renderHome()` add a container div and call `renderYourWidget(...)` on it — do **not** add an `APPS` entry, since that would make it tap-through instead of directly usable. (A **read-only notice card** with a jump button to a separate editable `APPS` page is a different, currently-unused pattern — see "การ์ดแจ้งเตือน" in `CLAUDE.md` if that shape is ever needed instead.)
 
 ### การอัปเดต (changelog)
 
