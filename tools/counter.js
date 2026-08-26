@@ -127,7 +127,7 @@ function renderCounter(container) {
     const count = state.history.length;
     box.innerHTML = `
       <button class="counter-history-toggle" id="historyToggle" title="ประวัติ">
-        🕘${count > 0 ? `<span class="counter-history-badge">${count}</span>` : ""}
+        ประวัติ${count > 0 ? `<span class="counter-history-badge">${count}</span>` : ""}
       </button>
       ${
         state.showHistory

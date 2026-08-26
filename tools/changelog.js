@@ -6,6 +6,13 @@ const CHANGELOG_TAG_LABEL = { added: "เพิ่ม", changed: "แก้ไ�
 
 const CHANGELOG_DATA = [
   {
+    version: "v31",
+    date: "26 ส.ค. 2569",
+    items: [
+      { type: "changed", text: "เครื่องมือ บวก/ลบ — ปุ่มดูประวัติเปลี่ยนจากไอคอน 🕘 เป็นคำว่า \"ประวัติ\"" },
+    ],
+  },
+  {
     version: "v30",
     date: "26 ส.ค. 2569",
     items: [

@@ -116,10 +116,11 @@
   background: var(--card);
   border: none;
   color: var(--text);
-  width: 36px;
   height: 36px;
+  padding: 0 14px;
   border-radius: var(--radius-sm);
-  font-size: 16px;
+  font-size: 13px;
+  font-weight: 600;
   display: flex;
   align-items: center;
   justify-content: center;
