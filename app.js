@@ -38,24 +38,34 @@ function render() {
     renderHome();
     return;
   }
+  if (route === "changelog") {
+    renderToolShell("การอัปเดต", renderChangelog);
+    return;
+  }
   const [, appId] = route.split("/");
   const app = APPS.find((a) => a.id === appId);
   if (!app) {
     renderHome();
     return;
   }
-  renderToolShell(app);
+  renderToolShell(app.name, app.render);
 }
 
 function renderHome() {
   root.innerHTML = `
     <div class="home">
-      <h1>ToolHub</h1>
-      <p class="sub">รวมเครื่องมือของคุณไว้ที่เดียว</p>
+      <div class="home-top">
+        <div>
+          <h1>ToolHub</h1>
+          <p class="sub">รวมเครื่องมือของคุณไว้ที่เดียว</p>
+        </div>
+        <button class="changelog-btn" id="changelogBtn" title="ประวัติการอัปเดต">🕘</button>
+      </div>
       <div class="grid" id="grid"></div>
       ${APPS.length === 0 ? '<div class="empty-hint">ยังไม่มีเครื่องมือ — จะเพิ่มเข้ามาเรื่อยๆ</div>' : ""}
     </div>
   `;
+  document.getElementById("changelogBtn").addEventListener("click", () => navigate("changelog"));
   const grid = document.getElementById("grid");
   APPS.forEach((app) => {
     const btn = document.createElement("button");
@@ -66,18 +76,18 @@ function renderHome() {
   });
 }
 
-function renderToolShell(app) {
+function renderToolShell(title, renderFn) {
   root.innerHTML = `
     <div class="tool-screen">
       <div class="tool-header">
         <button class="back-btn" id="back">‹</button>
-        <div class="tool-title">${app.name}</div>
+        <div class="tool-title">${title}</div>
       </div>
       <div class="tool-body" id="tool-body"></div>
     </div>
   `;
   document.getElementById("back").addEventListener("click", () => navigate("home"));
-  app.render(document.getElementById("tool-body"));
+  renderFn(document.getElementById("tool-body"));
 }
 
 // ---------- Boot ----------

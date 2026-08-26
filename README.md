@@ -23,6 +23,7 @@ tools/wonglao-wheel.js        วงล้อ
 tools/wonglao-chwazi.js       Chwazi
 tools/wonglao-quiz.js         Flash Quiz
 tools/hikeprep.js             เตรียมเดินป่า
+tools/changelog.js            การอัปเดต (changelog) — data + render, shown from a 🕘 button on Home
 style.css                     everything: all styling, one file, organized by section
 sw.js                         service worker: offline cache + update mechanism
 manifest.json                 PWA metadata (name, icons, display mode)
@@ -45,9 +46,15 @@ const APPS = [
 ];
 ```
 
-Routing is a single-page hash router (`#app/<id>`), handled by `render()`/`renderHome()`/`renderToolShell()` near the top of `app.js`. `renderToolShell` draws the back-button header and calls the tool's own `render(container)` function to fill `.tool-body`.
+Routing is a single-page hash router (`#app/<id>`, plus the special `#changelog` route below), handled by `render()`/`renderHome()`/`renderToolShell()` near the top of `app.js`. `renderToolShell(title, renderFn)` draws the back-button header (given a title string) and calls `renderFn(container)` to fill `.tool-body` — it's not tied to an `APPS` entry, which is what lets `#changelog` reuse it too.
 
 **To add a new top-level tool:** create `tools/yourtool.js` with a `renderYourTool(container)` function, add its `<script src="tools/yourtool.js"></script>` to `index.html` *before* the `app.js` tag, push an entry onto `APPS` in `app.js`, add its CSS section, and add the new file to `PRECACHE_URLS` in `sw.js`.
+
+### การอัปเดต (changelog)
+
+A 🕘 button in the top-right of the Home screen navigates to `#changelog`, which `render()` special-cases to call `renderToolShell("การอัปเดต", renderChangelog)`. `renderChangelog` and its data both live in `tools/changelog.js` — `CHANGELOG_DATA` is a plain array of `{ version, date, items: [{ type: "added"|"changed"|"removed", text }] }`, newest entry first, hand-written in Thai (not auto-generated from git log).
+
+**Update this on every ship the owner would care about** (new feature, visible fix, something removed) by pushing a new object onto the *front* of `CHANGELOG_DATA` in `tools/changelog.js`. Skip it for pure-internal changes (refactors with no behavior change, doc updates) unless they're worth mentioning for transparency. The `version` field is cosmetic — by convention it echoes the `CACHE_VERSION` you're bumping in the same change, but nothing enforces that link.
 
 ### The "วงเหล้า" (wonglao) sub-hub
 

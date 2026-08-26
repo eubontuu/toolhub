@@ -22,6 +22,7 @@ tools/wonglao-wheel.js        วงล้อ
 tools/wonglao-chwazi.js       Chwazi
 tools/wonglao-quiz.js         Flash Quiz — uses shuffleArray from wonglao-core.js
 tools/hikeprep.js             เตรียมเดินป่า (incl. HIKE_DAYS schedule array) — standalone
+tools/changelog.js            การอัปเดต (changelog) — CHANGELOG_DATA + renderChangelog — standalone
 ```
 
 `style.css`:
@@ -49,6 +50,7 @@ tools/hikeprep.js             เตรียมเดินป่า (incl. HIK
 
 ## Rules for working in this repo
 - **Always bump `CACHE_VERSION` in `sw.js`** when shipping any change to `app.js`/`tools/*.js`/`style.css`/`index.html`/`manifest.json`. Without it, installed PWA clients won't see the update. Format: plain `"vN"`, increment N.
+- **Add a `CHANGELOG_DATA` entry in `tools/changelog.js`** (push a new object onto the *front* of the array) for any change the owner would notice or care about — new feature, visible fix, something removed. Write it in Thai, keep it to 1-2 short bullets, categorize each as `added`/`changed`/`removed`. By convention `version` echoes the `CACHE_VERSION` you're bumping in the same change. Skip purely internal refactors/doc updates unless worth mentioning for transparency (see README's "การอัปเดต" section).
 - **New `tools/*.js` file → also add it to `PRECACHE_URLS` in `sw.js` and to `index.html`'s script tags** (before the `app.js` tag). Forgetting either means the file loads fine online (fetched lazily) but isn't available offline on first load / isn't in the dependency chain `APPS` expects.
 - **All user-facing text is Thai.** Keep new UI strings in Thai unless told otherwise.
 - **No test suite.** Verify changes manually via local server (`python -m http.server 8080`) + browser automation (`mcp__claude-in-chrome__*`) before calling something done. For UI changes, actually click through the feature.
