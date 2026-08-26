@@ -24,13 +24,23 @@ const APPS = [
 
 const root = document.getElementById("app");
 
-// ---------- Theme (dark/light) ----------
+// ---------- Theme picker ----------
 
 const THEME_KEY = "toolhub.theme";
 
+const THEMES = [
+  { id: "dark", label: "ดำ", group: "แนะนำ", bg: "#0f1115", accent: "#4c8dff" },
+  { id: "light", label: "ขาว", group: "แนะนำ", bg: "#f4f5f7", accent: "#4c8dff" },
+  { id: "grape", label: "ม่วงชมพู", group: "อื่นๆ", bg: "#180f22", accent: "#e0529c" },
+  { id: "ivory", label: "ครีมขาว", group: "อื่นๆ", bg: "#f7f1e3", accent: "#c9762f" },
+  { id: "mint", label: "มินต์", group: "อื่นๆ", bg: "#eaf7f3", accent: "#0ea472" },
+  { id: "sunset", label: "ซันเซ็ต", group: "อื่นๆ", bg: "#1f130f", accent: "#e8632f" },
+];
+
 function loadTheme() {
   try {
-    return localStorage.getItem(THEME_KEY) || "dark";
+    const saved = localStorage.getItem(THEME_KEY);
+    return THEMES.some((t) => t.id === saved) ? saved : "dark";
   } catch (e) {
     return "dark";
   }
@@ -40,17 +50,75 @@ function saveTheme(theme) {
   localStorage.setItem(THEME_KEY, theme);
 }
 
-function themeIcon(theme) {
-  return theme === "light" ? "🌙" : "☀️";
-}
-
 function applyTheme(theme) {
   document.documentElement.setAttribute("data-theme", theme);
   const meta = document.querySelector('meta[name="theme-color"]');
-  if (meta) meta.content = theme === "light" ? "#f4f5f7" : "#0f1115";
+  const info = THEMES.find((t) => t.id === theme);
+  if (meta && info) meta.content = info.bg;
 }
 
 applyTheme(loadTheme());
+
+function setupThemePicker(container) {
+  const btn = container.querySelector("#themeToggleBtn");
+  const groups = [...new Set(THEMES.map((t) => t.group))];
+  let panel = null;
+
+  function onDocClick(e) {
+    if (!container.contains(e.target)) closePanel();
+  }
+
+  function closePanel() {
+    if (!panel) return;
+    panel.remove();
+    panel = null;
+    document.removeEventListener("click", onDocClick, true);
+  }
+
+  function openPanel() {
+    const current = loadTheme();
+    panel = document.createElement("div");
+    panel.className = "theme-panel";
+    panel.innerHTML = groups
+      .map(
+        (g) => `
+      <div class="theme-panel-label">${g}</div>
+      <div class="theme-swatch-row">
+        ${THEMES.filter((t) => t.group === g)
+          .map(
+            (t) => `
+          <button class="theme-swatch ${t.id === current ? "active" : ""}" data-theme-id="${t.id}">
+            <span class="theme-swatch-dot" style="background: linear-gradient(135deg, ${t.bg}, ${t.accent})"></span>
+            <span class="theme-swatch-label">${t.label}</span>
+          </button>
+        `
+          )
+          .join("")}
+      </div>
+    `
+      )
+      .join("");
+    container.appendChild(panel);
+
+    panel.querySelectorAll(".theme-swatch").forEach((swatch) => {
+      swatch.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const id = swatch.dataset.themeId;
+        saveTheme(id);
+        applyTheme(id);
+        closePanel();
+      });
+    });
+
+    setTimeout(() => document.addEventListener("click", onDocClick, true), 0);
+  }
+
+  btn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    if (panel) closePanel();
+    else openPanel();
+  });
+}
 
 function navigate(route) {
   location.hash = route;
@@ -88,7 +156,9 @@ function renderHome() {
           <p class="sub">ยินดีต้อนรับสู่คลังแสงอัจฉริยะ ของตระกูลหมู เชิญเดินชมได้เต็มที่ เลือกหยิบสิ่งที่อยากได้ เชิญครับ อู๊ด อู๊ดดดด</p>
         </div>
         <div class="home-actions">
-          <button class="icon-action-btn" id="themeToggleBtn" title="สลับธีมมืด/สว่าง">${themeIcon(loadTheme())}</button>
+          <div class="theme-picker" id="themePicker">
+            <button class="icon-action-btn theme-btn" id="themeToggleBtn">ธีม</button>
+          </div>
           <button class="icon-action-btn" id="changelogBtn" title="ประวัติการอัปเดต">🕘</button>
         </div>
       </div>
@@ -98,13 +168,7 @@ function renderHome() {
     </div>
   `;
   document.getElementById("changelogBtn").addEventListener("click", () => navigate("changelog"));
-  const themeBtn = document.getElementById("themeToggleBtn");
-  themeBtn.addEventListener("click", () => {
-    const next = loadTheme() === "light" ? "dark" : "light";
-    saveTheme(next);
-    applyTheme(next);
-    themeBtn.textContent = themeIcon(next);
-  });
+  setupThemePicker(document.getElementById("themePicker"));
   renderTodo(document.getElementById("todoWidget"));
   const grid = document.getElementById("grid");
   APPS.forEach((app) => {

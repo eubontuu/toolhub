@@ -35,10 +35,12 @@
   --hairline: rgba(255, 255, 255, 0.06);
 }
 
-/* Light theme override — toggled via data-theme="light" on <html> (see app.js applyTheme()).
-   Structural colors only (bg/card/text/sub) — per-tool "flavor" colors (Ohana gradient, wheel
-   rainbow, counter's green/red, etc.) intentionally stay the same in both themes; see the design
-   tokens note above. Default is dark (no attribute) — this block only fires when explicitly set. */
+/* Theme overrides — toggled via data-theme="<id>" on <html> (see THEMES/applyTheme() in app.js).
+   Structural colors only (bg/card/text/sub/hairline, plus accent for the "other" mood themes) —
+   per-tool "flavor" colors (Ohana gradient, wheel rainbow, counter's green/red, todo's paper look,
+   etc.) intentionally stay the same across every theme; see the design tokens note above.
+   Default is dark (no attribute, plain :root above) — these blocks only fire when explicitly set.
+   "แนะนำ" (recommended) pair — light/dark, accent unchanged from :root: */
 :root[data-theme="light"] {
   --bg: #f4f5f7;
   --card: #ffffff;
@@ -46,6 +48,47 @@
   --text: #14161a;
   --sub: #6b7280;
   --hairline: rgba(0, 0, 0, 0.08);
+}
+
+/* "อื่นๆ" (other) mood themes — each also gets its own --accent for a distinct feel: */
+:root[data-theme="grape"] {
+  --bg: #180f22;
+  --card: #271733;
+  --card-hi: #35204a;
+  --text: #f5eefc;
+  --sub: #b79ecf;
+  --accent: #e0529c;
+  --hairline: rgba(255, 255, 255, 0.08);
+}
+
+:root[data-theme="ivory"] {
+  --bg: #f7f1e3;
+  --card: #fffbf2;
+  --card-hi: #efe4cd;
+  --text: #3b3226;
+  --sub: #8a7d68;
+  --accent: #c9762f;
+  --hairline: rgba(59, 50, 38, 0.1);
+}
+
+:root[data-theme="mint"] {
+  --bg: #eaf7f3;
+  --card: #ffffff;
+  --card-hi: #dcf0ea;
+  --text: #123c34;
+  --sub: #5b8a7d;
+  --accent: #0ea472;
+  --hairline: rgba(18, 60, 52, 0.08);
+}
+
+:root[data-theme="sunset"] {
+  --bg: #1f130f;
+  --card: #2e1c15;
+  --card-hi: #3d2419;
+  --text: #fdf0e6;
+  --sub: #d9a98a;
+  --accent: #e8632f;
+  --hairline: rgba(255, 255, 255, 0.08);
 }
 
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -134,6 +177,76 @@ html, body {
   align-items: center;
   justify-content: center;
   cursor: pointer;
+}
+
+.theme-picker {
+  position: relative;
+}
+
+.theme-btn {
+  width: auto;
+  padding: 0 14px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.theme-panel {
+  position: absolute;
+  top: 44px;
+  right: 0;
+  width: min(80vw, 260px);
+  background: var(--card);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  padding: 12px;
+  z-index: 10;
+}
+
+.theme-panel-label {
+  font-size: 11px;
+  color: var(--sub);
+  margin: 6px 0 8px;
+}
+
+.theme-panel-label:first-child {
+  margin-top: 0;
+}
+
+.theme-swatch-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.theme-swatch {
+  background: none;
+  border: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  padding: 4px;
+  width: 62px;
+  cursor: pointer;
+}
+
+.theme-swatch-dot {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  box-shadow: var(--shadow-sm);
+}
+
+.theme-swatch.active .theme-swatch-dot {
+  border-color: var(--text);
+}
+
+.theme-swatch-label {
+  font-size: 11px;
+  color: var(--text);
+  text-align: center;
+  line-height: 1.2;
 }
 
 .grid {

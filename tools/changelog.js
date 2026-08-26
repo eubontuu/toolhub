@@ -6,6 +6,13 @@ const CHANGELOG_TAG_LABEL = { added: "เพิ่ม", changed: "แก้ไ�
 
 const CHANGELOG_DATA = [
   {
+    version: "v40",
+    date: "26 ส.ค. 2569",
+    items: [
+      { type: "changed", text: "ปุ่มธีมเปลี่ยนเป็นตัวเลือกธีม กดแล้วเลือกได้เลย มืด/ขาว (แนะนำ) หรือธีมสีสันอื่นๆ (ม่วงชมพู, ครีมขาว, มินต์, ซันเซ็ต)" },
+    ],
+  },
+  {
     version: "v39",
     date: "26 ส.ค. 2569",
     items: [
