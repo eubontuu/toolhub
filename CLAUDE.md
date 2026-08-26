@@ -2,6 +2,8 @@
 
 This file is auto-loaded by Claude Code at the start of every session in this repo. Read `README.md` first for full architecture/mechanics — this file only holds operational context and behavior rules that aren't in the README.
 
+**Keep this file curated, not a running log.** It's read in full every session regardless of what the task touches, so its length is a cost paid every time, not just when written. When a rule stops applying (a one-time incident that's now structurally prevented, a workaround for something since fixed) or gets superseded by a better rule, remove or rewrite it — don't just append. Prefer editing an existing bullet over adding a near-duplicate one.
+
 ## What this is
 - Personal PWA hub of mini-tools for the owner (Thai-speaking). No framework, no build step, no backend.
 - Live: https://eubontuu.github.io/toolhub/ — Repo: https://github.com/eubontuu/toolhub (GitHub user `eubontuu`) — deploys from `main` on push.
@@ -31,6 +33,7 @@ tools/changelog.js + .css            การอัปเดต (changelog) —
 - Don't `Read` a whole `tools/*.js`/`tools/*.css` pair unless the task touches that tool — everything is small now, one `Read` per file is enough. Use the map above (or `Grep`) to find the right file instead of opening several to look around.
 - After an `Edit`, don't re-`Read` the file to confirm — the tool already errors if the match failed.
 - When testing in the browser, prefer `get_page_text`/targeted `find` over full-page screenshots when text content (not visual layout) is what's being checked; use screenshots only for actual visual/layout verification.
+- **Use `browser_batch` for browser verification sequences** (navigate → click → screenshot, or click → click → screenshot) instead of one tool call per step — it's one round trip instead of several. Only break out of a batch when a later step's coordinates depend on seeing an earlier screenshot's result first.
 - Keep long pasted content (routine prompts, schedule tables, JSON bodies) in a scratch file and reference it, rather than pasting it inline in chat more than once.
 - Prefer one `Grep`/`Read` with a tight scope over multiple exploratory reads — if unsure where something lives, one `Grep` across the file usually finds it faster than reading sections speculatively.
 - **Before starting `python -m http.server 8080` for local testing, check nothing is already listening on that port** (`netstat -ano | grep ':8080.*LISTENING'` on Windows/git-bash) and kill any stale process first. A second server silently competing for the same port serves stale files non-deterministically and looks exactly like a CSS/cache bug — this cost a full debugging detour once (see git log around CACHE_VERSION v20).
