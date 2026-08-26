@@ -201,7 +201,7 @@ function renderCounter(container) {
 
   container.querySelector("#addToNamesBtn").addEventListener("click", () => {
     if (state.value === 0) {
-      alert("ตอนนี้ตัวเลขเป็น 0 อยู่ ต้องมีตัวเลขก่อนถึงจะเพิ่มไปยังรายชื่อได้");
+      alert("เลขมันเป็น 0 ไอเอ๋อมึงจะเพิ่มราชื่อไปทำไม น้ำลายยืดจัด");
       return;
     }
     const direction = state.value < 0 ? "give" : "receive";
@@ -318,7 +318,7 @@ function renderCounter(container) {
                             n.total < 0
                               ? `ต้องให้ ${n.name} จำนวน ${Math.abs(n.total)}`
                               : n.total > 0
-                              ? `ต้องได้ ${n.name} จำนวน ${n.total}`
+                              ? `ต้องได้จาก ${n.name} จำนวน ${n.total}`
                               : `${n.name} เคลียร์แล้ว`;
                           return `
                   <div class="counter-history-item">
