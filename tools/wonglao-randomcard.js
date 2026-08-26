@@ -210,27 +210,12 @@ function renderRandomCardGame(body, state) {
 function renderRcSetupScreen(body, state) {
   const builtInCount = RC_BUILTIN_POOL.length - state.rcExcluded.length;
   const totalCount = builtInCount + state.rcCustom.length;
-  const listItems = [...RC_BUILTIN_POOL.filter((p) => !state.rcExcluded.includes(p)), ...state.rcCustom];
 
   body.innerHTML = `
     <div class="rc-setup">
       <div class="rc-intro">เลือกจำนวนใบด้านล่าง แล้วกด "เริ่มเปิดไพ่" ได้เลย — ปรับแต่งเพิ่มเติมได้ถ้าต้องการ</div>
-      <div class="rc-total">มีบทลงโทษทั้งหมด ${totalCount} ใบ (${builtInCount} มาตรฐาน + ${state.rcCustom.length} ที่คุณเพิ่มเอง)</div>
-      <div class="rc-util-row">
-        <button class="step-chip" id="rcToggleList">📋 ${state.rcShowList ? "ซ่อนรายการ" : "ดูรายการทั้งหมด"}</button>
-        ${
-          state.rcExcluded.length > 0
-            ? `<button class="step-chip" id="rcRestoreBtn">♻️ กู้คืนรายการที่ลบ (${state.rcExcluded.length})</button>`
-            : ""
-        }
-      </div>
-      ${
-        state.rcShowList
-          ? `<div class="rc-list">${listItems
-              .map((p, i) => `<div class="rc-list-item"><span>${p}</span><button class="rc-list-del" data-i="${i}">×</button></div>`)
-              .join("")}</div>`
-          : ""
-      }
+
+      <button class="wl-action-btn" id="rcStartBtn">เริ่มเปิดไพ่</button>
 
       <div class="step-row">
         <div class="step-label">เลือกจำนวนใบในกอง</div>
@@ -239,21 +224,27 @@ function renderRcSetupScreen(body, state) {
         ).join("")}
       </div>
 
-      <button class="wl-action-btn" id="rcStartBtn">เริ่มเปิดไพ่</button>
-
       <div class="rc-advanced-label">เพิ่มบทลงโทษของคุณเอง (ไม่บังคับ)</div>
       <div class="picker-input-row">
         <input type="text" id="rcCustomInput" placeholder="พิมพ์บทลงโทษของคุณเองแล้วกดเพิ่ม" />
         <button id="rcAddCustomBtn">เพิ่ม</button>
       </div>
       <div class="picker-list" id="rcCustomList"></div>
+
+      <div class="rc-total">มีบทลงโทษทั้งหมด ${totalCount} ใบ (${builtInCount} มาตรฐาน + ${state.rcCustom.length} ที่คุณเพิ่มเอง)</div>
+      <div class="rc-util-row">
+        <button class="step-chip" id="rcToggleList">📋 ดูรายละเอียดทั้งหมด</button>
+        ${
+          state.rcExcluded.length > 0
+            ? `<button class="step-chip" id="rcRestoreBtn">♻️ กู้คืนรายการที่ลบ (${state.rcExcluded.length})</button>`
+            : ""
+        }
+      </div>
     </div>
   `;
 
   body.querySelector("#rcToggleList").addEventListener("click", () => {
-    state.rcShowList = !state.rcShowList;
-    saveWongLaoState(state);
-    renderRcSetupScreen(body, state);
+    showRcListOverlay(state, () => renderRcSetupScreen(body, state));
   });
 
   const restoreBtn = body.querySelector("#rcRestoreBtn");
@@ -262,13 +253,6 @@ function renderRcSetupScreen(body, state) {
       showRcRestoreOverlay(state, () => renderRcSetupScreen(body, state));
     });
   }
-
-  body.querySelectorAll(".rc-list-del").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      rcRemoveFromPool(listItems[Number(btn.dataset.i)], state);
-      renderRcSetupScreen(body, state);
-    });
-  });
 
   body.querySelectorAll(".step-chip[data-q]").forEach((chip) => {
     chip.addEventListener("click", () => {
@@ -360,6 +344,43 @@ function renderRcDrawScreen(body, state) {
     saveWongLaoState(state);
     renderRcSetupScreen(body, state);
   });
+}
+
+function showRcListOverlay(state, onClose) {
+  const overlay = document.createElement("div");
+  overlay.className = "rc-restore-overlay";
+
+  function draw() {
+    const listItems = [...RC_BUILTIN_POOL.filter((p) => !state.rcExcluded.includes(p)), ...state.rcCustom];
+    overlay.innerHTML = `
+      <div class="rc-restore-header">
+        <button class="back-btn" id="rcListOverlayClose">‹</button>
+        <div class="rc-restore-title">รายการทั้งหมด (${listItems.length})</div>
+      </div>
+      <div class="rc-restore-list">
+        ${listItems
+          .map((p, i) => `<div class="rc-list-item"><span>${p}</span><button class="rc-list-del" data-i="${i}">×</button></div>`)
+          .join("")}
+      </div>
+    `;
+
+    overlay.querySelector("#rcListOverlayClose").addEventListener("click", () => {
+      overlay.remove();
+      onClose();
+    });
+
+    overlay.querySelectorAll(".rc-list-del").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        rcRemoveFromPool(listItems[Number(btn.dataset.i)], state);
+        draw();
+      });
+    });
+  }
+
+  draw();
+  document.body.appendChild(overlay);
+  void overlay.offsetHeight;
+  overlay.classList.add("show");
 }
 
 function showRcRestoreOverlay(state, onRestore) {

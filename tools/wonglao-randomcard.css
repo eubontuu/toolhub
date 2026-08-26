@@ -38,15 +38,6 @@
   margin: 4px 0 8px;
 }
 
-.rc-list {
-  max-height: 340px;
-  overflow-y: auto;
-  background: var(--card);
-  border-radius: 12px;
-  padding: 10px 12px;
-  margin-bottom: 18px;
-}
-
 .rc-list-item {
   display: flex;
   align-items: center;

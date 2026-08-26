@@ -23,7 +23,6 @@ const WONGLAO_DEFAULT_STATE = {
   rcDeck: null,
   rcLast: null,
   rcStarted: false,
-  rcShowList: false,
   wheelMode: "number",
   wheelMax: 6,
   wheelLast: null,
