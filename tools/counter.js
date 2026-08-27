@@ -128,10 +128,10 @@ function renderCounter(container) {
   let lastTier = 0;
 
   const STREAK_TIER_COLORS = {
-    1: "#ff453a",
-    2: "#0a84ff",
-    3: "#bf5af2",
+    plus: { 1: "#ffd60a", 2: "#22d3ee", 3: "#c026d3" },
+    minus: { 1: "#64748b", 2: "#3b5bdb", 3: "#312e81" },
   };
+  const STREAK_EMOJI = { plus: "🔥", minus: "💧" };
 
   function streakTier(count) {
     if (count >= 10) return 3;
@@ -140,7 +140,7 @@ function renderCounter(container) {
     return 0;
   }
 
-  function spawnStreakParticles(tier) {
+  function spawnStreakParticles(tier, direction) {
     for (let i = 0; i < tier; i++) {
       const p = document.createElement("div");
       p.className = "streak-particle";
@@ -148,14 +148,14 @@ function renderCounter(container) {
       const dist = 70 + Math.random() * 50;
       p.style.setProperty("--angle", `${angle}deg`);
       p.style.setProperty("--dist", `${dist}px`);
-      p.textContent = "🔥";
+      p.textContent = STREAK_EMOJI[direction];
       displayWrap.appendChild(p);
       setTimeout(() => p.remove(), 900);
     }
   }
 
-  function triggerLevelUpFlash(tier) {
-    const color = STREAK_TIER_COLORS[tier];
+  function triggerLevelUpFlash(tier, direction) {
+    const color = STREAK_TIER_COLORS[direction][tier];
     if (!color) return;
     const flash = document.createElement("div");
     flash.className = "streak-flash";
@@ -164,12 +164,12 @@ function renderCounter(container) {
     setTimeout(() => flash.remove(), 500);
   }
 
-  function triggerStreakBurst(tier, leveledUp) {
+  function triggerStreakBurst(tier, direction, leveledUp) {
     streakRing.classList.remove("burst");
     void streakRing.offsetWidth;
     streakRing.classList.add("burst");
-    spawnStreakParticles(tier);
-    if (leveledUp) triggerLevelUpFlash(tier);
+    spawnStreakParticles(tier, direction);
+    if (leveledUp) triggerLevelUpFlash(tier, direction);
     try {
       if (navigator.vibrate) navigator.vibrate(leveledUp ? [30, 40, 30] : 20);
     } catch (e) {}
@@ -177,12 +177,15 @@ function renderCounter(container) {
 
   function updateStreakEffect() {
     const tier = streakTier(streak);
-    displayWrap.classList.remove("streak-1", "streak-2", "streak-3");
+    displayWrap.classList.remove(
+      "streak-plus-1", "streak-plus-2", "streak-plus-3",
+      "streak-minus-1", "streak-minus-2", "streak-minus-3"
+    );
     if (tier > 0) {
-      displayWrap.classList.add(`streak-${tier}`);
-      streakBadge.textContent = `🔥 ×${streak}`;
+      displayWrap.classList.add(`streak-${streakDir}-${tier}`);
+      streakBadge.textContent = `${STREAK_EMOJI[streakDir]} ×${streak}`;
       streakBadge.classList.add("show");
-      triggerStreakBurst(tier, tier > lastTier);
+      triggerStreakBurst(tier, streakDir, tier > lastTier);
     } else {
       streakBadge.classList.remove("show");
     }

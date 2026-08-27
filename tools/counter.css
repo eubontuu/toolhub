@@ -104,13 +104,20 @@
   50% { transform: translateX(-50%) scale(1.1); }
 }
 
-.counter-display-wrap.streak-1 { --streak-color: #ff453a; --streak-glow: rgba(255, 69, 58, 0.65); }
-.counter-display-wrap.streak-2 { --streak-color: #0a84ff; --streak-glow: rgba(10, 132, 255, 0.65); }
-.counter-display-wrap.streak-3 { --streak-color: #bf5af2; --streak-glow: rgba(191, 90, 242, 0.75); }
+.counter-display-wrap.streak-plus-1 { --streak-color: #ffd60a; --streak-glow: rgba(255, 214, 10, 0.65); }
+.counter-display-wrap.streak-plus-2 { --streak-color: #22d3ee; --streak-glow: rgba(34, 211, 238, 0.65); }
+.counter-display-wrap.streak-plus-3 { --streak-color: #c026d3; --streak-glow: rgba(192, 38, 211, 0.75); }
 
-.streak-1 .counter-display,
-.streak-2 .counter-display,
-.streak-3 .counter-display {
+.counter-display-wrap.streak-minus-1 { --streak-color: #64748b; --streak-glow: rgba(100, 116, 139, 0.6); }
+.counter-display-wrap.streak-minus-2 { --streak-color: #3b5bdb; --streak-glow: rgba(59, 91, 219, 0.6); }
+.counter-display-wrap.streak-minus-3 { --streak-color: #312e81; --streak-glow: rgba(49, 46, 129, 0.7); }
+
+.streak-plus-1 .counter-display,
+.streak-plus-2 .counter-display,
+.streak-plus-3 .counter-display,
+.streak-minus-1 .counter-display,
+.streak-minus-2 .counter-display,
+.streak-minus-3 .counter-display {
   animation: streakPulse 0.9s ease-in-out infinite;
 }
 
@@ -119,9 +126,12 @@
   50% { text-shadow: 0 0 40px var(--streak-glow), 0 0 80px var(--streak-glow); }
 }
 
-.streak-1 .counter-display.bump,
-.streak-2 .counter-display.bump,
-.streak-3 .counter-display.bump {
+.streak-plus-1 .counter-display.bump,
+.streak-plus-2 .counter-display.bump,
+.streak-plus-3 .counter-display.bump,
+.streak-minus-1 .counter-display.bump,
+.streak-minus-2 .counter-display.bump,
+.streak-minus-3 .counter-display.bump {
   animation: streakBump var(--duration-slow) var(--ease-bounce), streakPulse 0.9s ease-in-out infinite;
 }
 
@@ -143,9 +153,12 @@
   transition: opacity 0.3s ease;
 }
 
-.streak-1 .streak-glow-bg,
-.streak-2 .streak-glow-bg,
-.streak-3 .streak-glow-bg {
+.streak-plus-1 .streak-glow-bg,
+.streak-plus-2 .streak-glow-bg,
+.streak-plus-3 .streak-glow-bg,
+.streak-minus-1 .streak-glow-bg,
+.streak-minus-2 .streak-glow-bg,
+.streak-minus-3 .streak-glow-bg {
   opacity: 1;
   animation: streakGlowPulse 1s ease-in-out infinite;
 }
