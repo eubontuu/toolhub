@@ -11,10 +11,11 @@ function loadCounterState() {
       if (typeof state.showHistory !== "boolean") state.showHistory = false;
       if (!Array.isArray(state.names)) state.names = [];
       if (typeof state.showNames !== "boolean") state.showNames = false;
+      if (typeof state.historyPinned !== "boolean") state.historyPinned = true;
       return state;
     }
   } catch (e) {}
-  return { value: 0, step: 5, history: [], showHistory: false, names: [], showNames: false };
+  return { value: 0, step: 5, history: [], showHistory: false, names: [], showNames: false, historyPinned: true };
 }
 
 function showCounterNameOverlay(state, direction, onConfirm) {
@@ -92,6 +93,9 @@ function renderCounter(container) {
       <div class="counter-names" id="namesSection"></div>
       <div class="counter-history" id="historySection"></div>
       <div class="counter-display-wrap" id="displayWrap">
+        <div class="streak-glow-bg" id="streakGlowBg"></div>
+        <div class="streak-ring" id="streakRing"></div>
+        <div class="streak-badge" id="streakBadge"></div>
         <div class="counter-display" id="display">${state.value}</div>
       </div>
       <div class="name-tag-row">
@@ -114,8 +118,90 @@ function renderCounter(container) {
 
   const display = container.querySelector("#display");
   const displayWrap = container.querySelector("#displayWrap");
+  const streakBadge = container.querySelector("#streakBadge");
+  const streakRing = container.querySelector("#streakRing");
   const chips = container.querySelectorAll(".step-chip[data-step]");
   const customBtn = container.querySelector("#customStep");
+
+  let streak = 0;
+  let streakDir = null;
+  let lastTier = 0;
+
+  const STREAK_TIER_COLORS = {
+    1: "#ff9f0a",
+    2: "#ff453a",
+    3: "#0a84ff",
+    4: "#bf5af2",
+  };
+
+  function streakTier(count) {
+    if (count >= 10) return 4;
+    if (count >= 5) return 3;
+    if (count >= 3) return 2;
+    if (count >= 2) return 1;
+    return 0;
+  }
+
+  function spawnStreakParticles(tier) {
+    for (let i = 0; i < tier; i++) {
+      const p = document.createElement("div");
+      p.className = "streak-particle";
+      const angle = (Math.random() - 0.5) * 80;
+      const dist = 70 + Math.random() * 50;
+      p.style.setProperty("--angle", `${angle}deg`);
+      p.style.setProperty("--dist", `${dist}px`);
+      p.textContent = "🔥";
+      displayWrap.appendChild(p);
+      setTimeout(() => p.remove(), 900);
+    }
+  }
+
+  function triggerLevelUpFlash(tier) {
+    const color = STREAK_TIER_COLORS[tier];
+    if (!color) return;
+    const flash = document.createElement("div");
+    flash.className = "streak-flash";
+    flash.style.background = `radial-gradient(circle at 50% 38%, ${color} 0%, transparent 70%)`;
+    document.body.appendChild(flash);
+    setTimeout(() => flash.remove(), 500);
+  }
+
+  function triggerStreakBurst(tier, leveledUp) {
+    streakRing.classList.remove("burst");
+    void streakRing.offsetWidth;
+    streakRing.classList.add("burst");
+    spawnStreakParticles(tier);
+    if (leveledUp) triggerLevelUpFlash(tier);
+    try {
+      if (navigator.vibrate) navigator.vibrate(leveledUp ? [30, 40, 30] : 20);
+    } catch (e) {}
+  }
+
+  function updateStreakEffect() {
+    const tier = streakTier(streak);
+    displayWrap.classList.remove("streak-1", "streak-2", "streak-3", "streak-4");
+    if (tier > 0) {
+      displayWrap.classList.add(`streak-${tier}`);
+      streakBadge.textContent = `🔥 ×${streak}`;
+      streakBadge.classList.add("show");
+      triggerStreakBurst(tier, tier > lastTier);
+    } else {
+      streakBadge.classList.remove("show");
+    }
+    lastTier = tier;
+  }
+
+  function bumpStreak(direction) {
+    streak = direction === streakDir ? streak + 1 : 1;
+    streakDir = direction;
+    updateStreakEffect();
+  }
+
+  function resetStreak() {
+    streak = 0;
+    streakDir = null;
+    updateStreakEffect();
+  }
 
   function animateCountUp(fromValue, toValue) {
     const duration = 400;
@@ -183,9 +269,11 @@ function renderCounter(container) {
     const oldValue = state.value;
     state.value += state.step;
     state.history.unshift({ delta: state.step, time: Date.now() });
+    if (state.showHistory && !state.historyPinned) state.showHistory = false;
     saveCounterState(state);
     animateCountUp(oldValue, state.value);
     playChangeAnimation(state.step);
+    bumpStreak("plus");
     renderHistorySection();
   });
 
@@ -193,9 +281,11 @@ function renderCounter(container) {
     const oldValue = state.value;
     state.value -= state.step;
     state.history.unshift({ delta: -state.step, time: Date.now() });
+    if (state.showHistory && !state.historyPinned) state.showHistory = false;
     saveCounterState(state);
     animateCountUp(oldValue, state.value);
     playChangeAnimation(-state.step);
+    bumpStreak("minus");
     renderHistorySection();
   });
 
@@ -214,6 +304,7 @@ function renderCounter(container) {
       saveCounterState(state);
       animateCountUp(oldValue, state.value);
       playChangeAnimation(delta);
+      resetStreak();
       renderHistorySection();
       renderNamesSection();
     });
@@ -227,6 +318,7 @@ function renderCounter(container) {
     state.value = 0;
     saveCounterState(state);
     updateDisplay();
+    resetStreak();
     renderHistorySection();
   });
 
@@ -241,7 +333,12 @@ function renderCounter(container) {
         state.showHistory
           ? `<div class="counter-history-panel">
               <div class="counter-history-panel-head">
-                <span>ประวัติ</span>
+                <div class="counter-history-panel-head-left">
+                  <button class="counter-history-pin ${state.historyPinned ? "active" : ""}" id="historyPinToggle" title="${
+                    state.historyPinned ? "ปักหมุดค้างไว้ — กดบวก/ลบจะไม่ปิดหน้านี้" : "ไม่ได้ปักหมุด — กดบวก/ลบจะปิดหน้านี้อัตโนมัติ"
+                  }">📌</button>
+                  <span>ประวัติ</span>
+                </div>
                 ${count > 0 ? `<button class="counter-history-clear" id="historyClearAll">ลบทั้งหมด</button>` : ""}
               </div>
               <div class="counter-history-list">
@@ -273,6 +370,15 @@ function renderCounter(container) {
       saveCounterState(state);
       renderHistorySection();
     });
+
+    const pinBtn = box.querySelector("#historyPinToggle");
+    if (pinBtn) {
+      pinBtn.addEventListener("click", () => {
+        state.historyPinned = !state.historyPinned;
+        saveCounterState(state);
+        renderHistorySection();
+      });
+    }
 
     const clearAllBtn = box.querySelector("#historyClearAll");
     if (clearAllBtn) {

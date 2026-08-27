@@ -157,10 +157,10 @@ function renderHome() {
           <p class="sub">ยินดีต้อนรับสู่คลังแสงอัจฉริยะ ของตระกูลหมู เชิญเดินชมได้เต็มที่ เลือกหยิบสิ่งที่อยากได้ เชิญครับ อู๊ด อู๊ดดดด</p>
         </div>
       </div>
-      <div class="todo-widget" id="todoWidget"></div>
-      <div class="hike-widget" id="hikeWidget"></div>
       <div class="grid" id="grid"></div>
       ${APPS.length === 0 ? '<div class="empty-hint">ยังไม่มีเครื่องมือ — จะเพิ่มเข้ามาเรื่อยๆ</div>' : ""}
+      <div class="todo-widget" id="todoWidget"></div>
+      <div class="hike-widget" id="hikeWidget"></div>
       <button class="changelog-fab" id="changelogBtn">Update log</button>
     </div>
   `;
