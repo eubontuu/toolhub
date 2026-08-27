@@ -6,6 +6,13 @@ const CHANGELOG_TAG_LABEL = { added: "เพิ่ม", changed: "แก้ไ�
 
 const CHANGELOG_DATA = [
   {
+    version: "v61",
+    date: "27 ส.ค. 2569",
+    items: [
+      { type: "removed", text: "เอาแอป \"ทายเลข\" ออก" },
+    ],
+  },
+  {
     version: "v60",
     date: "27 ส.ค. 2569",
     items: [

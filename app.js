@@ -16,12 +16,6 @@ const APPS = [
     iconImg: "icons/emoji/beers.svg",
     render: renderWongLao,
   },
-  {
-    id: "guessnumber",
-    name: "ทายเลข",
-    icon: "🎮",
-    render: renderGuessNumber,
-  },
 ];
 
 const root = document.getElementById("app");
