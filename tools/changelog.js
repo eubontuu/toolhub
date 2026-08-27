@@ -6,6 +6,13 @@ const CHANGELOG_TAG_LABEL = { added: "เพิ่ม", changed: "แก้ไ�
 
 const CHANGELOG_DATA = [
   {
+    version: "v62",
+    date: "27 ส.ค. 2569",
+    items: [
+      { type: "added", text: "เตรียมเดินป่า — วิดเจ็ตโชว์รายละเอียดว่าต้องทำกี่ครั้ง/กี่เซตด้วย ไม่ใช่แค่หัวข้อกับวันแล้ว" },
+    ],
+  },
+  {
     version: "v61",
     date: "27 ส.ค. 2569",
     items: [
