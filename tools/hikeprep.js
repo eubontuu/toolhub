@@ -116,6 +116,7 @@ function renderHikePrep(container) {
               <div class="hike-widget-item ${overdue ? "overdue" : ""}">
                 <div class="hike-widget-item-body">
                   <span class="hike-widget-item-title">${d.title}${d.key ? " ⭐" : ""}</span>
+                  <span class="hike-widget-item-detail">${d.detail}</span>
                   <span class="hike-widget-item-meta">${hikeFmtShortDate(d.d)} (${d.dow.slice(0, 3)})${
                     overdue ? " · เลยกำหนดแล้ว" : " · วันนี้"
                   }</span>
@@ -132,6 +133,7 @@ function renderHikePrep(container) {
           <div class="hike-widget-item upcoming">
             <div class="hike-widget-item-body">
               <span class="hike-widget-item-title">${upcoming.title}${upcoming.key ? " ⭐" : ""}</span>
+              <span class="hike-widget-item-detail">${upcoming.detail}</span>
               <span class="hike-widget-item-meta">${hikeFmtShortDate(upcoming.d)} (${upcoming.dow.slice(0, 3)}) · ${
                 hikeDaysBetween(today, upcoming.d) === 1 ? "พรุ่งนี้" : `อีก ${hikeDaysBetween(today, upcoming.d)} วัน`
               }</span>
