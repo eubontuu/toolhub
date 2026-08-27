@@ -6,6 +6,13 @@ const CHANGELOG_TAG_LABEL = { added: "เพิ่ม", changed: "แก้ไ�
 
 const CHANGELOG_DATA = [
   {
+    version: "v66",
+    date: "28 ส.ค. 2569",
+    items: [
+      { type: "changed", text: "บวก/ลบ — สายลบเปลี่ยนจาก 💧 เป็น 😢 และปรับสีให้เข้ม/ทึบขึ้น (กรมท่า→น้ำเงินเข้ม→ครามเข้มเกือบดำ) ไม่ให้ดูจางเหมือนเดิม" },
+    ],
+  },
+  {
     version: "v65",
     date: "28 ส.ค. 2569",
     items: [

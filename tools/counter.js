@@ -129,9 +129,9 @@ function renderCounter(container) {
 
   const STREAK_TIER_COLORS = {
     plus: { 1: "#ffd60a", 2: "#22d3ee", 3: "#c026d3" },
-    minus: { 1: "#64748b", 2: "#3b5bdb", 3: "#312e81" },
+    minus: { 1: "#3d4870", 2: "#1e3a8a", 3: "#1e1b4b" },
   };
-  const STREAK_EMOJI = { plus: "🔥", minus: "💧" };
+  const STREAK_EMOJI = { plus: "🔥", minus: "😢" };
 
   function streakTier(count) {
     if (count >= 10) return 3;

@@ -108,9 +108,9 @@
 .counter-display-wrap.streak-plus-2 { --streak-color: #22d3ee; --streak-glow: rgba(34, 211, 238, 0.65); }
 .counter-display-wrap.streak-plus-3 { --streak-color: #c026d3; --streak-glow: rgba(192, 38, 211, 0.75); }
 
-.counter-display-wrap.streak-minus-1 { --streak-color: #64748b; --streak-glow: rgba(100, 116, 139, 0.6); }
-.counter-display-wrap.streak-minus-2 { --streak-color: #3b5bdb; --streak-glow: rgba(59, 91, 219, 0.6); }
-.counter-display-wrap.streak-minus-3 { --streak-color: #312e81; --streak-glow: rgba(49, 46, 129, 0.7); }
+.counter-display-wrap.streak-minus-1 { --streak-color: #3d4870; --streak-glow: rgba(61, 72, 112, 0.8); }
+.counter-display-wrap.streak-minus-2 { --streak-color: #1e3a8a; --streak-glow: rgba(30, 58, 138, 0.85); }
+.counter-display-wrap.streak-minus-3 { --streak-color: #1e1b4b; --streak-glow: rgba(30, 27, 75, 0.9); }
 
 .streak-plus-1 .counter-display,
 .streak-plus-2 .counter-display,
