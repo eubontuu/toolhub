@@ -1,0 +1,187 @@
+/* เกมทายเลข */
+
+.guess-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 0;
+  padding-bottom: 12px;
+}
+
+.guess-range-text {
+  color: var(--sub);
+  font-size: 13px;
+  margin-bottom: 18px;
+  text-align: center;
+}
+
+.guess-input-row {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+  max-width: 320px;
+  margin-bottom: 12px;
+}
+
+.guess-input {
+  flex: 1;
+  min-width: 0;
+  background: var(--card);
+  border: 1.5px solid transparent;
+  border-radius: var(--radius-md);
+  color: var(--text);
+  padding: 14px;
+  font-size: 20px;
+  text-align: center;
+}
+
+.guess-input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.guess-submit-btn {
+  background: var(--accent);
+  border: none;
+  color: #fff;
+  padding: 0 22px;
+  border-radius: var(--radius-md);
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.guess-submit-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.guess-feedback {
+  min-height: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--sub);
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.guess-feedback.low {
+  color: var(--accent);
+}
+
+.guess-feedback.high {
+  color: var(--red);
+}
+
+.guess-feedback.warn {
+  color: var(--red);
+}
+
+.guess-count {
+  color: var(--sub);
+  font-size: 13px;
+  margin-bottom: 14px;
+}
+
+.guess-history {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  max-width: 380px;
+  margin-bottom: 20px;
+}
+
+.guess-chip {
+  background: var(--card);
+  border-radius: var(--radius-pill);
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.guess-chip.low {
+  color: var(--accent);
+}
+
+.guess-chip.high {
+  color: var(--red);
+}
+
+.guess-chip.correct {
+  background: var(--green-dim);
+  color: #fff;
+}
+
+.guess-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(5, 6, 10, 0.92);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 28px;
+  z-index: 1000;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity var(--duration-base) ease;
+  padding: 24px;
+}
+
+.guess-overlay.show {
+  opacity: 1;
+}
+
+.guess-overlay-card {
+  width: min(85vw, 340px);
+  border-radius: var(--radius-xl);
+  background: linear-gradient(155deg, #34c759, #1f7a37);
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 36px 28px;
+  box-shadow: var(--shadow-xl);
+  transform: scale(0.75);
+  transition: transform var(--duration-slow) var(--ease-bounce);
+}
+
+.guess-overlay.show .guess-overlay-card {
+  transform: scale(1);
+}
+
+.guess-overlay-emoji {
+  font-size: 44px;
+}
+
+.guess-overlay-title {
+  font-size: 24px;
+  font-weight: 800;
+}
+
+.guess-overlay-sub {
+  font-size: 15px;
+  font-weight: 600;
+  text-align: center;
+  opacity: 0.9;
+}
+
+.guess-overlay-next-btn {
+  background: #fff;
+  color: #1a1a1a;
+  border: none;
+  padding: 14px 34px;
+  border-radius: var(--radius-pill);
+  font-size: 17px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: var(--shadow-lg);
+}
+
+.guess-overlay-hint {
+  color: var(--sub);
+  font-size: 13px;
+}
