@@ -104,15 +104,13 @@
   50% { transform: translateX(-50%) scale(1.1); }
 }
 
-.counter-display-wrap.streak-1 { --streak-color: #ff9f0a; --streak-glow: rgba(255, 159, 10, 0.6); }
-.counter-display-wrap.streak-2 { --streak-color: #ff453a; --streak-glow: rgba(255, 69, 58, 0.65); }
-.counter-display-wrap.streak-3 { --streak-color: #0a84ff; --streak-glow: rgba(10, 132, 255, 0.65); }
-.counter-display-wrap.streak-4 { --streak-color: #bf5af2; --streak-glow: rgba(191, 90, 242, 0.75); }
+.counter-display-wrap.streak-1 { --streak-color: #ff453a; --streak-glow: rgba(255, 69, 58, 0.65); }
+.counter-display-wrap.streak-2 { --streak-color: #0a84ff; --streak-glow: rgba(10, 132, 255, 0.65); }
+.counter-display-wrap.streak-3 { --streak-color: #bf5af2; --streak-glow: rgba(191, 90, 242, 0.75); }
 
 .streak-1 .counter-display,
 .streak-2 .counter-display,
-.streak-3 .counter-display,
-.streak-4 .counter-display {
+.streak-3 .counter-display {
   animation: streakPulse 0.9s ease-in-out infinite;
 }
 
@@ -123,8 +121,7 @@
 
 .streak-1 .counter-display.bump,
 .streak-2 .counter-display.bump,
-.streak-3 .counter-display.bump,
-.streak-4 .counter-display.bump {
+.streak-3 .counter-display.bump {
   animation: streakBump var(--duration-slow) var(--ease-bounce), streakPulse 0.9s ease-in-out infinite;
 }
 
@@ -148,8 +145,7 @@
 
 .streak-1 .streak-glow-bg,
 .streak-2 .streak-glow-bg,
-.streak-3 .streak-glow-bg,
-.streak-4 .streak-glow-bg {
+.streak-3 .streak-glow-bg {
   opacity: 1;
   animation: streakGlowPulse 1s ease-in-out infinite;
 }
@@ -331,20 +327,22 @@
 }
 
 .counter-history-pin {
-  background: none;
-  border: none;
-  padding: 0;
-  font-size: 13px;
+  background: var(--card-hi);
+  border: 1.5px solid transparent;
+  color: var(--sub);
+  font-size: 11px;
+  font-weight: 700;
   line-height: 1;
+  padding: 6px 10px;
+  border-radius: var(--radius-pill);
+  white-space: nowrap;
   cursor: pointer;
-  opacity: 0.35;
-  filter: grayscale(1);
-  transition: opacity 0.15s ease, filter 0.15s ease;
+  transition: border-color 0.15s ease, color 0.15s ease;
 }
 
 .counter-history-pin.active {
-  opacity: 1;
-  filter: none;
+  border-color: var(--accent);
+  color: var(--accent);
 }
 
 .counter-history-clear {

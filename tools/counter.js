@@ -128,17 +128,15 @@ function renderCounter(container) {
   let lastTier = 0;
 
   const STREAK_TIER_COLORS = {
-    1: "#ff9f0a",
-    2: "#ff453a",
-    3: "#0a84ff",
-    4: "#bf5af2",
+    1: "#ff453a",
+    2: "#0a84ff",
+    3: "#bf5af2",
   };
 
   function streakTier(count) {
-    if (count >= 10) return 4;
-    if (count >= 5) return 3;
-    if (count >= 3) return 2;
-    if (count >= 2) return 1;
+    if (count >= 10) return 3;
+    if (count >= 5) return 2;
+    if (count >= 3) return 1;
     return 0;
   }
 
@@ -179,7 +177,7 @@ function renderCounter(container) {
 
   function updateStreakEffect() {
     const tier = streakTier(streak);
-    displayWrap.classList.remove("streak-1", "streak-2", "streak-3", "streak-4");
+    displayWrap.classList.remove("streak-1", "streak-2", "streak-3");
     if (tier > 0) {
       displayWrap.classList.add(`streak-${tier}`);
       streakBadge.textContent = `🔥 ×${streak}`;
@@ -335,8 +333,8 @@ function renderCounter(container) {
               <div class="counter-history-panel-head">
                 <div class="counter-history-panel-head-left">
                   <button class="counter-history-pin ${state.historyPinned ? "active" : ""}" id="historyPinToggle" title="${
-                    state.historyPinned ? "ปักหมุดค้างไว้ — กดบวก/ลบจะไม่ปิดหน้านี้" : "ไม่ได้ปักหมุด — กดบวก/ลบจะปิดหน้านี้อัตโนมัติ"
-                  }">📌</button>
+                    state.historyPinned ? "ปักหมุดค้างไว้ — กดบวก/ลบจะไม่ปิดหน้านี้ (กดเพื่อเปลี่ยน)" : "ไม่ได้ปักหมุด — กดบวก/ลบจะปิดหน้านี้อัตโนมัติ (กดเพื่อเปลี่ยน)"
+                  }">📌 ${state.historyPinned ? "ค้างไว้" : "ปิดอัตโนมัติ"}</button>
                   <span>ประวัติ</span>
                 </div>
                 ${count > 0 ? `<button class="counter-history-clear" id="historyClearAll">ลบทั้งหมด</button>` : ""}
