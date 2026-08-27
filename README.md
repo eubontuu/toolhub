@@ -16,14 +16,15 @@ The owner wanted a single app icon on their phone that bundles several small per
 index.html                          entry point; loads style.css + every tool's css/js in order, registers sw.js
 app.js                               app shell only: APPS registry, router, boot
 style.css                            shared/shell styles only: :root vars, base, Home, generic tool screen, small shared components
-tools/counter.{js,css}               บวก/ลบ
+tools/counter.{js,css}               บวก/ลบ (incl. ให้/ได้ ledger — see "Persistence" below)
+tools/todo.{js,css}                  สิ่งที่ต้องทำ — Home-screen widget, not a routed APPS tool (see "Home-screen widgets" below)
 tools/wonglao-core.{js,css}          วงเหล้า shared state, menu/router, shuffleArray util, shared wonglao styles
 tools/wonglao-ohana.{js,css}         ไพ่ Ohana
 tools/wonglao-randomcard.{js,css}    ไพ่สุ่ม
 tools/wonglao-wheel.{js,css}         สุ่ม (เดิมชื่อ "วงล้อ"/"สุ่มเลข") — 2 โหมด: สุ่มเลข + ลูกเต๋า
 tools/wonglao-chwazi.{js,css}        Chwazi
 tools/wonglao-quiz.{js,css}          Flash Quiz
-tools/hikeprep.{js,css}              เตรียมเดินป่า
+tools/hikeprep.{js,css}              เตรียมเดินป่า — Home-screen widget, not a routed APPS tool (see "Home-screen widgets" below)
 tools/changelog.{js,css}             การอัปเดต (changelog) — data + render, shown from the "Update log" button on Home
 sw.js                                service worker: offline cache + update mechanism
 manifest.json                        PWA metadata (name, icons, display mode)
@@ -31,7 +32,7 @@ icons/                               app icons (192, 512, apple-touch-icon)
 icons/emoji/                         Twemoji SVGs used as APPS/WONGLAO_TABS icon images (CC-BY 4.0, see index.html body comment) — see tabIconHtml() in wonglao-core.js
 ```
 
-There is no bundler, no `node_modules`, no `package.json`, no ES modules — every JS file is a plain classic `<script>` tag and every CSS file a plain `<link rel="stylesheet">`, so **everything lives in one shared global scope/cascade and load order in `index.html` matters for JS**. `tools/wonglao-core.js` defines `shuffleArray`, `saveWongLaoState`/`loadWongLaoState`, and the menu/dispatcher, so it must load before the other `tools/wonglao-*.js` files, which in turn must all load before `app.js` (whose `APPS` array references `renderCounter`/`renderWongLao`/`renderHikePrep` by name at top-level). CSS order is much less strict — each tool's classes are uniquely prefixed (`.ohana-*`, `.rc-*`, `.hike-*`, ...) so files rarely compete; the one place order-independence is relied on is `.wl-menu .grid` in `wonglao-core.css` overriding the shared `.grid` from `style.css`, which works regardless of link order because the compound selector has higher specificity. Edit the files directly and reload.
+There is no bundler, no `node_modules`, no `package.json`, no ES modules — every JS file is a plain classic `<script>` tag and every CSS file a plain `<link rel="stylesheet">`, so **everything lives in one shared global scope/cascade and load order in `index.html` matters for JS**. `tools/wonglao-core.js` defines `shuffleArray`, `saveWongLaoState`/`loadWongLaoState`, and the menu/dispatcher, so it must load before the other `tools/wonglao-*.js` files, which in turn must all load before `app.js` (whose `APPS` array references `renderCounter`/`renderWongLao` by name at top-level, and whose `renderHome()` calls `renderTodo`/`renderHikePrep` by name). CSS order is much less strict — each tool's classes are uniquely prefixed (`.ohana-*`, `.rc-*`, `.hike-*`, ...) so files rarely compete; the one place order-independence is relied on is `.wl-menu .grid` in `wonglao-core.css` overriding the shared `.grid` from `style.css`, which works regardless of link order because the compound selector has higher specificity. Edit the files directly and reload.
 
 ## Architecture
 
@@ -41,13 +42,18 @@ There is no bundler, no `node_modules`, no `package.json`, no ES modules — eve
 
 ```js
 const APPS = [
-  { id: "counter",  name: "บวก/ลบ",        icon: "±",  render: renderCounter },
-  { id: "wonglao",  name: "วงเหล้า",        icon: "🍻", render: renderWongLao },
-  { id: "hikeprep", name: "เตรียมเดินป่า",  icon: "🥾", render: renderHikePrep },
+  { id: "counter", name: "บวก/ลบ", icon: "±",  iconImg: "icons/emoji/abacus.svg", render: renderCounter },
+  { id: "wonglao", name: "วงเหล้า", icon: "🍻", iconImg: "icons/emoji/beers.svg",  render: renderWongLao },
 ];
 ```
 
+(เตรียมเดินป่า used to be a third `APPS` entry; it's now a Home-screen widget instead — see "Home-screen widgets" below.) Each entry's `icon` is a required emoji fallback/alt text; the optional `iconImg` is a path to an SVG under `icons/emoji/` (Twemoji, see the attribution comment in `index.html`'s `<body>`) that's preferred over the emoji when present — used for crisper icons than raw unicode emoji render as. `WONGLAO_TABS` entries (below) follow the same `icon`/`iconImg` shape.
+
 Routing is a single-page hash router (`#app/<id>`, plus the special `#changelog` route below), handled by `render()`/`renderHome()`/`renderToolShell()` near the top of `app.js`. `renderToolShell(title, renderFn)` draws the back-button header (given a title string) and calls `renderFn(container)` to fill `.tool-body` — it's not tied to an `APPS` entry, which is what lets `#changelog` reuse it too.
+
+**Theme system:** `app.js` also holds a `THEMES` array (`id`/`label`/`group`/`bg`/`accent`) — two themes grouped "แนะนำ" (dark, the default, and light) plus a few "อื่นๆ" mood themes (grape/ivory/mint/sunset). `applyTheme(id)` sets `data-theme="<id>"` on `<html>`, which `style.css` picks up via `:root[data-theme="<id>"]` override blocks (only structural colors — `--bg`/`--card`/`--card-hi`/`--text`/`--sub`/`--hairline`, plus `--accent` for the mood themes — vary; per-tool "flavor" colors like Ohana's gradient or the wheel's rainbow stay fixed across every theme). The choice persists to `localStorage` (`toolhub.theme`, default `"dark"`) via `loadTheme()`/`saveTheme()`, and `setupThemePicker()` builds the swatch popover opened from the "ธีม" button on Home. Adding a theme is just one `THEMES` entry + one CSS override block — see the "Theme picker" rule in `CLAUDE.md` for the full contract, including the one tool (`tools/todo.css`) that opts into following the theme instead of using a fixed palette.
+
+**Design tokens:** `style.css`'s `:root` also defines structural tokens for radius/shadow/motion (`--radius-sm/md/lg/xl/pill/circle`, `--shadow-sm/md/lg/xl`, `--duration-tap/base/slow`, `--ease-bounce`) meant to replace one-off literal values. So far only `style.css` itself and `tools/counter.css` consume them; other `tools/*.css` files still have their own literal values, migrated opportunistically rather than in a dedicated sweep.
 
 **Edge-swipe-back:** `app.js` also attaches a global `touchstart`/`touchend` listener (bottom of the file) that treats a right-swipe starting within 24px of the left screen edge as "back." It doesn't call `navigate()` directly — it finds every `.back-btn` in the document with `document.querySelectorAll(".back-btn")` and clicks the *last* one, so nested back buttons (e.g. วงเหล้า's outer tool-shell back button plus its own inner sub-game back button) resolve correctly to whichever is visually "current," without the gesture needing to know the route hierarchy. It also checks for an open `.reveal-overlay.show` first and clicks that instead, so a swipe closes a reveal card (Ohana/ไพ่สุ่ม/etc.) rather than navigating the page underneath it — see the reveal-overlay rule in `CLAUDE.md`. This only works because `style.css`'s `html, body` sets `touch-action: pan-y` — without it, mobile browsers reserve horizontal edge swipes for their own back/forward navigation gesture and our touch listeners never reliably see them (this shipped broken on real devices once before `touch-action` was added; desktop browser automation can't catch this class of bug since it simulates touch events directly, bypassing the OS/browser gesture recognizer entirely).
 
@@ -59,7 +65,12 @@ Routing is a single-page hash router (`#app/<id>`, plus the special `#changelog`
 
 Not every home-screen feature needs a tap-through screen. A **widget** is fully usable directly on the Home screen — add/edit/delete right there — as opposed to an **"แอป"** (`APPS` entry), which always opens behind `renderToolShell`'s back-button header.
 
-สิ่งที่ต้องทำ (to do list) is the current example: `renderHome()` in `app.js` renders a `<div class="todo-widget" id="todoWidget">` between the banner and the icon grid, then calls `renderTodo(document.getElementById("todoWidget"))` (from `tools/todo.js`) to fill it. `renderTodo` owns its own state (`localStorage` key `toolhub.todo`, items can carry an optional date/subject) and re-renders itself on every add/check/delete — same self-contained pattern as any tool's render function, just not routed through `APPS`/`renderToolShell`. It's still registered in `PRECACHE_URLS` and loaded via `<script>`/`<link>` in `index.html` like any other tool file.
+There are two current examples, both rendered into their own `<div>` between the banner and the icon grid in `renderHome()`:
+
+- **สิ่งที่ต้องทำ** (to do list): `renderTodo(document.getElementById("todoWidget"))` (from `tools/todo.js`). Owns its own state (`localStorage` key `toolhub.todo`, items can carry an optional date/subject) and re-renders itself on every add/check/delete.
+- **เตรียมเดินป่า** (hike prep): `renderHikePrep(document.getElementById("hikeWidget"))` (from `tools/hikeprep.js`). Read-only-ish — shows the backlog of past/today days not yet marked done (per-day `localStorage` keys, see "Persistence" below) with a "เสร็จแล้ว" button per item, and hides itself entirely once `HIKE_WIDGET_HIDE_AFTER` has passed. This one used to be a tap-through `APPS` entry; it moved to a widget because the owner wanted the backlog visible without a tap.
+
+Both follow the same self-contained pattern as any tool's render function (own state + re-render), just not routed through `APPS`/`renderToolShell`, and both are registered in `PRECACHE_URLS` and loaded via `<script>`/`<link>` in `index.html` like any other tool file.
 
 **To add a new home-screen widget:** write `tools/yourwidget.js` with a `renderYourWidget(container)` function (state + re-render, same shape as a tool), add its `<script>`/`<link>` tags to `index.html` and both files to `PRECACHE_URLS`, then in `renderHome()` add a container div and call `renderYourWidget(...)` on it — do **not** add an `APPS` entry, since that would make it tap-through instead of directly usable. (A **read-only notice card** with a jump button to a separate editable `APPS` page is a different, currently-unused pattern — see "การ์ดแจ้งเตือน" in `CLAUDE.md` if that shape is ever needed instead.)
 
@@ -71,7 +82,7 @@ The "Update log" button, fixed to the bottom-right corner of the Home screen (`.
 
 ### The "วงเหล้า" (wonglao) sub-hub
 
-`wonglao` is itself a mini hub: it has its own icon-grid menu (`WONGLAO_TABS`) with 6 mini-games, each with its own back button nested under wonglao's header. This pattern (menu screen + per-item detail screen, both driven by one `state.tab` field) exists because a flat tab bar with 6 items was too cramped — see `renderWongLaoMenu` / `renderWongLaoGame` in `tools/wonglao-core.js`.
+`wonglao` is itself a mini hub: it has its own icon-grid menu (`WONGLAO_TABS`) with 5 mini-games, each with its own back button nested under wonglao's header. This pattern (menu screen + per-item detail screen, both driven by one `state.tab` field) exists because a flat tab bar with that many items was too cramped — see `renderWongLaoMenu` / `renderWongLaoGame` in `tools/wonglao-core.js`.
 
 Sub-games and their render functions:
 
@@ -83,13 +94,13 @@ Sub-games and their render functions:
 | `chwazi` | Chwazi | `renderChwaziGame` |
 | `quiz` | Flash Quiz | `renderFlashQuizGame` |
 
-All six share one state blob (see Persistence below), loaded/saved via `loadWongLaoState()` / `saveWongLaoState()`.
+All five share one state blob (see Persistence below), loaded/saved via `loadWongLaoState()` / `saveWongLaoState()`.
 
 **To add a new wonglao sub-game:** add an entry to `WONGLAO_TABS` and its default fields to `WONGLAO_DEFAULT_STATE` (both in `tools/wonglao-core.js`), add a branch in `renderWongLaoGame`'s dispatcher (also in `wonglao-core.js`), then write the render function and its styles — either inline in `wonglao-core.js`/`.css` for something small, or its own `tools/wonglao-yourgame.js` + `.css` (register both in `index.html` and `PRECACHE_URLS` like any other tool file) for something bigger.
 
 ### Fullscreen "reveal" overlays
 
-Ohana, ไพ่สุ่ม, สุ่ม's spin/dice result, and Flash Quiz's question all use a fullscreen overlay pattern for the "reveal" moment: a full-viewport `position:fixed` div is appended to `document.body` (not the tool container), animated in via a CSS class toggle, and removed on tap. Look at `showOhanaOverlay`, `showRcOverlay`, `showWheelOverlay`, `showDiceOverlay`, `showQuizOverlay` for the pattern — copy one of these for any future "big reveal" moment. This is a standing house style: every game with a card/question "open" action should use it.
+Ohana, ไพ่สุ่ม, สุ่ม's spin/dice result, Flash Quiz's question, and บวก/ลบ's "เพิ่มไปยังรายชื่อ" name popup all use a fullscreen overlay pattern for the "reveal" moment: a full-viewport `position:fixed` div is appended to `document.body` (not the tool container), animated in via a CSS class toggle, and removed on tap. Look at `showOhanaOverlay`, `showRcOverlay`, `showWheelOverlay`, `showDiceOverlay`, `showQuizOverlay`, `showCounterNameOverlay` for the pattern — copy one of these for any future "big reveal" moment. This is a standing house style: every game with a card/question "open" action should use it, and its root element's class list must include `reveal-overlay` so the edge-swipe-back handler (see above) can find and dismiss it.
 
 **Important gotcha:** the animation-in trigger must use the forced-reflow technique, not double-`requestAnimationFrame`:
 
@@ -109,11 +120,13 @@ An earlier version used `requestAnimationFrame` nested twice, which is the "norm
 
 | key | shape | used by |
 |---|---|---|
-| `toolhub.counter` | `{ value, step }` | บวก/ลบ |
-| `toolhub.wonglao` | one big object — see `WONGLAO_DEFAULT_STATE` in `tools/wonglao-core.js` for every field | all 6 wonglao sub-games |
-| `toolhub.hikeprep.<YYYY-MM-DD>` | `"1"` / `"0"` | เตรียมเดินป่า's per-day "done" checkbox |
+| `toolhub.counter` | `{ value, step, history: [{delta, time, isReset?}], showHistory, names: [{name, total}], showNames }` | บวก/ลบ — `history` logs every +/− tap and reset; `names` is the ให้/ได้ ledger (net total owed per name) |
+| `toolhub.todo` | `{ items: [{id, text, done, date?, subject?}] }` | สิ่งที่ต้องทำ widget |
+| `toolhub.wonglao` | one big object — see `WONGLAO_DEFAULT_STATE` in `tools/wonglao-core.js` for every field | all 5 wonglao sub-games |
+| `toolhub.hikeprep.<YYYY-MM-DD>` | `"1"` / `"0"` | เตรียมเดินป่า widget's per-day "done" checkbox |
+| `toolhub.theme` | theme id string, e.g. `"dark"` | theme picker (`app.js`) — UI preference, not tool data |
 
-`loadWongLaoState()` always merges `{...WONGLAO_DEFAULT_STATE, ...JSON.parse(saved)}` — **never read `localStorage` directly without this merge**. A saved state from before a new field existed would otherwise come back `undefined` for that field (this caused a real bug: วงล้อ showed "undefined" instead of "?" until the merge was added). When adding a new persisted field to any tool, add it to that tool's default-state object, not just to the code that uses it.
+`loadWongLaoState()` always merges `{...WONGLAO_DEFAULT_STATE, ...JSON.parse(saved)}` — **never read `localStorage` directly without this merge**. A saved state from before a new field existed would otherwise come back `undefined` for that field (this caused a real bug: the สุ่ม sub-game, then still named วงล้อ, showed "undefined" instead of "?" until the merge was added). When adding a new persisted field to any tool, add it to that tool's default-state object, not just to the code that uses it.
 
 Nothing is synced anywhere — data lives only in the browser that created it. Reinstalling the PWA (delete + re-add to home screen) wipes it. This is intentional/acceptable for this app's scope.
 
@@ -126,7 +139,7 @@ This app is installed via Safari "Add to Home Screen" on iOS (no App Store, no A
 `sw.js` uses a cache-first / stale-while-revalidate strategy: on every request it serves the cached file instantly (if present) and re-fetches in the background to update the cache for *next* time. The cache is versioned:
 
 ```js
-const CACHE_VERSION = "v20";   // <-- bump this on every deploy that changes any precached file
+const CACHE_VERSION = "vN";   // <-- bump this (increment N) on every deploy that changes any precached file
 ```
 
 **You must bump `CACHE_VERSION` every time you change `app.js`, any `tools/*.js`/`tools/*.css`, `style.css`, `index.html`, or `manifest.json`.** If you don't, installed clients may keep serving the old cached files indefinitely, because the `install` step only re-fetches everything when the service worker script itself (`sw.js`) is byte-different from what's currently registered. A version bump is what makes `sw.js` different. If you add a new `tools/*.js`/`tools/*.css` file, also add it to `PRECACHE_URLS` in `sw.js` — a file missing from that list still works (fetched on demand and cached lazily via the stale-while-revalidate handler) but won't be available offline on first load.
@@ -183,6 +196,6 @@ If the trip dates or schedule change, both `HIKE_DAYS` (here) and the routine's 
 
 ## Known quirks worth knowing before you dive in
 
-- **Home grid is `repeat(4, 1fr)`** on the top-level Home screen but wonglao's sub-menu uses `repeat(3, 1fr)` for a tidier 2-row layout with 6 items — these are intentionally different, not inconsistent.
+- **Home grid is `repeat(4, 1fr)`** on the top-level Home screen but wonglao's sub-menu uses `repeat(3, 1fr)` for a tidier 2-row layout with 5 items — these are intentionally different, not inconsistent.
 - **Thai text throughout** — all user-facing strings, comments where present, and this README's terminology assume a Thai-reading maintainer. Keep new UI text in Thai unless told otherwise.
 - **No test suite.** Verification has been manual: local `python -m http.server` + browser automation (screenshot-driven) for every feature added so far. If you add automated tests, there's nothing here to conflict with.
