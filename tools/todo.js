@@ -1,5 +1,5 @@
-// สิ่งที่ต้องทำ — Home-screen widget (renderTodo fills #todoWidget, called from renderHome
-// in app.js), fully editable right there, no tap-through screen. No dependency on other tool files.
+// สิ่งที่ต้องทำ — full-screen app (renderTodo, registered in APPS in app.js).
+// No dependency on other tool files.
 
 function loadTodoState() {
   try {
@@ -73,45 +73,49 @@ function renderTodo(container) {
     const doneCount = state.items.filter((item) => item.done).length;
 
     container.innerHTML = `
-      <div class="todo-title">📝 สิ่งที่ต้องทำ</div>
-      <div class="todo-input-row">
-        <input type="text" id="todoInput" class="todo-input" placeholder="เขียนสิ่งที่ต้องทำ..." />
-        <button class="todo-add-btn" id="todoAddBtn">+</button>
+      <div class="todo-page">
+        <div class="todo-widget">
+          <div class="todo-title">📝 สิ่งที่ต้องทำ</div>
+          <div class="todo-input-row">
+            <input type="text" id="todoInput" class="todo-input" placeholder="เขียนสิ่งที่ต้องทำ..." />
+            <button class="todo-add-btn" id="todoAddBtn">+</button>
+          </div>
+          <div class="todo-optional-row">
+            <input type="date" id="todoDateInput" class="todo-optional-input" />
+            <input type="text" id="todoSubjectInput" class="todo-optional-input" placeholder="วิชา (ไม่บังคับ)" />
+          </div>
+          <div class="todo-list" id="todoList">
+            ${
+              total === 0
+                ? `<div class="todo-empty">ยังไม่มีรายการ — เขียนสิ่งที่ต้องทำได้เลย</div>`
+                : state.items
+                    .map((item) => {
+                      const urgency = todoUrgencyClass(item);
+                      const meta = todoMetaLine(item);
+                      return `
+                <div class="todo-item ${item.done ? "done" : ""} ${urgency}">
+                  <button class="todo-check ${item.done ? "done" : ""}" data-id="${item.id}">${item.done ? "เสร็จแล้ว" : ""}</button>
+                  <div class="todo-item-body">
+                    <span class="todo-text">${item.text}</span>
+                    ${meta ? `<span class="todo-meta">${meta}</span>` : ""}
+                  </div>
+                  <button class="todo-del" data-id="${item.id}">×</button>
+                </div>
+              `;
+                    })
+                    .join("")
+            }
+          </div>
+          ${
+            total > 0
+              ? `<div class="todo-footer">
+                  <span class="todo-count">เสร็จแล้ว ${doneCount}/${total}</span>
+                  ${doneCount > 0 ? `<button class="reset-btn" id="todoClearDone">ลบที่เสร็จแล้ว</button>` : ""}
+                </div>`
+              : ""
+          }
+        </div>
       </div>
-      <div class="todo-optional-row">
-        <input type="date" id="todoDateInput" class="todo-optional-input" />
-        <input type="text" id="todoSubjectInput" class="todo-optional-input" placeholder="วิชา (ไม่บังคับ)" />
-      </div>
-      <div class="todo-list" id="todoList">
-        ${
-          total === 0
-            ? `<div class="todo-empty">ยังไม่มีรายการ — เขียนสิ่งที่ต้องทำได้เลย</div>`
-            : state.items
-                .map((item) => {
-                  const urgency = todoUrgencyClass(item);
-                  const meta = todoMetaLine(item);
-                  return `
-            <div class="todo-item ${item.done ? "done" : ""} ${urgency}">
-              <button class="todo-check ${item.done ? "done" : ""}" data-id="${item.id}">${item.done ? "เสร็จแล้ว" : ""}</button>
-              <div class="todo-item-body">
-                <span class="todo-text">${item.text}</span>
-                ${meta ? `<span class="todo-meta">${meta}</span>` : ""}
-              </div>
-              <button class="todo-del" data-id="${item.id}">×</button>
-            </div>
-          `;
-                })
-                .join("")
-        }
-      </div>
-      ${
-        total > 0
-          ? `<div class="todo-footer">
-              <span class="todo-count">เสร็จแล้ว ${doneCount}/${total}</span>
-              ${doneCount > 0 ? `<button class="reset-btn" id="todoClearDone">ลบที่เสร็จแล้ว</button>` : ""}
-            </div>`
-          : ""
-      }
     `;
 
     const input = container.querySelector("#todoInput");

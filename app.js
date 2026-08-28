@@ -16,6 +16,24 @@ const APPS = [
     iconImg: "icons/emoji/beers.svg",
     render: renderWongLao,
   },
+  {
+    id: "snake",
+    name: "งู",
+    icon: "🐍",
+    render: renderSnake,
+  },
+  {
+    id: "todo",
+    name: "สิ่งที่ต้องทำ",
+    icon: "📝",
+    render: renderTodo,
+  },
+  {
+    id: "hikeprep",
+    name: "เตรียมเดินป่า",
+    icon: "🥾",
+    render: renderHikePrep,
+  },
 ];
 
 const root = document.getElementById("app");
@@ -145,26 +163,7 @@ function render() {
   renderToolShell(app.name, app.render);
 }
 
-// ---------- Home promo card dismiss state ----------
-
-const HOME_PROMO_KEY = "toolhub.homePromoDismissed";
-
-function loadHomePromoDismissed() {
-  try {
-    return localStorage.getItem(HOME_PROMO_KEY) === "1";
-  } catch (e) {
-    return false;
-  }
-}
-
-function saveHomePromoDismissed() {
-  try {
-    localStorage.setItem(HOME_PROMO_KEY, "1");
-  } catch (e) {}
-}
-
 function renderHome() {
-  const promoDismissed = loadHomePromoDismissed();
   root.innerHTML = `
     <div class="home home-v2">
       <div class="home-topbar">
@@ -177,26 +176,6 @@ function renderHome() {
           <button class="icon-action-btn theme-btn" id="themeToggleBtn">ธีม</button>
         </div>
       </div>
-
-      ${
-        promoDismissed
-          ? ""
-          : `
-      <div class="home-promo-card" id="promoCard">
-        <div class="home-promo-icon">🐷</div>
-        <div class="home-promo-text">
-          <div class="home-promo-title">ยินดีต้อนรับสู่คลังแสงอัจฉริยะ ของตระกูลหมู</div>
-          <div class="home-promo-sub">เชิญเดินชมได้เต็มที่ เลือกหยิบสิ่งที่อยากได้ เชิญครับ อู๊ด อู๊ดดดด</div>
-        </div>
-        <button class="home-promo-close" id="promoClose" aria-label="ปิด">✕</button>
-      </div>`
-      }
-
-      <div class="grid" id="grid"></div>
-      ${APPS.length === 0 ? '<div class="empty-hint">ยังไม่มีเครื่องมือ — จะเพิ่มเข้ามาเรื่อยๆ</div>' : ""}
-      <div class="todo-widget" id="todoWidget"></div>
-      <div class="hike-widget" id="hikeWidget"></div>
-      <button class="changelog-fab" id="changelogBtn">Update log</button>
 
       <div class="sidebar-overlay" id="sidebarOverlay"></div>
       <nav class="home-sidebar" id="homeSidebar">
@@ -219,33 +198,12 @@ function renderHome() {
                 : `<span>${app.icon}</span>`
             } <span>${app.name}</span></button>`
           ).join("")}
-          <button class="sidebar-nav-item" data-scroll-target="todoWidget">📝 <span>สิ่งที่ต้องทำ</span></button>
-          <button class="sidebar-nav-item" data-scroll-target="hikeWidget">🥾 <span>เตรียมเดินป่า</span></button>
           <button class="sidebar-nav-item" data-route="changelog">🕓 <span>การอัปเดต</span></button>
         </div>
       </nav>
     </div>
   `;
-  document.getElementById("changelogBtn").addEventListener("click", () => navigate("changelog"));
   setupThemePicker(document.getElementById("themePicker"));
-  renderTodo(document.getElementById("todoWidget"));
-  renderHikePrep(document.getElementById("hikeWidget"));
-  const grid = document.getElementById("grid");
-  APPS.forEach((app) => {
-    const btn = document.createElement("button");
-    btn.className = "icon-btn";
-    btn.innerHTML = `<div class="icon-tile">${app.iconImg ? `<img src="${app.iconImg}" alt="${app.name}" class="icon-img" />` : app.icon}</div><div class="icon-label">${app.name}</div>`;
-    btn.addEventListener("click", () => navigate(`app/${app.id}`));
-    grid.appendChild(btn);
-  });
-
-  const promoClose = document.getElementById("promoClose");
-  if (promoClose) {
-    promoClose.addEventListener("click", () => {
-      saveHomePromoDismissed();
-      document.getElementById("promoCard").remove();
-    });
-  }
 
   const sidebar = document.getElementById("homeSidebar");
   const overlay = document.getElementById("sidebarOverlay");
@@ -263,11 +221,7 @@ function renderHome() {
   sidebar.querySelectorAll(".sidebar-nav-item").forEach((item) => {
     item.addEventListener("click", () => {
       closeSidebar();
-      if (item.dataset.scrollTarget) {
-        document.getElementById(item.dataset.scrollTarget).scrollIntoView({ behavior: "smooth", block: "start" });
-      } else {
-        navigate(item.dataset.route);
-      }
+      navigate(item.dataset.route);
     });
   });
 }
