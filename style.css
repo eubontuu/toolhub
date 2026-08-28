@@ -124,55 +124,231 @@ html, body {
 
 .home {
   flex: 1;
-  padding: calc(var(--safe-top) + 28px) 20px calc(var(--safe-bottom) + 20px);
+  padding: calc(var(--safe-top) + 20px) 20px calc(var(--safe-bottom) + 20px);
   display: flex;
   flex-direction: column;
 }
 
-.home-top {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  margin-bottom: 24px;
+/* Dashboard-style grid backdrop (home-redesign experiment — see CLAUDE.md,
+   not shared by the generic .home rules above so tool screens stay unaffected). */
+.home-v2 {
+  background-image:
+    linear-gradient(var(--hairline) 1px, transparent 1px),
+    linear-gradient(90deg, var(--hairline) 1px, transparent 1px);
+  background-size: 26px 26px;
 }
 
-.home-banner {
-  position: relative;
+.home-topbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.home-topbar-brand {
   flex: 1;
   min-width: 0;
-  background: linear-gradient(135deg, var(--card-hi), var(--card));
-  border-left: 4px solid #ff6b9d;
-  border-radius: 4px 16px 16px 4px; /* intentional asymmetric shape, not a scale value */
-  padding: 16px 60px 16px 18px;
-  box-shadow: var(--shadow-lg);
-}
-
-.home-banner .theme-picker {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-}
-
-.home h1 {
-  font-size: 26px;
-  font-weight: 800;
-  letter-spacing: -0.01em;
-  margin: 0 0 6px;
   display: flex;
   align-items: center;
   gap: 8px;
-  background: linear-gradient(135deg, #ffb37a, #ff6b9d);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
 }
 
-.home .sub {
-  color: var(--text);
-  opacity: 0.75;
+.home-topbar-logo {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(135deg, #ff6b9d, #ffb37a);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 17px;
+  flex-shrink: 0;
+}
+
+.home-topbar-name {
+  font-size: 15px;
+  font-weight: 800;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.home-promo-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: linear-gradient(135deg, var(--card-hi), var(--card));
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-lg);
+  padding: 14px 40px 14px 14px;
+  margin-bottom: 20px;
+  box-shadow: var(--shadow-md);
+}
+
+.home-promo-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, #ff6b9d, #ffb37a);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.home-promo-text { min-width: 0; }
+
+.home-promo-title {
   font-size: 13.5px;
-  line-height: 1.55;
-  margin: 0;
+  font-weight: 700;
+  margin-bottom: 3px;
+}
+
+.home-promo-sub {
+  font-size: 12px;
+  color: var(--sub);
+  line-height: 1.5;
+}
+
+.home-promo-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  color: var(--sub);
+  font-size: 14px;
+  cursor: pointer;
+  padding: 4px;
+}
+
+/* ---------- Home sidebar (slide-in drawer, mirrors a desktop dashboard nav) ---------- */
+
+.sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--duration-base) ease;
+  z-index: 30;
+}
+
+.sidebar-overlay.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.home-sidebar {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: min(78vw, 260px);
+  background: var(--card);
+  border-right: 1px solid var(--hairline);
+  box-shadow: var(--shadow-xl);
+  padding: calc(var(--safe-top) + 18px) 16px calc(var(--safe-bottom) + 16px);
+  transform: translateX(-100%);
+  transition: transform var(--duration-base) var(--ease-bounce);
+  z-index: 31;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  overflow-y: auto;
+}
+
+.home-sidebar.open {
+  transform: translateX(0);
+}
+
+.sidebar-collapse-btn {
+  position: absolute;
+  top: 50%;
+  right: -14px;
+  transform: translateY(-50%);
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--card-hi);
+  border: 1px solid var(--hairline);
+  color: var(--text);
+  font-size: 15px;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+}
+
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sidebar-brand-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, #ff6b9d, #ffb37a);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 19px;
+  flex-shrink: 0;
+}
+
+.sidebar-brand-name {
+  font-size: 14.5px;
+  font-weight: 800;
+}
+
+.sidebar-brand-version {
+  font-size: 11px;
+  color: var(--sub);
+}
+
+.sidebar-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--card-hi);
+  border-radius: var(--radius-pill);
+  padding: 9px 14px;
+  font-size: 12.5px;
+  color: var(--sub);
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sidebar-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: none;
+  border: none;
+  color: var(--sub);
+  font-size: 13.5px;
+  font-weight: 600;
+  text-align: left;
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+}
+
+.sidebar-nav-item.active {
+  background: var(--card-hi);
+  color: var(--text);
+}
+
+.sidebar-nav-icon {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
 }
 
 .icon-action-btn {
