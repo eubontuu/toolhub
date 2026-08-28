@@ -219,6 +219,8 @@ function renderHome() {
                 : `<span>${app.icon}</span>`
             } <span>${app.name}</span></button>`
           ).join("")}
+          <button class="sidebar-nav-item" data-scroll-target="todoWidget">📝 <span>สิ่งที่ต้องทำ</span></button>
+          <button class="sidebar-nav-item" data-scroll-target="hikeWidget">🥾 <span>เตรียมเดินป่า</span></button>
           <button class="sidebar-nav-item" data-route="changelog">🕓 <span>การอัปเดต</span></button>
         </div>
       </nav>
@@ -261,7 +263,11 @@ function renderHome() {
   sidebar.querySelectorAll(".sidebar-nav-item").forEach((item) => {
     item.addEventListener("click", () => {
       closeSidebar();
-      navigate(item.dataset.route);
+      if (item.dataset.scrollTarget) {
+        document.getElementById(item.dataset.scrollTarget).scrollIntoView({ behavior: "smooth", block: "start" });
+      } else {
+        navigate(item.dataset.route);
+      }
     });
   });
 }
