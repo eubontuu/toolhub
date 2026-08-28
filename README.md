@@ -199,3 +199,5 @@ If the trip dates or schedule change, both `HIKE_DAYS` (here) and the routine's 
 - **Home grid is `repeat(4, 1fr)`** on the top-level Home screen but wonglao's sub-menu uses `repeat(3, 1fr)` for a tidier 2-row layout with 5 items — these are intentionally different, not inconsistent.
 - **Thai text throughout** — all user-facing strings, comments where present, and this README's terminology assume a Thai-reading maintainer. Keep new UI text in Thai unless told otherwise.
 - **No test suite.** Verification has been manual: local `python -m http.server` + browser automation (screenshot-driven) for every feature added so far. If you add automated tests, there's nothing here to conflict with.
+
+test
