@@ -17,12 +17,6 @@ const APPS = [
     render: renderWongLao,
   },
   {
-    id: "snake",
-    name: "งู",
-    icon: "🐍",
-    render: renderSnake,
-  },
-  {
     id: "todo",
     name: "สิ่งที่ต้องทำ",
     icon: "📝",
@@ -177,6 +171,8 @@ function renderHome() {
         </div>
       </div>
 
+      <div class="home-content" id="homeContent"></div>
+
       <div class="sidebar-overlay" id="sidebarOverlay"></div>
       <nav class="home-sidebar" id="homeSidebar">
         <button class="sidebar-collapse-btn" id="sidebarCollapseBtn" aria-label="ปิดเมนู">‹</button>
@@ -204,6 +200,7 @@ function renderHome() {
     </div>
   `;
   setupThemePicker(document.getElementById("themePicker"));
+  renderSnake(document.getElementById("homeContent"));
 
   const sidebar = document.getElementById("homeSidebar");
   const overlay = document.getElementById("sidebarOverlay");
