@@ -1,0 +1,92 @@
+/* เกม shared: single-row tab-bar shell above the active mini-game — copy of วงเหล้า's
+   tab-bar pattern (tools/wonglao-core.css's .wl-tabbar-row block) but with its own
+   .game-* class names so the two hubs stay decoupled. */
+
+.game-shell {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.game-tabbar-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 8px 6px;
+  border-bottom: 1px solid var(--hairline);
+  max-height: 60px;
+  overflow: hidden;
+  transition: max-height var(--duration-base) ease, opacity var(--duration-base) ease, padding var(--duration-base) ease;
+}
+
+.game-tabbar-row.hidden {
+  max-height: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  opacity: 0;
+  border-bottom-color: transparent;
+}
+
+.game-tab-nudge {
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: none;
+  background: var(--card-hi);
+  color: var(--text);
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.game-tabbar {
+  flex: 1;
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.game-tabbar::-webkit-scrollbar {
+  display: none;
+}
+
+.game-tab {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--card);
+  border: none;
+  border-radius: var(--radius-pill);
+  color: var(--sub);
+  padding: 8px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.game-tab.active {
+  background: var(--accent);
+  color: #fff;
+}
+
+.game-tabbar-toggle {
+  align-self: center;
+  background: none;
+  border: none;
+  color: var(--sub);
+  font-size: 11px;
+  padding: 4px;
+  cursor: pointer;
+}
+
+.game-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}

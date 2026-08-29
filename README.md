@@ -25,14 +25,17 @@ tools/wonglao-wheel.{js,css}         สุ่ม (เดิม "วงล้อ
 tools/wonglao-chwazi.{js,css}        Chwazi
 tools/wonglao-quiz.{js,css}          Flash Quiz
 tools/hikeprep.{js,css}              เตรียมเดินป่า — full-screen APPS tool, 6-week schedule + daily checklist
-tools/snake.{js,css}                 งู — full-screen APPS tool, canvas snake, theme-adaptive color
+tools/games-core.{js,css}            เกม shared state, persistent tab-bar shell/dispatcher (mirrors wonglao-core's pattern)
+tools/snake.{js,css}                 งู — เกม sub-game, canvas snake, theme-adaptive color
+tools/minesweeper.{js,css}           กู้ระเบิด — เกม sub-game, 9x9/10-mine grid, flag toggle + long-press choose menu
+tools/mathquiz.{js,css}              คิดเลขเร็ว — เกม sub-game, flash-shown problem then typed/multiple-choice answer, streak-based difficulty
 tools/changelog.{js,css}             การอัปเดต — data + render, opened from the sidebar
 sw.js                                service worker: offline cache + update mechanism
 manifest.json                        PWA metadata
 icons/, icons/emoji/                 app icons + Twemoji SVGs (CC-BY 4.0, see index.html body comment)
 ```
 
-No bundler, no modules — every JS/CSS file is a plain `<script>`/`<link>`, so **load order in `index.html` matters for JS** (global scope). `wonglao-core.js` must load before the other `wonglao-*.js` files, which must all load before `app.js` (its `APPS` array references render functions by name). CSS order rarely matters — each tool's classes are uniquely prefixed.
+No bundler, no modules — every JS/CSS file is a plain `<script>`/`<link>`, so **load order in `index.html` matters for JS** (global scope). `wonglao-core.js` must load before the other `wonglao-*.js` files; `games-core.js` must load after `snake.js`/`minesweeper.js`/`mathquiz.js` (it calls their render functions by name); everything must load before `app.js` (its `APPS` array references `renderWongLao`/`renderGames`/etc. by name). CSS order rarely matters — each tool's classes are uniquely prefixed.
 
 ## Architecture
 
@@ -84,6 +87,24 @@ All five share one state blob via `loadWongLaoState()`/`saveWongLaoState()` (see
 
 **New sub-game:** entry in `WONGLAO_TABS` + `WONGLAO_DEFAULT_STATE`, dispatch branch in `renderWongLaoShell`, render fn + styles — inline in `wonglao-core.js`/`.css` if small, own `tools/wonglao-yourgame.{js,css}` if bigger.
 
+### The "เกม" hub
+
+Same tab-bar shell pattern as วงเหล้า above (own file, own state — not shared with wonglao), for mini-games rather than drinking-game rounds. See `renderGamesShell` in `tools/games-core.js`.
+
+| id | label | render function |
+|---|---|---|
+| `snake` | งู | `renderSnake` |
+| `minesweeper` | กู้ระเบิด | `renderMinesweeper` |
+| `mathquiz` | คิดเลขเร็ว | `renderMathQuiz` |
+
+State (just the active `tab`) persists via `loadGamesState()`/`saveGamesState()` under `toolhub.games` — each sub-game then owns its own score/best/settings keys (see Persistence).
+
+- **งู** (`tools/snake.js`): classic canvas snake, D-pad + swipe controls.
+- **กู้ระเบิด** (`tools/minesweeper.js`): 9×9/10-mine grid, first-click-safe, flood-fill reveal. A "โหมดปักธง" toggle button switches taps between reveal/flag; on top of that, pressing and holding a cell (`pointerdown`/`pointerup` timing, works for touch and mouse) opens a small menu to explicitly choose reveal or flag for that one cell without changing the toggle.
+- **คิดเลขเร็ว** (`tools/mathquiz.js`): shows a problem for 3s, hides it, then gives 5s to answer — typed (number input) or multiple-choice (2/4/6/etc. configurable choices, wrong options generated near the right answer). Correct answers chain into a streak and problems get harder (wider number ranges, then multiplication) as it grows; wrong/timeout/give-up ends the run and offers to restart immediately.
+
+**New sub-game:** own `tools/yourgame.{js,css}` (register in `index.html` before `games-core.js`, and in `PRECACHE_URLS`), entry in `GAME_TABS`, dispatch branch in `renderGamesShell`.
+
 ### Fullscreen "reveal" overlays
 
 Ohana/ไพ่สุ่ม/สุ่ม/Flash Quiz/บวก-ลบ's name popup all use the same pattern: a full-viewport `position:fixed` div appended to `document.body`, animated in via a class toggle, removed on tap (`showOhanaOverlay`, `showRcOverlay`, `showWheelOverlay`, `showDiceOverlay`, `showQuizOverlay`, `showCounterNameOverlay`). House style for every card/question "open" action — exact trigger code + the `reveal-overlay` class requirement are in CLAUDE.md's overlay rule; copy an existing `show*Overlay` rather than reimplementing.
@@ -100,7 +121,11 @@ Ohana/ไพ่สุ่ม/สุ่ม/Flash Quiz/บวก-ลบ's name popu
 | `toolhub.todo` | `{ items: [{id, text, done, date?, subject?}] }` | สิ่งที่ต้องทำ — both the full screen and the Home preview |
 | `toolhub.wonglao` | one object — see `WONGLAO_DEFAULT_STATE` | all 5 wonglao sub-games |
 | `toolhub.hikeprep.<YYYY-MM-DD>` | `"1"`/`"0"` | เตรียมเดินป่า per-day checkbox |
+| `toolhub.games` | `{ tab }` | เกม hub — which sub-game tab is active |
 | `toolhub.snake.highScore` | number string | งู high score |
+| `toolhub.minesweeper.bestTime` | number string (seconds) | กู้ระเบิด best clear time |
+| `toolhub.mathquiz.bestStreak` | number string | คิดเลขเร็ว best streak |
+| `toolhub.mathquiz.settings` | `{ mode: "type"\|"choice", choiceCount }` | คิดเลขเร็ว answer-mode preference |
 | `toolhub.theme` | theme id string | theme picker — UI preference |
 
 Merge-with-defaults rule is in CLAUDE.md's localStorage rule. Nothing syncs anywhere — data lives only in the browser that created it; reinstalling wipes it. Intentional for this app's scope.

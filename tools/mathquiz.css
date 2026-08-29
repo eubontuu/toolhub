@@ -1,0 +1,226 @@
+/* คิดเลข (flash math quiz) — tab in the เกม hub */
+
+.math-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  padding: 16px 20px calc(var(--safe-bottom) + 16px);
+  align-items: center;
+  gap: 14px;
+}
+
+.math-score-row {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 320px;
+  font-size: 12px;
+  color: var(--sub);
+}
+
+.math-score-row b {
+  color: var(--text);
+  font-size: 15px;
+}
+
+.math-board-wrap {
+  position: relative;
+  width: 100%;
+  max-width: 320px;
+  flex: 1;
+  min-height: 220px;
+  display: flex;
+}
+
+.math-stage {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--card);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  padding: 20px;
+}
+
+.math-prompt,
+.math-question,
+.math-answer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  text-align: center;
+  width: 100%;
+}
+
+.math-prompt-title {
+  font-size: 20px;
+  font-weight: 800;
+}
+
+.math-prompt-sub {
+  font-size: 13px;
+  color: var(--sub);
+  max-width: 240px;
+}
+
+.math-mode-row,
+.math-choice-count-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.math-mode-btn,
+.math-choice-count-btn {
+  background: var(--card-hi);
+  border: none;
+  color: var(--sub);
+  border-radius: var(--radius-pill);
+  padding: 8px 16px;
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.math-mode-btn.active,
+.math-choice-count-btn.active {
+  background: var(--accent);
+  color: #fff;
+}
+
+.math-choice-count-label {
+  font-size: 12px;
+  color: var(--sub);
+}
+
+.math-choice-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  max-width: 260px;
+}
+
+.math-choice-btn {
+  min-width: 64px;
+  background: var(--card-hi);
+  border: none;
+  color: var(--text);
+  border-radius: var(--radius-md);
+  padding: 14px 12px;
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.math-question-countdown {
+  font-size: 13px;
+  color: var(--sub);
+  font-weight: 700;
+}
+
+.math-question-text {
+  font-size: 34px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+.math-answer-countdown {
+  font-size: 13px;
+  color: var(--sub);
+  font-weight: 700;
+}
+
+.math-answer-input {
+  width: 140px;
+  background: var(--card-hi);
+  border: none;
+  border-radius: var(--radius-md);
+  color: var(--text);
+  font-size: 22px;
+  font-weight: 700;
+  text-align: center;
+  padding: 10px;
+}
+
+.math-answer-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.math-answer-btn,
+.math-giveup-btn {
+  border: none;
+  border-radius: var(--radius-pill);
+  padding: 10px 20px;
+  font-size: 13.5px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.math-answer-btn {
+  background: var(--accent);
+  color: #fff;
+}
+
+.math-giveup-btn {
+  background: var(--card-hi);
+  color: var(--sub);
+}
+
+.math-flash {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--green);
+}
+
+.math-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: rgba(0, 0, 0, 0.55);
+  border-radius: var(--radius-lg);
+  text-align: center;
+  padding: 20px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--duration-base) ease;
+}
+
+.math-overlay.show {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.math-overlay-title {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.math-overlay-sub {
+  font-size: 13px;
+  color: var(--sub);
+  max-width: 260px;
+}
+
+.math-start-btn {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  font-size: 14.5px;
+  font-weight: 700;
+  padding: 12px 28px;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  margin-top: 4px;
+}

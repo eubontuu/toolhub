@@ -17,10 +17,10 @@ const APPS = [
     render: renderWongLao,
   },
   {
-    id: "snake",
-    name: "งู",
-    icon: "🐍",
-    render: renderSnake,
+    id: "games",
+    name: "เกม",
+    icon: "🎮",
+    render: renderGames,
   },
   {
     id: "todo",
@@ -142,6 +142,8 @@ function navigate(route) {
 
 // เวลากดปุ่มย้อนกลับจากหน้าเครื่องมือ ให้เปิดแถบเมนูขึ้นมาเลย (สลับเครื่องมือได้ทันที) แทนที่จะโผล่หน้าแรกเฉยๆ
 let openSidebarOnHome = false;
+// route ที่แถบเมนูควรไฮไลท์ตอนเปิด — ปกติคือ "home" แต่ตอนกดย้อนกลับจากแอปอื่น ให้ไฮไลท์แอปที่เพิ่งออกมาแทน (ดูเป็น "อยู่หน้านั้นอยู่" มากกว่าหน้าแรกเปล่าๆ)
+let sidebarActiveRoute = "home";
 
 function currentRoute() {
   return location.hash.replace(/^#/, "") || "home";
@@ -150,6 +152,7 @@ function currentRoute() {
 function render() {
   const route = currentRoute();
   if (route === "home") {
+    if (!openSidebarOnHome) sidebarActiveRoute = "home";
     renderHome();
     return;
   }
@@ -195,10 +198,10 @@ function renderHome() {
           </div>
         </div>
         <div class="sidebar-nav">
-          <button class="sidebar-nav-item active" data-route="home">🏠 <span>หน้าแรก</span></button>
+          <button class="sidebar-nav-item ${sidebarActiveRoute === "home" ? "active" : ""}" data-route="home">🏠 <span>หน้าแรก</span></button>
           ${APPS.map(
             (app) => `
-          <button class="sidebar-nav-item" data-route="app/${app.id}">${
+          <button class="sidebar-nav-item ${sidebarActiveRoute === `app/${app.id}` ? "active" : ""}" data-route="app/${app.id}">${
               app.iconImg
                 ? `<img src="${app.iconImg}" class="sidebar-nav-icon" alt="" />`
                 : `<span>${app.icon}</span>`
@@ -206,7 +209,7 @@ function renderHome() {
           ).join("")}
         </div>
         <div class="sidebar-footer">
-          <button class="sidebar-nav-item" data-route="changelog">🕓 <span>การอัปเดต</span></button>
+          <button class="sidebar-nav-item ${sidebarActiveRoute === "changelog" ? "active" : ""}" data-route="changelog">🕓 <span>การอัปเดต</span></button>
         </div>
       </nav>
     </div>
@@ -256,6 +259,7 @@ function renderToolShell(title, renderFn) {
   `;
   setupThemePicker(document.getElementById("themePicker"));
   document.getElementById("back").addEventListener("click", () => {
+    sidebarActiveRoute = currentRoute();
     openSidebarOnHome = true;
     navigate("home");
   });

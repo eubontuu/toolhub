@@ -10,8 +10,8 @@ Auto-loaded every session in this repo. Read `README.md` for full architecture �
 - Files: `index.html`, `app.js` (shell/router), `tools/*.js`+`.css` (one pair per tool), `style.css` (shell only), `sw.js`, `manifest.json`, `icons/`.
 
 ## คำศัพท์ UI (คุยกับ owner ให้ตรงกัน)
-- **แอป** — full-screen tool opened from sidebar, `renderToolShell` header, registered in `APPS`. 5 ตอนนี้: บวก/ลบ, วงเหล้า, งู, สิ่งที่ต้องทำ, เตรียมเดินป่า. ปุ่มย้อนกลับจากแอปไหนก็ตาม → เปิด sidebar ค้างไว้ทันที (`openSidebarOnHome` flag, `app.js`).
-- **แถบ** — (1) sidebar nav item (`.sidebar-nav-item`) หรือ (2) แท็บเดี่ยวแนวนอนคงที่ในแอปวงเหล้า (`WONGLAO_TABS`, `renderWongLaoShell` ใน `wonglao-core.js`) — สลับเกมทันที, พับ/กางได้, ล้นแล้วเลื่อนซ้าย-ขวาแทนขึ้นบรรทัดใหม่.
+- **แอป** — full-screen tool opened from sidebar, `renderToolShell` header, registered in `APPS`. 5 ตอนนี้: บวก/ลบ, วงเหล้า, เกม, สิ่งที่ต้องทำ, เตรียมเดินป่า. ปุ่มย้อนกลับจากแอปไหนก็ตาม → เปิด sidebar ค้างไว้ทันที ไฮไลท์แอปที่เพิ่งออกมา (`openSidebarOnHome`/`sidebarActiveRoute`, `app.js`).
+- **แถบ** — (1) sidebar nav item (`.sidebar-nav-item`) หรือ (2) แท็บเดี่ยวแนวนอนคงที่ในแอปฮับ (วงเหล้า/เกม) — สลับ sub-item ทันที, พับ/กางได้, ล้นแล้วเลื่อนซ้าย-ขวาแทนขึ้นบรรทัดใหม่. วงเหล้าใช้ `WONGLAO_TABS`+`renderWongLaoShell` (`wonglao-core.js`); เกม (งู/กู้ระเบิด/คิดเลขเร็ว) ใช้ `GAME_TABS`+`renderGamesShell` (`games-core.js`) — คนละไฟล์ คนละ state กัน แต่ pattern เดียวกัน.
 - **วิดเจ็ต** — ฝังหน้าแรก แก้ไขได้ทันที ไม่ลงทะเบียนใน `APPS`. **ไม่มีตัวอย่างใช้จริงตอนนี้.**
 - **การ์ดแจ้งเตือน** — อ่านอย่างเดียวบนหน้าแรก + ปุ่มขวาล่างพาไปแอปที่แก้ไขได้. ตัวอย่าง: `renderTodoPreview()` (`todo.js`) → `#homeContent`, คู่ `#homeTodoEditBtn` → `#app/todo`.
 
@@ -26,7 +26,10 @@ wonglao-core   shared state, tab-bar shell/dispatcher (renderWongLaoShell), shuf
 wonglao-ohana / -randomcard / -wheel / -chwazi / -quiz   5 sub-games — id/label table in README
 hikeprep       เตรียมเดินป่า — HIKE_DAYS schedule, hides after HIKE_WIDGET_HIDE_AFTER
 changelog      CHANGELOG_DATA + renderChangelog
-snake          งู — canvas snake; body+start-btn color is theme-adaptive (see Theme vars rule)
+games-core     เกม hub shared state (GAMES_DEFAULT_STATE), tab-bar shell/dispatcher (renderGamesShell) — load after snake/minesweeper/mathquiz, before app.js
+snake          งู sub-game — canvas snake; body+start-btn color is theme-adaptive (see Theme vars rule)
+minesweeper    กู้ระเบิด sub-game — 9x9/10-mine grid, flag-mode toggle button + long-press-to-choose menu (reveal/flag) for touch
+mathquiz       คิดเลขเร็ว sub-game — 3s show / 5s answer flash quiz, typed or multiple-choice (configurable choice count), streak difficulty ramp
 ```
 Home = topbar → `#homeContent` (todo preview) → `#homeTodoEditBtn` FAB → sidebar (all `APPS` + changelog). No icon grid anywhere.
 
@@ -47,6 +50,7 @@ Home = topbar → `#homeContent` (todo preview) → `#homeTodoEditBtn` FAB → s
 - **No test suite** — verify manually (local server + `mcp__claude-in-chrome__*`), click through UI changes.
 - **New top-level tool** → `tools/x.js`+`.css`, tags in `index.html`, `renderX(container)`, entry in `APPS`, files in `PRECACHE_URLS`.
 - **New วงเหล้า sub-game** → entry in `WONGLAO_TABS` + `WONGLAO_DEFAULT_STATE`, dispatch branch in `renderWongLaoShell`, render fn + styles (inline in wonglao-core if small, own file pair if big) — all in `tools/wonglao-core.js`.
+- **New เกม sub-game** → own `tools/yourgame.js`+`.css` (register both in `index.html` before `games-core.js`, and in `PRECACHE_URLS`), entry in `GAME_TABS` (`tools/games-core.js`), dispatch branch in `renderGamesShell`. Same shape as a top-level tool's `renderX(container)` — the hub just swaps which one renders into `#gameBody`.
 - **Icons**: `iconImg` (SVG, `icons/emoji/`) optional alongside required `icon` (emoji fallback). New images → `PRECACHE_URLS`. Keep the Twemoji attribution comment in `index.html`'s `<body>` accurate while any such asset is in use.
 - **localStorage**: new persisted field → add to that tool's default-state shape, not just the code using it. `loadWongLaoState()` spread-merges defaults; `loadCounterState()` uses per-field `typeof` checks — same principle either way.
 - **Fullscreen reveal overlays**: forced-reflow trigger (`void overlay.offsetHeight; overlay.classList.add("show")`), never double-rAF (unreliable here). Copy an existing `show*Overlay`. Root class must include `reveal-overlay` if it closes on tap-anywhere, or edge-swipe-back leaves it stuck onscreen.
