@@ -6,6 +6,13 @@ const CHANGELOG_TAG_LABEL = { added: "เพิ่ม", changed: "แก้ไ�
 
 const CHANGELOG_DATA = [
   {
+    version: "v69",
+    date: "29 ส.ค. 2569",
+    items: [
+      { type: "changed", text: "แก้ scrollbar แนวนอนที่ยังโผล่มาใต้แถบเมนู (sidebar) ในบางขนาดจอ" },
+    ],
+  },
+  {
     version: "v68",
     date: "29 ส.ค. 2569",
     items: [
