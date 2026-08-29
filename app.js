@@ -180,6 +180,7 @@ function renderHome() {
         </div>
       </div>
 
+      <div class="home-welcome">ยินดีต้อนรับกลับมา 🐷</div>
       <div class="home-content" id="homeContent"></div>
       <button class="home-edit-fab" id="homeTodoEditBtn">แก้ไข</button>
 
@@ -193,7 +194,6 @@ function renderHome() {
             <div class="sidebar-brand-version">ToolHub</div>
           </div>
         </div>
-        <div class="sidebar-search">🔍 <span>ค้นหาเครื่องมือ</span></div>
         <div class="sidebar-nav">
           <button class="sidebar-nav-item active" data-route="home">🏠 <span>หน้าแรก</span></button>
           ${APPS.map(
@@ -204,6 +204,8 @@ function renderHome() {
                 : `<span>${app.icon}</span>`
             } <span>${app.name}</span></button>`
           ).join("")}
+        </div>
+        <div class="sidebar-footer">
           <button class="sidebar-nav-item" data-route="changelog">🕓 <span>การอัปเดต</span></button>
         </div>
       </nav>
@@ -245,10 +247,14 @@ function renderToolShell(title, renderFn) {
       <div class="tool-header">
         <button class="back-btn" id="back">‹</button>
         <div class="tool-title">${title}</div>
+        <div class="theme-picker" id="themePicker">
+          <button class="icon-action-btn theme-btn" id="themeToggleBtn">ธีม</button>
+        </div>
       </div>
       <div class="tool-body" id="tool-body"></div>
     </div>
   `;
+  setupThemePicker(document.getElementById("themePicker"));
   document.getElementById("back").addEventListener("click", () => {
     openSidebarOnHome = true;
     navigate("home");

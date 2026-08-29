@@ -165,7 +165,13 @@
   color: #fff;
 }
 
+/* Home preview card: sizes to its content instead of stretching flex:1 (inherited from
+   .todo-widget) down the whole remaining home-screen height — that looked like a mostly-
+   empty notepad when there are few items. Its own .todo-list still scrolls internally
+   past max-height if there are many. */
 .todo-widget-ro {
+  flex: none;
+  max-height: min(50vh, 360px);
   cursor: default;
 }
 
