@@ -165,6 +165,24 @@
   color: #fff;
 }
 
+.todo-widget-ro {
+  cursor: default;
+}
+
+.todo-check-ro {
+  flex-shrink: 0;
+  margin-top: 4px;
+  width: 14px;
+  height: 14px;
+  border-radius: var(--radius-pill);
+  border: 1.5px solid var(--sub);
+}
+
+.todo-check-ro.done {
+  border-color: var(--green);
+  background: var(--green);
+}
+
 .todo-item-body {
   flex: 1;
   min-width: 0;

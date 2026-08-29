@@ -67,8 +67,8 @@
 }
 
 .snake-start-btn {
-  background: var(--green);
-  color: #06210f;
+  background: var(--accent);
+  color: #fff;
   border: none;
   font-size: 14.5px;
   font-weight: 700;

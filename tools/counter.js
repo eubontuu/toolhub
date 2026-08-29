@@ -12,10 +12,20 @@ function loadCounterState() {
       if (!Array.isArray(state.names)) state.names = [];
       if (typeof state.showNames !== "boolean") state.showNames = false;
       if (typeof state.historyPinned !== "boolean") state.historyPinned = true;
+      if (typeof state.namesPinned !== "boolean") state.namesPinned = true;
       return state;
     }
   } catch (e) {}
-  return { value: 0, step: 5, history: [], showHistory: false, names: [], showNames: false, historyPinned: true };
+  return {
+    value: 0,
+    step: 5,
+    history: [],
+    showHistory: false,
+    names: [],
+    showNames: false,
+    historyPinned: true,
+    namesPinned: true,
+  };
 }
 
 function showCounterNameOverlay(state, direction, onConfirm) {
@@ -271,11 +281,13 @@ function renderCounter(container) {
     state.value += state.step;
     state.history.unshift({ delta: state.step, time: Date.now() });
     if (state.showHistory && !state.historyPinned) state.showHistory = false;
+    if (state.showNames && !state.namesPinned) state.showNames = false;
     saveCounterState(state);
     animateCountUp(oldValue, state.value);
     playChangeAnimation(state.step);
     bumpStreak("plus");
     renderHistorySection();
+    renderNamesSection();
   });
 
   container.querySelector("#minus").addEventListener("click", () => {
@@ -283,11 +295,13 @@ function renderCounter(container) {
     state.value -= state.step;
     state.history.unshift({ delta: -state.step, time: Date.now() });
     if (state.showHistory && !state.historyPinned) state.showHistory = false;
+    if (state.showNames && !state.namesPinned) state.showNames = false;
     saveCounterState(state);
     animateCountUp(oldValue, state.value);
     playChangeAnimation(-state.step);
     bumpStreak("minus");
     renderHistorySection();
+    renderNamesSection();
   });
 
   container.querySelector("#addToNamesBtn").addEventListener("click", () => {
@@ -411,7 +425,12 @@ function renderCounter(container) {
         state.showNames
           ? `<div class="counter-history-panel">
               <div class="counter-history-panel-head">
-                <span>รายชื่อ</span>
+                <div class="counter-history-panel-head-left">
+                  <button class="counter-history-pin ${state.namesPinned ? "active" : ""}" id="namesPinToggle" title="${
+                    state.namesPinned ? "ปักหมุดค้างไว้ — กดบวก/ลบจะไม่ปิดหน้านี้ (กดเพื่อเปลี่ยน)" : "ไม่ได้ปักหมุด — กดบวก/ลบจะปิดหน้านี้อัตโนมัติ (กดเพื่อเปลี่ยน)"
+                  }">📌 ${state.namesPinned ? "ค้างไว้" : "ปิดอัตโนมัติ"}</button>
+                  <span>รายชื่อ</span>
+                </div>
                 ${count > 0 ? `<button class="counter-history-clear" id="namesClearAll">ลบทั้งหมด</button>` : ""}
               </div>
               <div class="counter-history-list">
@@ -447,6 +466,15 @@ function renderCounter(container) {
       saveCounterState(state);
       renderNamesSection();
     });
+
+    const namesPinBtn = box.querySelector("#namesPinToggle");
+    if (namesPinBtn) {
+      namesPinBtn.addEventListener("click", () => {
+        state.namesPinned = !state.namesPinned;
+        saveCounterState(state);
+        renderNamesSection();
+      });
+    }
 
     const clearAllBtn = box.querySelector("#namesClearAll");
     if (clearAllBtn) {

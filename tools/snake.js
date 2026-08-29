@@ -56,7 +56,7 @@ function renderSnake(container) {
   const style = getComputedStyle(document.documentElement);
   const colorBg = style.getPropertyValue("--card").trim() || "#1b1f27";
   const colorFood = style.getPropertyValue("--red").trim() || "#ff453a";
-  const colorSnake = style.getPropertyValue("--green").trim() || "#34c759";
+  const colorSnake = style.getPropertyValue("--accent").trim() || "#4c8dff";
 
   const TICK_MS_BASE = 160;
   let snake, dir, nextDir, food, score, running, timer;

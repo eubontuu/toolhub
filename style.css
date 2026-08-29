@@ -101,6 +101,7 @@
 html, body {
   margin: 0;
   height: 100%;
+  overflow-x: hidden;
   background: var(--bg);
   color: var(--text);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans Thai", sans-serif;
@@ -123,6 +124,7 @@ html, body {
 /* ---------- Home screen ---------- */
 
 .home {
+  position: relative;
   flex: 1;
   padding: calc(var(--safe-top) + 20px) 20px calc(var(--safe-bottom) + 20px);
   display: flex;
@@ -178,6 +180,23 @@ html, body {
   display: flex;
   flex-direction: column;
   min-height: 0;
+}
+
+/* อ่านอย่างเดียว (ดูรายการที่เพิ่ม/แก้ไขในแอป สิ่งที่ต้องทำ จริงๆ) — กดปุ่มแก้ไขมุมขวาล่างเพื่อไปแก้ */
+.home-edit-fab {
+  position: absolute;
+  right: 20px;
+  bottom: calc(var(--safe-bottom) + 20px);
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-pill);
+  padding: 10px 18px;
+  font-size: 13px;
+  font-weight: 700;
+  box-shadow: var(--shadow-lg);
+  cursor: pointer;
+  z-index: 5;
 }
 
 /* ---------- Home sidebar (slide-in drawer, mirrors a desktop dashboard nav) ---------- */
@@ -388,69 +407,6 @@ html, body {
 .theme-swatch-label {
   font-size: 11px;
   color: var(--text);
-  text-align: center;
-  line-height: 1.2;
-}
-
-.grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 18px 12px;
-}
-
-.icon-btn {
-  background: none;
-  border: none;
-  color: var(--text);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-  padding: 0;
-  cursor: pointer;
-}
-
-.icon-tile {
-  width: 100%;
-  aspect-ratio: 1;
-  border-radius: 20%; /* squircle shape, not a scale value */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 28px;
-  background: linear-gradient(160deg, var(--card-hi), var(--card));
-  box-shadow: var(--shadow-sm);
-}
-
-.icon-btn:active .icon-tile {
-  transform: scale(0.92);
-}
-
-.icon-tile {
-  transition: transform var(--duration-tap) ease;
-}
-
-.icon-img {
-  /* Percentage-based on purpose: scales with its tile (which itself is now bounded by
-     --app-max-width, not the raw device viewport) instead of a fixed px size that looked
-     tiny in wonglao's 3-column grid or on a stretched tablet viewport. Safe now that
-     these are SVG (icons/emoji/*.svg) — a raster source would blur when scaled up. */
-  width: 55%;
-  height: 55%;
-  object-fit: contain;
-}
-
-.wl-game-title-icon {
-  width: 20px;
-  height: 20px;
-  object-fit: contain;
-  vertical-align: -4px;
-  margin-right: 2px;
-}
-
-.icon-label {
-  font-size: 11px;
-  color: var(--sub);
   text-align: center;
   line-height: 1.2;
 }

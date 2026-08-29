@@ -17,6 +17,12 @@ const APPS = [
     render: renderWongLao,
   },
   {
+    id: "snake",
+    name: "งู",
+    icon: "🐍",
+    render: renderSnake,
+  },
+  {
     id: "todo",
     name: "สิ่งที่ต้องทำ",
     icon: "📝",
@@ -134,6 +140,9 @@ function navigate(route) {
   location.hash = route;
 }
 
+// เวลากดปุ่มย้อนกลับจากหน้าเครื่องมือ ให้เปิดแถบเมนูขึ้นมาเลย (สลับเครื่องมือได้ทันที) แทนที่จะโผล่หน้าแรกเฉยๆ
+let openSidebarOnHome = false;
+
 function currentRoute() {
   return location.hash.replace(/^#/, "") || "home";
 }
@@ -172,6 +181,7 @@ function renderHome() {
       </div>
 
       <div class="home-content" id="homeContent"></div>
+      <button class="home-edit-fab" id="homeTodoEditBtn">แก้ไข</button>
 
       <div class="sidebar-overlay" id="sidebarOverlay"></div>
       <nav class="home-sidebar" id="homeSidebar">
@@ -200,7 +210,8 @@ function renderHome() {
     </div>
   `;
   setupThemePicker(document.getElementById("themePicker"));
-  renderSnake(document.getElementById("homeContent"));
+  renderTodoPreview(document.getElementById("homeContent"));
+  document.getElementById("homeTodoEditBtn").addEventListener("click", () => navigate("app/todo"));
 
   const sidebar = document.getElementById("homeSidebar");
   const overlay = document.getElementById("sidebarOverlay");
@@ -221,6 +232,11 @@ function renderHome() {
       navigate(item.dataset.route);
     });
   });
+
+  if (openSidebarOnHome) {
+    openSidebarOnHome = false;
+    openSidebar();
+  }
 }
 
 function renderToolShell(title, renderFn) {
@@ -233,7 +249,10 @@ function renderToolShell(title, renderFn) {
       <div class="tool-body" id="tool-body"></div>
     </div>
   `;
-  document.getElementById("back").addEventListener("click", () => navigate("home"));
+  document.getElementById("back").addEventListener("click", () => {
+    openSidebarOnHome = true;
+    navigate("home");
+  });
   renderFn(document.getElementById("tool-body"));
 }
 
