@@ -1,71 +1,61 @@
 # CLAUDE.md — ToolHub project instructions
 
-This file is auto-loaded by Claude Code at the start of every session in this repo. Read `README.md` first for full architecture/mechanics — this file only holds operational context and behavior rules that aren't in the README.
+Auto-loaded every session in this repo. Read `README.md` for full architecture — this file is operational rules only.
 
-**Keep this file curated, not a running log.** It's read in full every session regardless of what the task touches, so its length is a cost paid every time, not just when written. When a rule stops applying (a one-time incident that's now structurally prevented, a workaround for something since fixed) or gets superseded by a better rule, remove or rewrite it — don't just append. Prefer editing an existing bullet over adding a near-duplicate one.
+**Keep this file curated, not a running log.** Its length is a cost paid every session. When a rule stops applying or gets superseded, edit/remove it — don't append near-duplicates.
 
 ## What this is
 - Personal PWA hub of mini-tools for the owner (Thai-speaking). No framework, no build step, no backend.
-- Live: https://eubontuu.github.io/toolhub/ — Repo: https://github.com/eubontuu/toolhub (GitHub user `eubontuu`) — deploys from `main` on push.
-- Files: `index.html`, `app.js` (shell/router only), `tools/*.js` + `tools/*.css` (one JS + one CSS file per tool), `style.css` (shell/shared styles only), `sw.js` (service worker), `manifest.json`, `icons/`.
+- Live: https://eubontuu.github.io/toolhub/ — Repo: https://github.com/eubontuu/toolhub (`eubontuu`) — deploys from `main` on push.
+- Files: `index.html`, `app.js` (shell/router), `tools/*.js`+`.css` (one pair per tool), `style.css` (shell only), `sw.js`, `manifest.json`, `icons/`.
 
-## คำศัพท์ที่ใช้เรียก UI แต่ละแบบ (ใช้คำเหล่านี้คุยกับ owner ให้ตรงกัน)
-- **แอป** — เครื่องมือเต็มจอที่กดเข้าจาก sidebar มี `renderToolShell` (หัวข้อ + ปุ่มย้อนกลับ) ครอบ, ลงทะเบียนใน `APPS` ใน `app.js`. ปัจจุบัน 5 แอป: บวก/ลบ, วงเหล้า, งู, สิ่งที่ต้องทำ, เตรียมเดินป่า. กดปุ่มย้อนกลับจากแอปไหนก็ตามจะพากลับหน้าแรก **พร้อมเปิด sidebar ค้างไว้ทันที** (`openSidebarOnHome` flag ใน `app.js`) ให้สลับแอปต่อได้เร็วโดยไม่ต้องกดแฮมเบอร์เกอร์ใหม่.
-- **แถบ** — สองบริบท: (1) รายการเมนูใน sidebar หน้าแรก (`.sidebar-nav-item` ใน `renderHome()`) — มาจาก `APPS` ทั้งหมด + ลิงก์การอัปเดต. (2) แท็บเกมย่อยในแอปวงเหล้า (ไพ่ Ohana/ไพ่สุ่ม/สุ่ม/Chwazi/Flash Quiz) — ตอนนี้เป็น **แถบเดียวแนวนอนคงที่อยู่บนสุดของหน้าวงเหล้าเสมอ** (ไม่ใช่หน้าเมนูแยกแล้ว), กดแท็บสลับเกมได้ทันที, พับ/กางได้ (ปุ่ม "ซ่อนแถบ"/"แถบเกม"), แท็บล้นไม่พอ 1 บรรทัดจะเลื่อนซ้าย-ขวาด้วยปุ่มลูกศรแทนการขึ้นบรรทัดใหม่ — ดู `renderWongLaoShell` ใน `tools/wonglao-core.js`.
-- **วิดเจ็ต** — ฝังอยู่บนหน้าแรกเลย แก้ไข/ใช้งานได้ทันทีไม่ต้องกดเข้าไปไหน ไม่ลงทะเบียนใน `APPS`. **ปัจจุบันไม่มีตัวอย่างที่ใช้งานจริง** (เกมงูเคยเป็นตัวอย่างนี้ ก่อนย้ายกลับไปเป็นแอปเต็มจอ 2026-08-29).
-- **การ์ดแจ้งเตือน** — กล่องสรุปฝังหน้าแรก **อ่านอย่างเดียว แก้ไขไม่ได้**, มีปุ่มมุมขวาล่างกระโดดไปแอปที่แก้ไขได้จริง. ตัวอย่างปัจจุบัน: สิ่งที่ต้องทำ — `renderTodoPreview()` (`tools/todo.js`) เรียกจาก `renderHome()` ใส่ `#homeContent`, คู่กับปุ่ม `#homeTodoEditBtn` ("แก้ไข") ที่พาไป `#app/todo` (`renderTodo()` ซึ่งแก้ไขได้จริง).
+## คำศัพท์ UI (คุยกับ owner ให้ตรงกัน)
+- **แอป** — full-screen tool opened from sidebar, `renderToolShell` header, registered in `APPS`. 5 ตอนนี้: บวก/ลบ, วงเหล้า, งู, สิ่งที่ต้องทำ, เตรียมเดินป่า. ปุ่มย้อนกลับจากแอปไหนก็ตาม → เปิด sidebar ค้างไว้ทันที (`openSidebarOnHome` flag, `app.js`).
+- **แถบ** — (1) sidebar nav item (`.sidebar-nav-item`) หรือ (2) แท็บเดี่ยวแนวนอนคงที่ในแอปวงเหล้า (`WONGLAO_TABS`, `renderWongLaoShell` ใน `wonglao-core.js`) — สลับเกมทันที, พับ/กางได้, ล้นแล้วเลื่อนซ้าย-ขวาแทนขึ้นบรรทัดใหม่.
+- **วิดเจ็ต** — ฝังหน้าแรก แก้ไขได้ทันที ไม่ลงทะเบียนใน `APPS`. **ไม่มีตัวอย่างใช้จริงตอนนี้.**
+- **การ์ดแจ้งเตือน** — อ่านอย่างเดียวบนหน้าแรก + ปุ่มขวาล่างพาไปแอปที่แก้ไขได้. ตัวอย่าง: `renderTodoPreview()` (`todo.js`) → `#homeContent`, คู่ `#homeTodoEditBtn` → `#app/todo`.
 
-## File section map (avoid reading the whole file)
-`app.js` and `style.css` are split (2026-08) into a small shell file plus one file per tool under `tools/` — every file is small enough to `Read` whole when you touch it; you should almost never need more than the one JS + one CSS file the task touches.
-
-`app.js` (~310 lines): APPS registry, theme picker (`THEMES`/`applyTheme`/`setupThemePicker`), router (`render`/`renderHome`/`renderToolShell`), edge-swipe-back listener, boot. No tool logic lives here.
-
-`style.css` (~500 lines): `:root` design tokens (`--radius-*`/`--shadow-*`/`--duration-*`/`--ease-bounce`) + theme-override blocks, base `html/body` (incl. `overflow-x: hidden`) `/#app`, Home screen (incl. `.home-edit-fab`), generic Tool screen (`.tool-screen`/`.tool-header`/`.back-btn`/`.tool-body`), small components shared by 2+ tools. No tool-specific styling lives here.
-
-`tools/*.js` + matching `tools/*.css` — one JS+CSS pair per tool/sub-game, loaded in this order in `index.html` (order matters for JS: no bundler, no modules, everything is global scope; CSS order mostly doesn't matter, each tool's classes are uniquely prefixed):
+## File map (avoid reading whole files)
+`app.js` (~310L) — APPS registry, theme picker, router, edge-swipe-back. No tool logic.
+`style.css` (~500L) — tokens, theme overrides, base/Home/tool-screen shells, shared components. No tool-specific styling.
+`tools/*.js`+`.css`, one pair per tool, load order matters for JS (global scope, no modules):
 ```
-tools/counter.js + .css              บวก/ลบ — standalone. ประวัติ + รายชื่อ panels both use the same "ปักหมุด" (pin) auto-close pattern (historyPinned/namesPinned) — copy that pair for any future panel needing the same behavior.
-tools/todo.js + .css                 สิ่งที่ต้องทำ — renderTodo (full-screen APPS tool, editable) + renderTodoPreview (read-only, feeds the Home การ์ดแจ้งเตือน card)
-tools/wonglao-core.js + .css         วงเหล้า shared state (WONGLAO_DEFAULT_STATE), persistent tab-bar shell + dispatcher (renderWongLaoShell), shuffleArray() util — load first, other wonglao-*.js depend on it
-tools/wonglao-ohana.js + .css        ไพ่ Ohana
-tools/wonglao-randomcard.js + .css   ไพ่สุ่ม (biggest sub-game file; reuses wonglao-core.css's .picker-*/.name-chip)
-tools/wonglao-wheel.js + .css        สุ่ม (เดิม "วงล้อ"/"สุ่มเลข") — 2 โหมด: สุ่มเลข + ลูกเต๋า
-tools/wonglao-chwazi.js + .css       Chwazi
-tools/wonglao-quiz.js + .css         Flash Quiz — uses shuffleArray from wonglao-core.js
-tools/hikeprep.js + .css             เตรียมเดินป่า — full-screen APPS tool; HIKE_DAYS schedule array + past-program message after HIKE_WIDGET_HIDE_AFTER
-tools/changelog.js + .css            การอัปเดต (changelog) — CHANGELOG_DATA + renderChangelog — standalone
-tools/snake.js + .css                งู — full-screen APPS tool, canvas classic snake, D-pad + swipe controls. Snake body + start button use `--accent` (theme-adaptive exception, see theme picker rule below); food stays fixed `--red`.
+counter        บวก/ลบ — ประวัติ+รายชื่อ panels share the ปักหมุด auto-close pattern (historyPinned/namesPinned)
+todo           สิ่งที่ต้องทำ — renderTodo (full APPS tool) + renderTodoPreview (read-only Home card)
+wonglao-core   shared state, tab-bar shell/dispatcher (renderWongLaoShell), shuffleArray() — load first
+wonglao-ohana / -randomcard / -wheel / -chwazi / -quiz   5 sub-games — id/label table in README
+hikeprep       เตรียมเดินป่า — HIKE_DAYS schedule, hides after HIKE_WIDGET_HIDE_AFTER
+changelog      CHANGELOG_DATA + renderChangelog
+snake          งู — canvas snake; body+start-btn color is theme-adaptive (see Theme vars rule)
 ```
+Home = topbar → `#homeContent` (todo preview) → `#homeTodoEditBtn` FAB → sidebar (all `APPS` + changelog). No icon grid anywhere.
 
-Home page (`renderHome()` in `app.js`) = topbar (hamburger + brand + theme picker) → `#homeContent` (renders the สิ่งที่ต้องทำ การ์ดแจ้งเตือน, read-only) → `#homeTodoEditBtn` "แก้ไข" FAB → slide-in sidebar drawer listing every `APPS` entry + changelog link. There is no icon grid on Home anymore — every แอป is reached through the sidebar.
+## Token-efficiency habits
+- Don't `Read` a tool file pair unless the task touches it — use the map above / `Grep`.
+- Don't re-`Read` after `Edit` — it already errors on a bad match.
+- Prefer `get_page_text`/`find` over screenshots unless checking visual layout.
+- `browser_batch` a verification sequence instead of one call per step.
+- Long pasted content → scratch file + reference, not inline twice.
+- Before `python -m http.server 8080`, check the port's free (`netstat -ano | grep ':8080.*LISTENING'`) — a second server racing on it serves stale files non-deterministically and looks like a cache bug.
 
-## Token-efficiency habits for sessions in this repo
-- Don't `Read` a whole `tools/*.js`/`tools/*.css` pair unless the task touches that tool — use the map above (or `Grep`) instead of opening several files to look around.
-- After an `Edit`, don't re-`Read` the file to confirm — the tool already errors if the match failed.
-- When testing in the browser, prefer `get_page_text`/targeted `find` over full-page screenshots when text content (not visual layout) is what's being checked; use screenshots only for actual visual/layout verification.
-- **Use `browser_batch` for browser verification sequences** instead of one tool call per step — it's one round trip instead of several. Only break out of a batch when a later step's coordinates depend on seeing an earlier screenshot first.
-- Keep long pasted content (routine prompts, schedule tables, JSON bodies) in a scratch file and reference it, rather than pasting it inline more than once.
-- Prefer one `Grep`/`Read` with a tight scope over multiple exploratory reads.
-- **Before starting `python -m http.server 8080` locally, check nothing is already listening on that port** (`netstat -ano | grep ':8080.*LISTENING'` on Windows/git-bash) and kill any stale process first — a second server silently competing for the same port serves stale files non-deterministically and looks exactly like a CSS/cache bug.
-
-## Rules for working in this repo
-- **Batch changes into one version bump instead of bumping per-request.** While actively iterating with the owner in one sitting, make each fix/feature and test it locally (hard-reload bypasses the service worker, so this works fine without touching `CACHE_VERSION` yet) — but hold off bumping `CACHE_VERSION`/committing/pushing until a natural stopping point (owner signals they're done for now, moves to an unrelated task, or explicitly asks to ship). Then ship everything accumulated since the last bump as a **single** version with a fuller multi-bullet changelog entry. Exceptions: ship immediately if the owner explicitly asks to see it live now, or a single request is already substantial enough to stand alone.
-- **Always bump `CACHE_VERSION` in `sw.js`** when shipping any change to `app.js`/`tools/*.js`/`tools/*.css`/`style.css`/`index.html`/`manifest.json`. Format: plain `"vN"`, increment N.
-- **Add a `CHANGELOG_DATA` entry in `tools/changelog.js`** (push a new object onto the *front*) for any change the owner would notice or care about. Thai, one bullet per distinct change, categorize `added`/`changed`/`removed`. A shipped version is a batch (see rule above) — most entries should have several bullets. `version` echoes the `CACHE_VERSION` bumped in the same change. Skip purely internal refactors/doc updates unless worth mentioning for transparency.
-- **New `tools/*.js` and/or `tools/*.css` file → also add it to `PRECACHE_URLS` in `sw.js`, and add its `<script>`/`<link rel="stylesheet">` tag to `index.html`** (script before `app.js`; stylesheet order mostly doesn't matter). Forgetting either means the file loads fine online (fetched lazily) but isn't available offline on first load.
-- **All user-facing text is Thai.** Keep new UI strings in Thai unless told otherwise.
-- **No test suite.** Verify changes manually via local server (`python -m http.server 8080`, check the port is free first) + browser automation (`mcp__claude-in-chrome__*`) before calling something done. For UI changes, actually click through the feature.
-- **New top-level tool** → create `tools/yourtool.js` + `tools/yourtool.css`, register both tags in `index.html` (script before `app.js`), write `renderYourTool(container)`, add an entry to `APPS` in `app.js`, add both files to `PRECACHE_URLS`.
-- **New วงเหล้า sub-game** → add to `WONGLAO_TABS` and `WONGLAO_DEFAULT_STATE` (both in `tools/wonglao-core.js`), add a dispatch branch in `renderWongLaoShell` (also `wonglao-core.js`), write the render function and its styles (inline in `wonglao-core.js`/`.css` if small, else its own `tools/wonglao-yourgame.js` + `.css`).
-- **Icons**: `APPS`/`WONGLAO_TABS` entries can carry an optional `iconImg` (SVG path under `icons/emoji/` — use SVG, not raster, since it renders at different pixel sizes in different places) alongside the required `icon` (emoji fallback/alt text, and the only thing shown for entries without `iconImg`). `tabIconHtml()` (`wonglao-core.js`) and the inline ternary in `renderHome()`'s sidebar markup (`app.js`) prefer `iconImg` when present. New icon images must also be added to `PRECACHE_URLS`. Keep the Twemoji attribution comment in `index.html`'s `<body>` accurate while any such asset is in use.
-- **localStorage state**: any new persisted field must be added to that tool's default-state shape. `loadWongLaoState()` merges `{...WONGLAO_DEFAULT_STATE, ...saved}` — never bypass this merge or old installs get `undefined` fields. `loadCounterState()` follows the same principle with per-field `typeof` checks instead of a spread-merge.
-- **Fullscreen reveal overlays** (Ohana/ไพ่สุ่ม/สุ่ม/Flash Quiz/บวก-ลบ's ให้-ได้ name popup style): use the forced-reflow trigger (`void overlay.offsetHeight; overlay.classList.add("show")`), not double-`requestAnimationFrame` — rAF proved unreliable in this environment. Copy an existing `show*Overlay` function. **Every game with a card/question "open" action must use this pattern.** If the overlay closes on tap-anywhere (not an explicit close button), its root `className` **must also include `reveal-overlay`** — the global edge-swipe-back handler in `app.js` looks for `.reveal-overlay.show` first and clicks it to dismiss, before falling through to `.back-btn`. Skipping this leaves the overlay stuck on screen if the owner swipes back while it's open.
-- **Flex layout chain** (`#app → .tool-screen → .tool-body → tool wrapper`): every link needs `min-height: 0` alongside `flex:1; display:flex; flex-direction:column`, or content-less children collapse to zero height.
-- **Responsive width cap** (`--app-max-width: 520px` in `style.css`, `#app` capped + centered on it): two floating-button patterns are in use — (1) `position: fixed` + `right: max(16px, calc((100vw - var(--app-max-width)) / 2 + 16px))` for elements that must sit at the true viewport edge outside the capped column (currently only `.sidebar-overlay`/`.home-sidebar`, which intentionally cover the full screen); (2) simpler — `position: absolute` inside an already `position: relative`, width-capped ancestor, e.g. `.home-edit-fab` inside `.home`. **Prefer (2) for anything scoped to one screen** — it sidesteps the vw math entirely. A new full-screen "page-like" overlay (`background: var(--bg)`, not a dark dimming backdrop) needs `max-width: var(--app-max-width); margin: 0 auto;` too; a dark-backdrop reveal-card overlay does not.
-- **Design tokens** (`--radius-*`/`--shadow-*`/`--duration-*`/`--ease-bounce` in `style.css`'s `:root`): reuse for neutral, structural values instead of new one-off literals. Only `style.css` and `tools/counter.css` consume them so far — migrate a file opportunistically when already touching it, don't do a dedicated sweep. Per-tool "flavor" colors/shadows are intentionally left as literals — those are tool identity, not inconsistency.
-- **Theme picker** (full mechanics in README's "Theme system" section): `--green`/`--red`/every per-tool flavor color stay fixed across every theme by default — only `THEMES`-listed variables vary. **Exceptions**: `tools/todo.css` (whole widget built from theme vars instead of a fixed palette) and งู's snake body + start button (use `--accent` so the snake visibly matches the chosen theme — food `--red` and the canvas background `--card` stay as before). **New theme → one `THEMES` entry + one `:root[data-theme="id"]` CSS block**, nothing else needs touching. If you hardcode `rgba(255,255,255,…)`/`#fff` for a separator/border on a `var(--card)`/`var(--bg)` surface, use `var(--hairline)` instead or it vanishes on light-background themes.
-- Before `git push`, if rejected as non-fast-forward, another concurrent session may be editing this same repo on the same GitHub account — `git fetch` + inspect `git log HEAD..origin/main` before merging, don't just force-push.
-- Don't reintroduce Web Push (VAPID/push subscriptions) — abandoned because the cloud routine sandbox blocks `web.push.apple.com` egress. The daily hiking-prep reminder goes through Claude's own `PushNotification` tool instead. Leftover references anywhere are stale.
+## Rules
+- **Batch to one version bump.** Iterate/test freely without touching `CACHE_VERSION` (hard-reload bypasses the SW). Bump + ship as one multi-bullet version at a natural stopping point, not per-request. Ship immediately only if asked to see it live now, or the request is already substantial alone.
+- **Bump `CACHE_VERSION`** (`sw.js`, plain `"vN"`) on any shipped change to `app.js`/`tools/*`/`style.css`/`index.html`/`manifest.json`.
+- **Add a `CHANGELOG_DATA` entry** (front of array, `tools/changelog.js`) for anything the owner would notice — Thai, one bullet per change, `added`/`changed`/`removed`. `version` echoes the bumped `CACHE_VERSION`. Skip pure-internal changes.
+- **New tool file** → add to `PRECACHE_URLS` (`sw.js`) + `<script>`/`<link>` in `index.html` (script before `app.js`), or it works online but not offline-first-load.
+- **All UI text is Thai.**
+- **No test suite** — verify manually (local server + `mcp__claude-in-chrome__*`), click through UI changes.
+- **New top-level tool** → `tools/x.js`+`.css`, tags in `index.html`, `renderX(container)`, entry in `APPS`, files in `PRECACHE_URLS`.
+- **New วงเหล้า sub-game** → entry in `WONGLAO_TABS` + `WONGLAO_DEFAULT_STATE`, dispatch branch in `renderWongLaoShell`, render fn + styles (inline in wonglao-core if small, own file pair if big) — all in `tools/wonglao-core.js`.
+- **Icons**: `iconImg` (SVG, `icons/emoji/`) optional alongside required `icon` (emoji fallback). New images → `PRECACHE_URLS`. Keep the Twemoji attribution comment in `index.html`'s `<body>` accurate while any such asset is in use.
+- **localStorage**: new persisted field → add to that tool's default-state shape, not just the code using it. `loadWongLaoState()` spread-merges defaults; `loadCounterState()` uses per-field `typeof` checks — same principle either way.
+- **Fullscreen reveal overlays**: forced-reflow trigger (`void overlay.offsetHeight; overlay.classList.add("show")`), never double-rAF (unreliable here). Copy an existing `show*Overlay`. Root class must include `reveal-overlay` if it closes on tap-anywhere, or edge-swipe-back leaves it stuck onscreen.
+- **Flex chain** (`#app → .tool-screen → .tool-body → wrapper`): every link needs `min-height: 0` or content-less children collapse to zero height.
+- **Width cap** (`--app-max-width: 520px`): prefer `position: absolute` inside a `position: relative`, capped ancestor (e.g. `.home-edit-fab` in `.home`) for new floating elements — no vw math. Only use `right: max(16px, calc((100vw - var(--app-max-width))/2 + 16px))` for true full-viewport elements (sidebar-level).
+- **Design tokens** (`--radius-*`/`--shadow-*`/`--duration-*`/`--ease-bounce`): reuse instead of new literals. Only `style.css`+`counter.css` migrated so far — do it opportunistically, not as a sweep. Flavor colors/shadows stay literal (tool identity, not inconsistency).
+- **Theme vars**: flavor colors fixed across themes by default; exceptions = `todo.css` (fully theme-var-built) and งู's snake body/start-btn (`--accent`). New theme → one `THEMES` entry + one `:root[data-theme]` block. Use `var(--hairline)` not hardcoded white/black for borders on themed surfaces.
+- `git push` rejected non-fast-forward → another session may be editing concurrently; `fetch` + check `log HEAD..origin/main`, don't force-push.
+- No Web Push (VAPID) — sandbox blocks the egress; `PushNotification` handles the hiking reminder instead. Stale references anywhere should be deleted.
 
 ## External state not in this repo
-- A scheduled Claude Code routine (trigger id `trig_01AuHV3Bt8XtvCGfFVgbThcc`, "แจ้งเตือนเตรียมเดินป่ารายวัน") fires daily at 00:00 Thai time and sends a `PushNotification` reminder for the hiking-prep schedule. It has its **own copy** of the day-by-day table that must be manually kept in sync with `HIKE_DAYS` in `tools/hikeprep.js` if the schedule changes — no automated link. Manage it via the Claude routines API (`RemoteTrigger` tool) or https://claude.ai/code/routines (routines can't be deleted via API).
+- Cloud routine (`trig_01AuHV3Bt8XtvCGfFVgbThcc`, "แจ้งเตือนเตรียมเดินป่ารายวัน") fires daily 00:00 Thai time via `PushNotification`. Has its own copy of the `HIKE_DAYS` schedule — no automated sync, update both manually if the schedule changes. Manage via `RemoteTrigger` or https://claude.ai/code/routines.
