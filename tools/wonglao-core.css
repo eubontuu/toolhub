@@ -2,34 +2,96 @@
    trio reused by ไพ่สุ่ม's custom-prompt input (tools/wonglao-randomcard.css). Load
    before other wonglao-*.css so those overrides win where needed. */
 
-.wl-menu {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  padding: 20px 16px calc(var(--safe-bottom) + 20px);
-}
-
-.wl-menu .grid {
-  grid-template-columns: repeat(3, 1fr);
-}
-
-.wl-game {
+.wl-shell {
   flex: 1;
   display: flex;
   flex-direction: column;
   min-height: 0;
 }
 
-.wl-game-header {
+/* Single-row tab strip, always visible above the active game — replaces the old
+   grid-of-icons picker page and each game's own header/back button. Tabs never
+   wrap to a 2nd row: on overflow the row itself scrolls, nudged by the arrow
+   buttons either side (see wonglao-core.js scrollBy calls). */
+.wl-tabbar-row {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 4px 16px 14px;
+  gap: 4px;
+  padding: 10px 8px 6px;
+  border-bottom: 1px solid var(--hairline);
+  max-height: 60px;
+  overflow: hidden;
+  transition: max-height var(--duration-base) ease, opacity var(--duration-base) ease, padding var(--duration-base) ease;
 }
 
-.wl-game-title {
-  font-size: 16px;
-  font-weight: 700;
+.wl-tabbar-row.hidden {
+  max-height: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  opacity: 0;
+  border-bottom-color: transparent;
+}
+
+.wl-tab-nudge {
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: none;
+  background: var(--card-hi);
+  color: var(--text);
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.wl-tabbar {
+  flex: 1;
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.wl-tabbar::-webkit-scrollbar {
+  display: none;
+}
+
+.wl-tab {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--card);
+  border: none;
+  border-radius: var(--radius-pill);
+  color: var(--sub);
+  padding: 8px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.wl-tab.active {
+  background: var(--accent);
+  color: #fff;
+}
+
+.wl-tab-icon {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+}
+
+.wl-tabbar-toggle {
+  align-self: center;
+  background: none;
+  border: none;
+  color: var(--sub);
+  font-size: 11px;
+  padding: 4px;
+  cursor: pointer;
 }
 
 .wl-game-body {

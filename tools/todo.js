@@ -65,6 +65,45 @@ function todoMetaLine(item) {
   return parts.join(" · ");
 }
 
+// อ่านอย่างเดียว ใช้บนหน้าแรก (ดูรายการเฉยๆ, กดปุ่มแก้ไขมุมขวาล่างเพื่อไปแก้ที่แอปเต็มจอ renderTodo)
+function renderTodoPreview(container) {
+  const state = loadTodoState();
+  const total = state.items.length;
+  const doneCount = state.items.filter((item) => item.done).length;
+
+  container.innerHTML = `
+    <div class="todo-widget todo-widget-ro">
+      <div class="todo-title">📝 สิ่งที่ต้องทำ</div>
+      <div class="todo-list">
+        ${
+          total === 0
+            ? `<div class="todo-empty">ยังไม่มีรายการ</div>`
+            : state.items
+                .map((item) => {
+                  const urgency = todoUrgencyClass(item);
+                  const meta = todoMetaLine(item);
+                  return `
+            <div class="todo-item ${item.done ? "done" : ""} ${urgency}">
+              <span class="todo-check-ro ${item.done ? "done" : ""}"></span>
+              <div class="todo-item-body">
+                <span class="todo-text">${item.text}</span>
+                ${meta ? `<span class="todo-meta">${meta}</span>` : ""}
+              </div>
+            </div>
+          `;
+                })
+                .join("")
+        }
+      </div>
+      ${
+        total > 0
+          ? `<div class="todo-footer"><span class="todo-count">เสร็จแล้ว ${doneCount}/${total}</span></div>`
+          : ""
+      }
+    </div>
+  `;
+}
+
 function renderTodo(container) {
   const state = loadTodoState();
 

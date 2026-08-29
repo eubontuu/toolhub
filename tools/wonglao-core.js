@@ -54,61 +54,63 @@ function shuffleArray(arr) {
   return copy;
 }
 
+// แถบเลือกเกมเป็นบรรทัดเดียวเสมอ อยู่ด้านบนของทุกเกม (ไม่ใช่หน้าเมนูแยกอีกต่อไป) — กดแท็บสลับเกมได้ทันที
+// พับ/กางแถบได้ (state ไม่ persist ข้ามการเปิดแอปใหม่ — แค่กันบังพื้นที่เล่นเกมชั่วคราว)
+let wlTabbarHidden = false;
+
 function renderWongLao(container) {
   const state = loadWongLaoState();
+  if (!WONGLAO_TABS.some((t) => t.id === state.tab)) {
+    state.tab = WONGLAO_TABS[0].id;
+    saveWongLaoState(state);
+  }
 
   function draw() {
-    if (!state.tab) {
-      renderWongLaoMenu(container, state, draw);
-    } else {
-      renderWongLaoGame(container, state, draw);
-    }
+    renderWongLaoShell(container, state, draw);
   }
 
   draw();
 }
 
-function renderWongLaoMenu(container, state, draw) {
+function renderWongLaoShell(container, state, draw) {
   container.innerHTML = `
-    <div class="wl-menu">
-      <div class="grid" id="wlGrid"></div>
-    </div>
-  `;
-  const grid = container.querySelector("#wlGrid");
-  WONGLAO_TABS.forEach((t) => {
-    const btn = document.createElement("button");
-    btn.className = "icon-btn";
-    btn.innerHTML = `<div class="icon-tile">${tabIconHtml(t, "icon-img")}</div><div class="icon-label">${t.label}</div>`;
-    btn.addEventListener("click", () => {
-      state.tab = t.id;
-      saveWongLaoState(state);
-      draw();
-    });
-    grid.appendChild(btn);
-  });
-}
-
-function renderWongLaoGame(container, state, draw) {
-  const meta = WONGLAO_TABS.find((t) => t.id === state.tab);
-  if (!meta) {
-    // stale/removed tab id from an older install — fall back to the menu instead of crashing
-    state.tab = null;
-    saveWongLaoState(state);
-    renderWongLaoMenu(container, state, draw);
-    return;
-  }
-  container.innerHTML = `
-    <div class="wl-game">
-      <div class="wl-game-header">
-        <button class="back-btn" id="wlBack">‹</button>
-        <div class="wl-game-title">${tabIconHtml(meta, "wl-game-title-icon")} ${meta.label}</div>
+    <div class="wl-shell">
+      <div class="wl-tabbar-row ${wlTabbarHidden ? "hidden" : ""}" id="wlTabbarRow">
+        <button class="wl-tab-nudge" id="wlNudgeLeft" aria-label="เลื่อนซ้าย">‹</button>
+        <div class="wl-tabbar" id="wlTabbar">
+          ${WONGLAO_TABS.map(
+            (t) => `
+          <button class="wl-tab ${t.id === state.tab ? "active" : ""}" data-tab-id="${t.id}">
+            ${tabIconHtml(t, "wl-tab-icon")}<span>${t.label}</span>
+          </button>`
+          ).join("")}
+        </div>
+        <button class="wl-tab-nudge" id="wlNudgeRight" aria-label="เลื่อนขวา">›</button>
       </div>
+      <button class="wl-tabbar-toggle" id="wlTabbarToggle">${wlTabbarHidden ? "▾ แถบเกม" : "▴ ซ่อนแถบ"}</button>
       <div class="wl-game-body" id="wlGameBody"></div>
     </div>
   `;
-  container.querySelector("#wlBack").addEventListener("click", () => {
-    state.tab = null;
-    saveWongLaoState(state);
+
+  container.querySelectorAll(".wl-tab").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      if (btn.dataset.tabId === state.tab) return;
+      state.tab = btn.dataset.tabId;
+      saveWongLaoState(state);
+      draw();
+    });
+  });
+
+  const tabbar = container.querySelector("#wlTabbar");
+  container.querySelector("#wlNudgeLeft").addEventListener("click", () => {
+    tabbar.scrollBy({ left: -120, behavior: "smooth" });
+  });
+  container.querySelector("#wlNudgeRight").addEventListener("click", () => {
+    tabbar.scrollBy({ left: 120, behavior: "smooth" });
+  });
+
+  container.querySelector("#wlTabbarToggle").addEventListener("click", () => {
+    wlTabbarHidden = !wlTabbarHidden;
     draw();
   });
 
