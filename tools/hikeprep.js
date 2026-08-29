@@ -1,6 +1,6 @@
-// เตรียมเดินป่า — Home-screen widget (renderHikePrep fills #hikeWidget, called from renderHome
-// in app.js). Shows the accumulating backlog of past/today days not yet marked done — tap
-// "เสร็จแล้ว" to clear a day off the list. No tap-through screen. No dependency on other tool files.
+// เตรียมเดินป่า — full-screen app (renderHikePrep, registered in APPS in app.js). Shows the
+// accumulating backlog of past/today days not yet marked done — tap "เสร็จแล้ว" to clear a day
+// off the list. No dependency on other tool files.
 
 const HIKE_TRIP_DATE = "2026-10-01";
 const HIKE_WIDGET_HIDE_AFTER = "2026-09-10"; // widget disappears from Home starting the day after this date
@@ -90,10 +90,16 @@ function renderHikePrep(container) {
   function draw() {
     const today = hikeTodayStr();
     if (today > HIKE_WIDGET_HIDE_AFTER) {
-      container.style.display = "none";
+      container.innerHTML = `
+        <div class="hike-page">
+          <div class="hike-widget">
+            <div class="hike-widget-title">🥾 เตรียมเดินป่า</div>
+            <div class="hike-widget-empty">ทริปผ่านไปแล้ว โปรแกรมนี้จบไปแล้วครับ</div>
+          </div>
+        </div>
+      `;
       return;
     }
-    container.style.display = "";
     const first = HIKE_DAYS[0].d;
     const cd = hikeDaysBetween(today, HIKE_TRIP_DATE);
     const countdownText = cd > 0 ? `เหลืออีก ${cd} วันก่อนทริป` : cd === 0 ? "ออกเดินทางวันนี้!" : "ทริปผ่านไปแล้ว";
@@ -101,47 +107,51 @@ function renderHikePrep(container) {
     const upcoming = today >= first ? HIKE_DAYS.find((d) => d.d > today) : null;
 
     container.innerHTML = `
-      <div class="hike-widget-title">🥾 เตรียมเดินป่า</div>
-      <div class="hike-widget-countdown">${countdownText}</div>
-      <div class="hike-widget-list">
-        ${
-          today < first
-            ? `<div class="hike-widget-empty">โปรแกรมเริ่ม ${hikeFmtThaiDate(first)}</div>`
-            : backlog.length === 0
-            ? `<div class="hike-widget-empty">ทำครบทุกวันแล้ว เยี่ยมมาก! 🎉</div>`
-            : backlog
-                .map((d) => {
-                  const overdue = d.d < today;
-                  return `
-              <div class="hike-widget-item ${overdue ? "overdue" : ""}">
+      <div class="hike-page">
+        <div class="hike-widget">
+          <div class="hike-widget-title">🥾 เตรียมเดินป่า</div>
+          <div class="hike-widget-countdown">${countdownText}</div>
+          <div class="hike-widget-list">
+            ${
+              today < first
+                ? `<div class="hike-widget-empty">โปรแกรมเริ่ม ${hikeFmtThaiDate(first)}</div>`
+                : backlog.length === 0
+                ? `<div class="hike-widget-empty">ทำครบทุกวันแล้ว เยี่ยมมาก! 🎉</div>`
+                : backlog
+                    .map((d) => {
+                      const overdue = d.d < today;
+                      return `
+                  <div class="hike-widget-item ${overdue ? "overdue" : ""}">
+                    <div class="hike-widget-item-body">
+                      <span class="hike-widget-item-title">${d.title}${d.key ? " ⭐" : ""}</span>
+                      <span class="hike-widget-item-detail">${d.detail}</span>
+                      <span class="hike-widget-item-meta">${hikeFmtShortDate(d.d)} (${d.dow.slice(0, 3)})${
+                        overdue ? " · เลยกำหนดแล้ว" : " · วันนี้"
+                      }</span>
+                    </div>
+                    <button class="hike-widget-done-btn" data-date="${d.d}">เสร็จแล้ว</button>
+                  </div>
+                `;
+                    })
+                    .join("")
+            }
+            ${
+              upcoming
+                ? `
+              <div class="hike-widget-item upcoming">
                 <div class="hike-widget-item-body">
-                  <span class="hike-widget-item-title">${d.title}${d.key ? " ⭐" : ""}</span>
-                  <span class="hike-widget-item-detail">${d.detail}</span>
-                  <span class="hike-widget-item-meta">${hikeFmtShortDate(d.d)} (${d.dow.slice(0, 3)})${
-                    overdue ? " · เลยกำหนดแล้ว" : " · วันนี้"
+                  <span class="hike-widget-item-title">${upcoming.title}${upcoming.key ? " ⭐" : ""}</span>
+                  <span class="hike-widget-item-detail">${upcoming.detail}</span>
+                  <span class="hike-widget-item-meta">${hikeFmtShortDate(upcoming.d)} (${upcoming.dow.slice(0, 3)}) · ${
+                    hikeDaysBetween(today, upcoming.d) === 1 ? "พรุ่งนี้" : `อีก ${hikeDaysBetween(today, upcoming.d)} วัน`
                   }</span>
                 </div>
-                <button class="hike-widget-done-btn" data-date="${d.d}">เสร็จแล้ว</button>
               </div>
-            `;
-                })
-                .join("")
-        }
-        ${
-          upcoming
-            ? `
-          <div class="hike-widget-item upcoming">
-            <div class="hike-widget-item-body">
-              <span class="hike-widget-item-title">${upcoming.title}${upcoming.key ? " ⭐" : ""}</span>
-              <span class="hike-widget-item-detail">${upcoming.detail}</span>
-              <span class="hike-widget-item-meta">${hikeFmtShortDate(upcoming.d)} (${upcoming.dow.slice(0, 3)}) · ${
-                hikeDaysBetween(today, upcoming.d) === 1 ? "พรุ่งนี้" : `อีก ${hikeDaysBetween(today, upcoming.d)} วัน`
-              }</span>
-            </div>
+            `
+                : ""
+            }
           </div>
-        `
-            : ""
-        }
+        </div>
       </div>
     `;
 

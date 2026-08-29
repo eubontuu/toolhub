@@ -1,0 +1,109 @@
+/* งู — snake game tool */
+
+.snake-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  padding: 16px 20px calc(var(--safe-bottom) + 16px);
+  align-items: center;
+  gap: 14px;
+}
+
+.snake-score-row {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 320px;
+  font-size: 13px;
+  color: var(--sub);
+}
+
+.snake-score-row b {
+  color: var(--text);
+  font-size: 16px;
+}
+
+.snake-board-wrap {
+  position: relative;
+  width: 100%;
+  max-width: 320px;
+  aspect-ratio: 1;
+}
+
+.snake-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+  border-radius: var(--radius-lg);
+  background: var(--card);
+  box-shadow: var(--shadow-md);
+  touch-action: none;
+}
+
+.snake-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: rgba(0, 0, 0, 0.55);
+  border-radius: var(--radius-lg);
+  text-align: center;
+  padding: 20px;
+}
+
+.snake-overlay-title {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.snake-overlay-sub {
+  font-size: 13px;
+  color: var(--sub);
+}
+
+.snake-start-btn {
+  background: var(--green);
+  color: #06210f;
+  border: none;
+  font-size: 14.5px;
+  font-weight: 700;
+  padding: 12px 28px;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  margin-top: 4px;
+}
+
+.snake-dpad {
+  display: grid;
+  grid-template-columns: repeat(3, 56px);
+  grid-template-rows: repeat(3, 56px);
+  gap: 6px;
+  margin-top: auto;
+}
+
+.snake-dpad-btn {
+  background: var(--card);
+  border: none;
+  color: var(--text);
+  border-radius: var(--radius-md);
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+}
+
+.snake-dpad-btn:active {
+  background: var(--card-hi);
+}
+
+.snake-dpad-up { grid-column: 2; grid-row: 1; }
+.snake-dpad-left { grid-column: 1; grid-row: 2; }
+.snake-dpad-down { grid-column: 2; grid-row: 3; }
+.snake-dpad-right { grid-column: 3; grid-row: 2; }

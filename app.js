@@ -16,6 +16,18 @@ const APPS = [
     iconImg: "icons/emoji/beers.svg",
     render: renderWongLao,
   },
+  {
+    id: "todo",
+    name: "สิ่งที่ต้องทำ",
+    icon: "📝",
+    render: renderTodo,
+  },
+  {
+    id: "hikeprep",
+    name: "เตรียมเดินป่า",
+    icon: "🥾",
+    render: renderHikePrep,
+  },
 ];
 
 const root = document.getElementById("app");
@@ -147,34 +159,67 @@ function render() {
 
 function renderHome() {
   root.innerHTML = `
-    <div class="home">
-      <div class="home-top">
-        <div class="home-banner">
-          <div class="theme-picker" id="themePicker">
-            <button class="icon-action-btn theme-btn" id="themeToggleBtn">ธีม</button>
-          </div>
-          <h1>🐷 คลังแสงของ หมูอุ๊ด</h1>
-          <p class="sub">ยินดีต้อนรับสู่คลังแสงอัจฉริยะ ของตระกูลหมู เชิญเดินชมได้เต็มที่ เลือกหยิบสิ่งที่อยากได้ เชิญครับ อู๊ด อู๊ดดดด</p>
+    <div class="home home-v2">
+      <div class="home-topbar">
+        <button class="icon-action-btn" id="menuBtn" aria-label="เมนู">☰</button>
+        <div class="home-topbar-brand">
+          <span class="home-topbar-logo">🐷</span>
+          <span class="home-topbar-name">คลังแสงหมูอุ๊ด</span>
+        </div>
+        <div class="theme-picker" id="themePicker">
+          <button class="icon-action-btn theme-btn" id="themeToggleBtn">ธีม</button>
         </div>
       </div>
-      <div class="grid" id="grid"></div>
-      ${APPS.length === 0 ? '<div class="empty-hint">ยังไม่มีเครื่องมือ — จะเพิ่มเข้ามาเรื่อยๆ</div>' : ""}
-      <div class="todo-widget" id="todoWidget"></div>
-      <div class="hike-widget" id="hikeWidget"></div>
-      <button class="changelog-fab" id="changelogBtn">Update log</button>
+
+      <div class="home-content" id="homeContent"></div>
+
+      <div class="sidebar-overlay" id="sidebarOverlay"></div>
+      <nav class="home-sidebar" id="homeSidebar">
+        <button class="sidebar-collapse-btn" id="sidebarCollapseBtn" aria-label="ปิดเมนู">‹</button>
+        <div class="sidebar-brand">
+          <span class="sidebar-brand-icon">🐷</span>
+          <div>
+            <div class="sidebar-brand-name">คลังแสงหมูอุ๊ด</div>
+            <div class="sidebar-brand-version">ToolHub</div>
+          </div>
+        </div>
+        <div class="sidebar-search">🔍 <span>ค้นหาเครื่องมือ</span></div>
+        <div class="sidebar-nav">
+          <button class="sidebar-nav-item active" data-route="home">🏠 <span>หน้าแรก</span></button>
+          ${APPS.map(
+            (app) => `
+          <button class="sidebar-nav-item" data-route="app/${app.id}">${
+              app.iconImg
+                ? `<img src="${app.iconImg}" class="sidebar-nav-icon" alt="" />`
+                : `<span>${app.icon}</span>`
+            } <span>${app.name}</span></button>`
+          ).join("")}
+          <button class="sidebar-nav-item" data-route="changelog">🕓 <span>การอัปเดต</span></button>
+        </div>
+      </nav>
     </div>
   `;
-  document.getElementById("changelogBtn").addEventListener("click", () => navigate("changelog"));
   setupThemePicker(document.getElementById("themePicker"));
-  renderTodo(document.getElementById("todoWidget"));
-  renderHikePrep(document.getElementById("hikeWidget"));
-  const grid = document.getElementById("grid");
-  APPS.forEach((app) => {
-    const btn = document.createElement("button");
-    btn.className = "icon-btn";
-    btn.innerHTML = `<div class="icon-tile">${app.iconImg ? `<img src="${app.iconImg}" alt="${app.name}" class="icon-img" />` : app.icon}</div><div class="icon-label">${app.name}</div>`;
-    btn.addEventListener("click", () => navigate(`app/${app.id}`));
-    grid.appendChild(btn);
+  renderSnake(document.getElementById("homeContent"));
+
+  const sidebar = document.getElementById("homeSidebar");
+  const overlay = document.getElementById("sidebarOverlay");
+  function openSidebar() {
+    sidebar.classList.add("open");
+    overlay.classList.add("open");
+  }
+  function closeSidebar() {
+    sidebar.classList.remove("open");
+    overlay.classList.remove("open");
+  }
+  document.getElementById("menuBtn").addEventListener("click", openSidebar);
+  document.getElementById("sidebarCollapseBtn").addEventListener("click", closeSidebar);
+  overlay.addEventListener("click", closeSidebar);
+  sidebar.querySelectorAll(".sidebar-nav-item").forEach((item) => {
+    item.addEventListener("click", () => {
+      closeSidebar();
+      navigate(item.dataset.route);
+    });
   });
 }
 
