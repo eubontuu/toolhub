@@ -1,10 +1,10 @@
-// เกม — tab-bar shell for mini-games (งู, กู้ระเบิด). Mirrors วงเหล้า's persistent
+// เกม — tab-bar shell for mini-games (งู, Jump King). Mirrors วงเหล้า's persistent
 // single-row tab-bar pattern (renderWongLaoShell in wonglao-core.js) but scoped to just
 // these games, with its own state/CSS — not shared with wonglao.
 
 const GAME_TABS = [
   { id: "snake", label: "งู", icon: "🐍" },
-  { id: "minesweeper", label: "กู้ระเบิด", icon: "💣" },
+  { id: "jumpking", label: "Jump King", icon: "🤴" },
   { id: "mathquiz", label: "คิดเลขเร็ว", icon: "🧮" },
 ];
 
@@ -82,6 +82,6 @@ function renderGamesShell(container, state, draw) {
 
   const body = container.querySelector("#gameBody");
   if (state.tab === "snake") renderSnake(body);
-  else if (state.tab === "minesweeper") renderMinesweeper(body);
+  else if (state.tab === "jumpking") renderJumpKing(body);
   else renderMathQuiz(body);
 }

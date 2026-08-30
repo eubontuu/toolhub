@@ -321,7 +321,7 @@ function renderRcDrawScreen(body, state) {
     state.rcLast = state.rcDeck.pop();
     saveWongLaoState(state);
     renderRcDrawScreen(body, state);
-    showRcOverlay(state.rcLast);
+    showRcOverlay(state, body);
   });
 
   body.querySelector("#rcReshuffleBtn").addEventListener("click", () => {
@@ -445,13 +445,28 @@ function showRcRestoreOverlay(state, onRestore) {
   overlay.classList.add("show");
 }
 
-function showRcOverlay(text) {
+function showRcOverlay(state, body) {
   const overlay = document.createElement("div");
   overlay.className = "rc-overlay reveal-overlay";
-  overlay.innerHTML = `
-    <div class="rc-overlay-card"><span>${text}</span></div>
-    <div class="rc-overlay-hint">แตะที่ไหนก็ได้เพื่อปิด</div>
-  `;
+
+  function draw() {
+    const deckEmpty = state.rcDeck.length === 0;
+    overlay.innerHTML = `
+      <div class="rc-overlay-card"><span>${state.rcLast}</span></div>
+      <button class="wl-action-btn" id="rcOverlayNextBtn" ${deckEmpty ? "disabled" : ""}>เปิดใบถัดไป ▸</button>
+      <div class="rc-overlay-hint">แตะที่ไหนก็ได้เพื่อปิด</div>
+    `;
+    overlay.querySelector("#rcOverlayNextBtn").addEventListener("click", (e) => {
+      e.stopPropagation();
+      if (state.rcDeck.length === 0) return;
+      state.rcLast = state.rcDeck.pop();
+      saveWongLaoState(state);
+      renderRcDrawScreen(body, state);
+      draw();
+    });
+  }
+
+  draw();
   overlay.addEventListener("click", () => overlay.remove());
   document.body.appendChild(overlay);
   void overlay.offsetHeight;
