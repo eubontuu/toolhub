@@ -16,7 +16,7 @@ Auto-loaded every session in this repo. Read `README.md` for full architecture �
 - **การ์ดแจ้งเตือน** — อ่านอย่างเดียวบนหน้าแรก + ปุ่มขวาล่างพาไปแอปที่แก้ไขได้. ตัวอย่าง: `renderTodoPreview()` (`todo.js`) → `#homeContent`, คู่ `#homeTodoEditBtn` → `#app/todo`.
 
 ## File map (avoid reading whole files)
-`app.js` (~310L) — APPS registry, theme picker, router, edge-swipe-back. No tool logic.
+`app.js` (~340L) — APPS registry, theme picker, router, edge-swipe-back. No tool logic.
 `style.css` (~500L) — tokens, theme overrides, base/Home/tool-screen shells, shared components. No tool-specific styling.
 `tools/*.js`+`.css`, one pair per tool, load order matters for JS (global scope, no modules):
 ```
@@ -58,7 +58,7 @@ Home = topbar → `#quickstartContent` (pinned-apps widget) → `#homeContent` (
 - **Fullscreen reveal overlays**: forced-reflow trigger (`void overlay.offsetHeight; overlay.classList.add("show")`), never double-rAF (unreliable here). Copy an existing `show*Overlay`. Root class must include `reveal-overlay` if it closes on tap-anywhere, or edge-swipe-back leaves it stuck onscreen.
 - **Flex chain** (`#app → .tool-screen → .tool-body → wrapper`): every link needs `min-height: 0` or content-less children collapse to zero height.
 - **Width cap** (`--app-max-width: 520px`): prefer `position: absolute` inside a `position: relative`, capped ancestor (e.g. `.home-edit-fab` in `.home`) for new floating elements — no vw math. Only use `right: max(16px, calc((100vw - var(--app-max-width))/2 + 16px))` for true full-viewport elements (sidebar-level).
-- **Design tokens** (`--radius-*`/`--shadow-*`/`--duration-*`/`--ease-bounce`): reuse instead of new literals. Only `style.css`+`counter.css` migrated so far — do it opportunistically, not as a sweep. Flavor colors/shadows stay literal (tool identity, not inconsistency).
+- **Design tokens** (`--radius-*`/`--shadow-*`/`--duration-*`/`--ease-bounce`): reuse instead of new literals. Most tool CSS files use them now; `changelog.css`/`wonglao-chwazi.css`/`wonglao-randomcard.css`/`wonglao-wheel.css` don't yet — migrate opportunistically, not as a sweep. Flavor colors/shadows stay literal (tool identity, not inconsistency).
 - **Theme vars**: flavor colors fixed across themes by default; exceptions = `todo.css` (fully theme-var-built), งู's snake body/start-btn, and หวย's ball gradient (all `--accent`). New theme → one `THEMES` entry + one `:root[data-theme]` block. Use `var(--hairline)` not hardcoded white/black for borders on themed surfaces.
 - `git push` rejected non-fast-forward → another session may be editing concurrently; `fetch` + check `log HEAD..origin/main`, don't force-push.
 - No Web Push (VAPID) — sandbox blocks the egress; `PushNotification` handles the hiking reminder instead. Stale references anywhere should be deleted.

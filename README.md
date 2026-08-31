@@ -46,7 +46,7 @@ No bundler, no modules — every JS/CSS file is a plain `<script>`/`<link>`, so 
 `app.js` opens with an `APPS` array — each entry is a sidebar nav item + a `#app/<id>` route:
 
 ```js
-const APPS = [{ id, name, icon, iconImg?, render }, ...];  // 5 entries — id/name list in CLAUDE.md's glossary
+const APPS = [{ id, name, icon, iconImg?, render }, ...];  // 6 entries — id/name list in CLAUDE.md's glossary
 ```
 
 `icon` (emoji fallback) is required; `iconImg` (SVG under `icons/emoji/`) is preferred when present. `WONGLAO_TABS` entries follow the same shape.
@@ -57,7 +57,7 @@ Hash router (`#app/<id>`, plus `#changelog`) via `render()`/`renderHome()`/`rend
 
 **Theme system:** `THEMES` array (`id`/`label`/`group`/`bg`/`accent`) in `app.js` — dark (default)/light "แนะนำ", plus grape/ivory/mint/sunset "อื่นๆ". `applyTheme(id)` sets `data-theme` on `<html>`; `style.css`'s `:root[data-theme="..."]` blocks override structural colors only (`--bg`/`--card`/`--card-hi`/`--text`/`--sub`/`--hairline`, plus `--accent` for mood themes) — per-tool flavor colors stay fixed by default (exceptions in `CLAUDE.md`'s theme-vars rule). Persists to `toolhub.theme` via `loadTheme()`/`saveTheme()`; `setupThemePicker()` builds the popover. New theme = one `THEMES` entry + one CSS block.
 
-**Design tokens:** `style.css`'s `:root` has radius/shadow/motion tokens (`--radius-*`, `--shadow-*`, `--duration-*`, `--ease-bounce`). Only `style.css` + `tools/counter.css` consume them so far; migrate other files opportunistically.
+**Design tokens:** `style.css`'s `:root` has radius/shadow/motion tokens (`--radius-*`, `--shadow-*`, `--duration-*`, `--ease-bounce`). Most `tools/*.css` files consume them now; `changelog.css`/`wonglao-chwazi.css`/`wonglao-randomcard.css`/`wonglao-wheel.css` are the remaining holdouts — migrate opportunistically.
 
 **Edge-swipe-back:** a global `touchstart`/`touchend` listener in `app.js` treats a right-swipe starting within 24px of the left edge as "back" — it clicks the *last* `.back-btn` in the document (so nested back buttons resolve to whichever is visually current), checking for an open `.reveal-overlay.show` first. Requires `touch-action: pan-y` on `html, body`, or mobile browsers reserve horizontal edge swipes for their own back/forward gesture (desktop automation can't catch this — it simulates touch events directly, bypassing the gesture recognizer).
 
