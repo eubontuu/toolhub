@@ -10,13 +10,13 @@ Auto-loaded every session in this repo. Read `README.md` for full architecture �
 - Files: `index.html`, `app.js` (shell/router), `tools/*.js`+`.css` (one pair per tool), `style.css` (shell only), `sw.js`, `manifest.json`, `icons/`.
 
 ## คำศัพท์ UI (คุยกับ owner ให้ตรงกัน)
-- **แอป** — full-screen tool opened from sidebar, `renderToolShell` header, registered in `APPS`. 6 ตอนนี้: บวก/ลบ, วงเหล้า, หวย, เกม, สิ่งที่ต้องทำ, เตรียมเดินป่า. ปุ่มย้อนกลับจากแอปไหนก็ตาม → เปิด sidebar ค้างไว้ทันที ไฮไลท์แอปที่เพิ่งออกมา (`openSidebarOnHome`/`sidebarActiveRoute`, `app.js`).
+- **แอป** — full-screen tool opened from sidebar, `renderToolShell` header, registered in `APPS`. 6 ตอนนี้: บวก/ลบ, วงเหล้า, หวย, เกม, สิ่งที่ต้องทำ, เตรียมเดินป่า. ปุ่มย้อนกลับจากแอปไหนก็ตาม → เปิด sidebar ทับหน้าปัจจุบันทันที (ไม่ navigate ไปหน้าแรกก่อน) ไฮไลท์แอปที่เพิ่งออกมา (`openSidebarOverlay()`/`sidebarActiveRoute`, `app.js`).
 - **แถบ** — (1) sidebar nav item (`.sidebar-nav-item`) หรือ (2) แท็บเดี่ยวแนวนอนคงที่ในแอปฮับ (วงเหล้า/เกม) — สลับ sub-item ทันที, พับ/กางได้, ล้นแล้วเลื่อนซ้าย-ขวาแทนขึ้นบรรทัดใหม่. วงเหล้าใช้ `WONGLAO_TABS`+`renderWongLaoShell` (`wonglao-core.js`); เกม (งู/Jump King/คิดเลขเร็ว) ใช้ `GAME_TABS`+`renderGamesShell` (`games-core.js`) — คนละไฟล์ คนละ state กัน แต่ pattern เดียวกัน.
 - **วิดเจ็ต** — ฝังหน้าแรก แก้ไขได้ทันที ไม่ลงทะเบียนใน `APPS`. ตัวอย่าง: `renderQuickStart()` (`quickstart.js`) → `#quickstartContent` — ปักหมุด/เอาออกได้ว่าจะโชว์ทางลัดไปแอปไหนบ้าง (`toolhub.quickstart`, array ของ `APPS` id), กดทางลัดแล้ว `navigate()` ตรงไปแอปนั้นเลยไม่ต้องผ่าน sidebar.
 - **การ์ดแจ้งเตือน** — อ่านอย่างเดียวบนหน้าแรก + ปุ่มขวาล่างพาไปแอปที่แก้ไขได้. ตัวอย่าง: `renderTodoPreview()` (`todo.js`) → `#homeContent`, คู่ `#homeTodoEditBtn` → `#app/todo`.
 
 ## File map (avoid reading whole files)
-`app.js` (~310L) — APPS registry, theme picker, router, edge-swipe-back. No tool logic.
+`app.js` (~340L) — APPS registry, theme picker, router, edge-swipe-back. No tool logic.
 `style.css` (~500L) — tokens, theme overrides, base/Home/tool-screen shells, shared components. No tool-specific styling.
 `tools/*.js`+`.css`, one pair per tool, load order matters for JS (global scope, no modules):
 ```
@@ -42,6 +42,9 @@ Home = topbar → `#quickstartContent` (pinned-apps widget) → `#homeContent` (
 - `browser_batch` a verification sequence instead of one call per step.
 - Long pasted content → scratch file + reference, not inline twice.
 - Before `python -m http.server 8080`, check the port's free (`netstat -ano | grep ':8080.*LISTENING'`) — a second server racing on it serves stale files non-deterministically and looks like a cache bug.
+- Default to text/JSON assertions (`page.evaluate()` returning a small object, `console.log`) over screenshots when testing — a screenshot costs far more tokens than a values check. Take one only for a genuine visual/layout sanity check, usually right at the end.
+- Batch several checks into one `page.evaluate()` call instead of one round-trip per assertion.
+- For consistency audits (counting entries, checking a claim against code) reach for `grep -c`/a one-line `node -e` snippet before reading a whole file.
 
 ## Rules
 - **Batch to one version bump.** Iterate/test freely without touching `CACHE_VERSION` (hard-reload bypasses the SW). Bump + ship as one multi-bullet version at a natural stopping point, not per-request. Ship immediately only if asked to see it live now, or the request is already substantial alone.
@@ -58,7 +61,7 @@ Home = topbar → `#quickstartContent` (pinned-apps widget) → `#homeContent` (
 - **Fullscreen reveal overlays**: forced-reflow trigger (`void overlay.offsetHeight; overlay.classList.add("show")`), never double-rAF (unreliable here). Copy an existing `show*Overlay`. Root class must include `reveal-overlay` if it closes on tap-anywhere, or edge-swipe-back leaves it stuck onscreen.
 - **Flex chain** (`#app → .tool-screen → .tool-body → wrapper`): every link needs `min-height: 0` or content-less children collapse to zero height.
 - **Width cap** (`--app-max-width: 520px`): prefer `position: absolute` inside a `position: relative`, capped ancestor (e.g. `.home-edit-fab` in `.home`) for new floating elements — no vw math. Only use `right: max(16px, calc((100vw - var(--app-max-width))/2 + 16px))` for true full-viewport elements (sidebar-level).
-- **Design tokens** (`--radius-*`/`--shadow-*`/`--duration-*`/`--ease-bounce`): reuse instead of new literals. Only `style.css`+`counter.css` migrated so far — do it opportunistically, not as a sweep. Flavor colors/shadows stay literal (tool identity, not inconsistency).
+- **Design tokens** (`--radius-*`/`--shadow-*`/`--duration-*`/`--ease-bounce`): reuse instead of new literals. Most tool CSS files use them now; `changelog.css`/`wonglao-chwazi.css`/`wonglao-randomcard.css`/`wonglao-wheel.css` don't yet — migrate opportunistically, not as a sweep. Flavor colors/shadows stay literal (tool identity, not inconsistency).
 - **Theme vars**: flavor colors fixed across themes by default; exceptions = `todo.css` (fully theme-var-built), งู's snake body/start-btn, and หวย's ball gradient (all `--accent`). New theme → one `THEMES` entry + one `:root[data-theme]` block. Use `var(--hairline)` not hardcoded white/black for borders on themed surfaces.
 - `git push` rejected non-fast-forward → another session may be editing concurrently; `fetch` + check `log HEAD..origin/main`, don't force-push.
 - No Web Push (VAPID) — sandbox blocks the egress; `PushNotification` handles the hiking reminder instead. Stale references anywhere should be deleted.

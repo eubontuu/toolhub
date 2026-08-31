@@ -117,6 +117,9 @@
   cursor: pointer;
   box-shadow: var(--shadow-sm);
   touch-action: none;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 .jk-ctrl-btn.active,
@@ -137,6 +140,9 @@
   cursor: pointer;
   box-shadow: var(--shadow-sm);
   touch-action: none;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 .jk-jump-btn:active {

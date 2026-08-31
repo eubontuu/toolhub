@@ -236,17 +236,29 @@ function renderJumpKing(container) {
     rightBtn.classList.toggle("active", v);
   }
 
-  leftBtn.addEventListener("pointerdown", () => setLeft(true));
+  // preventDefault on pointerdown stops iOS Safari from starting its long-press
+  // text-selection gesture on these buttons (holding to charge a jump otherwise
+  // triggers the native "select" callout/loupe mid-hold).
+  leftBtn.addEventListener("pointerdown", (e) => {
+    e.preventDefault();
+    setLeft(true);
+  });
   leftBtn.addEventListener("pointerup", () => setLeft(false));
   leftBtn.addEventListener("pointerleave", () => setLeft(false));
   leftBtn.addEventListener("pointercancel", () => setLeft(false));
 
-  rightBtn.addEventListener("pointerdown", () => setRight(true));
+  rightBtn.addEventListener("pointerdown", (e) => {
+    e.preventDefault();
+    setRight(true);
+  });
   rightBtn.addEventListener("pointerup", () => setRight(false));
   rightBtn.addEventListener("pointerleave", () => setRight(false));
   rightBtn.addEventListener("pointercancel", () => setRight(false));
 
-  jumpBtn.addEventListener("pointerdown", startCharge);
+  jumpBtn.addEventListener("pointerdown", (e) => {
+    e.preventDefault();
+    startCharge();
+  });
   jumpBtn.addEventListener("pointerup", releaseCharge);
   jumpBtn.addEventListener("pointerleave", releaseCharge);
   jumpBtn.addEventListener("pointercancel", releaseCharge);
