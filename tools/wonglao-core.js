@@ -7,6 +7,7 @@ const WONGLAO_TABS = [
   { id: "wheel", label: "สุ่ม", icon: "🎡", iconImg: "icons/emoji/ferris-wheel.svg" },
   { id: "chwazi", label: "Chwazi", icon: "🖐️", iconImg: "icons/emoji/hand.svg" },
   { id: "quiz", label: "Flash Quiz", icon: "⚡", iconImg: "icons/emoji/zap.svg" },
+  { id: "huay", label: "หวย", icon: "🎫" },
 ];
 
 function tabIconHtml(item, className) {
@@ -31,6 +32,8 @@ const WONGLAO_DEFAULT_STATE = {
   chwaziWinnerCount: 1,
   quizDeck: null,
   quizLast: null,
+  huayDigits: 6,
+  huayLast: null,
 };
 
 function loadWongLaoState() {
@@ -119,5 +122,6 @@ function renderWongLaoShell(container, state, draw) {
   else if (state.tab === "randomcard") renderRandomCardGame(body, state);
   else if (state.tab === "wheel") renderWheelGame(body, state);
   else if (state.tab === "chwazi") renderChwaziGame(body, state);
-  else renderFlashQuizGame(body, state);
+  else if (state.tab === "quiz") renderFlashQuizGame(body, state);
+  else renderHuayGame(body, state);
 }
