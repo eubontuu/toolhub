@@ -186,7 +186,6 @@ function renderHome() {
       <div class="home-welcome">ยินดีต้อนรับกลับมา 🐷</div>
       <div class="home-subtitle">รวมเครื่องมือ เกม และของเล่นเล็กๆ ไว้ที่เดียว — กดปุ่ม ☰ มุมซ้ายบนเพื่อดูทั้งหมด</div>
       <div class="home-content" id="homeContent"></div>
-      <button class="home-edit-fab" id="homeTodoEditBtn">แก้ไข</button>
 
       <div class="sidebar-overlay" id="sidebarOverlay"></div>
       <nav class="home-sidebar" id="homeSidebar">

@@ -6,6 +6,13 @@ const CHANGELOG_TAG_LABEL = { added: "เพิ่ม", changed: "แก้ไ�
 
 const CHANGELOG_DATA = [
   {
+    version: "v74",
+    date: "31 ส.ค. 2569",
+    items: [
+      { type: "changed", text: "หน้าแรก — ย้ายปุ่ม \"แก้ไข\" ของสิ่งที่ต้องทำ จากปุ่มลอยมุมขวาล่าง เข้าไปอยู่ในหัวการ์ดสิ่งที่ต้องทำแทน" },
+    ],
+  },
+  {
     version: "v73",
     date: "31 ส.ค. 2569",
     items: [
