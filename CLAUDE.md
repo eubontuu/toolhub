@@ -12,7 +12,7 @@ Auto-loaded every session in this repo. Read `README.md` for full architecture �
 ## คำศัพท์ UI (คุยกับ owner ให้ตรงกัน)
 - **แอป** — full-screen tool opened from sidebar, `renderToolShell` header, registered in `APPS`. 5 ตอนนี้: บวก/ลบ, วงเหล้า, เกม, สิ่งที่ต้องทำ, เตรียมเดินป่า. ปุ่มย้อนกลับจากแอปไหนก็ตาม → เปิด sidebar ค้างไว้ทันที ไฮไลท์แอปที่เพิ่งออกมา (`openSidebarOnHome`/`sidebarActiveRoute`, `app.js`).
 - **แถบ** — (1) sidebar nav item (`.sidebar-nav-item`) หรือ (2) แท็บเดี่ยวแนวนอนคงที่ในแอปฮับ (วงเหล้า/เกม) — สลับ sub-item ทันที, พับ/กางได้, ล้นแล้วเลื่อนซ้าย-ขวาแทนขึ้นบรรทัดใหม่. วงเหล้าใช้ `WONGLAO_TABS`+`renderWongLaoShell` (`wonglao-core.js`); เกม (งู/Jump King/คิดเลขเร็ว) ใช้ `GAME_TABS`+`renderGamesShell` (`games-core.js`) — คนละไฟล์ คนละ state กัน แต่ pattern เดียวกัน.
-- **วิดเจ็ต** — ฝังหน้าแรก แก้ไขได้ทันที ไม่ลงทะเบียนใน `APPS`. **ไม่มีตัวอย่างใช้จริงตอนนี้.**
+- **วิดเจ็ต** — ฝังหน้าแรก แก้ไขได้ทันที ไม่ลงทะเบียนใน `APPS`. ตัวอย่าง: `renderQuickStart()` (`quickstart.js`) → `#quickstartContent` — ปักหมุด/เอาออกได้ว่าจะโชว์ทางลัดไปแอปไหนบ้าง (`toolhub.quickstart`, array ของ `APPS` id), กดทางลัดแล้ว `navigate()` ตรงไปแอปนั้นเลยไม่ต้องผ่าน sidebar.
 - **การ์ดแจ้งเตือน** — อ่านอย่างเดียวบนหน้าแรก + ปุ่มขวาล่างพาไปแอปที่แก้ไขได้. ตัวอย่าง: `renderTodoPreview()` (`todo.js`) → `#homeContent`, คู่ `#homeTodoEditBtn` → `#app/todo`.
 
 ## File map (avoid reading whole files)
@@ -22,6 +22,7 @@ Auto-loaded every session in this repo. Read `README.md` for full architecture �
 ```
 counter        บวก/ลบ — ประวัติ+รายชื่อ panels share the ปักหมุด auto-close pattern (historyPinned/namesPinned)
 todo           สิ่งที่ต้องทำ — renderTodo (full APPS tool) + renderTodoPreview (read-only Home card)
+quickstart     ทางลัด — Home widget, pin/unpin APPS entries for one-tap access (no sidebar)
 wonglao-core   shared state, tab-bar shell/dispatcher (renderWongLaoShell), shuffleArray() — load first
 wonglao-ohana / -randomcard / -wheel / -chwazi / -quiz / -huay   6 sub-games — id/label table in README; หวย's ball gradient uses --accent (theme-adaptive, see Theme vars rule)
 hikeprep       เตรียมเดินป่า — HIKE_DAYS schedule, hides after HIKE_WIDGET_HIDE_AFTER
@@ -31,7 +32,7 @@ snake          งู sub-game — canvas snake; body+start-btn color is theme-a
 jumpking       Jump King sub-game — canvas climbing game: hold ◀/▶ to aim + hold jump button to charge power/release to launch, camera follows player up, fall-too-far resets to last-reached platform (checkpoint), high score persisted; player/jump-btn color is theme-adaptive (--accent)
 mathquiz       คิดเลขเร็ว sub-game — 3s show / 5s answer flash quiz, typed or multiple-choice (configurable choice count), streak difficulty ramp
 ```
-Home = topbar → `#homeContent` (todo preview) → `#homeTodoEditBtn` FAB → sidebar (all `APPS` + changelog). No icon grid anywhere.
+Home = topbar → `#quickstartContent` (pinned-apps widget) → `#homeContent` (todo preview, `#homeTodoEditBtn` in its own header row) → sidebar (all `APPS` + changelog). No icon grid anywhere.
 
 ## Token-efficiency habits
 - Don't `Read` a tool file pair unless the task touches it — use the map above / `Grep`.

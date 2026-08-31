@@ -6,6 +6,13 @@ const CHANGELOG_TAG_LABEL = { added: "เพิ่ม", changed: "แก้ไ�
 
 const CHANGELOG_DATA = [
   {
+    version: "v75",
+    date: "31 ส.ค. 2569",
+    items: [
+      { type: "added", text: "หน้าแรก — เพิ่มกรอบ \"ทางลัด\" ปักหมุดแอปที่ใช้บ่อยไว้เปิดตรงได้เลยโดยไม่ต้องกดเปิดเมนู ☰ ก่อน กดปักหมุด/เอาออกเองได้" },
+    ],
+  },
+  {
     version: "v74",
     date: "31 ส.ค. 2569",
     items: [
