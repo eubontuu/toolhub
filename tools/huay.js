@@ -8,6 +8,39 @@ const HUAY_DIGIT_OPTIONS = [
   { n: 6, label: "6 ตัว (เต็ม)" },
 ];
 
+// สถิติเลขท้ายที่รายงานข่าวสาธารณะรวบรวมไว้ (~15-20 ปีย้อนหลัง ณ ที่มาแต่ละแหล่ง) — ไม่ใช่ข้อมูล
+// ทางการ อาจไม่อัปเดตล่าสุด และ "ออกบ่อยในอดีต" ไม่มีผลต่อการออกงวดถัดไปเลย (แต่ละงวดสุ่มอิสระ)
+// เก็บไว้แค่ให้ดูเล่นๆ ใน showHuayStatsOverlay — ดู disclaimer ในนั้นด้วย
+const HUAY_STATS_2DIGIT = [
+  { num: "79", count: 9, note: "แชมป์ตลอดกาลในหลายช่วงสถิติ" },
+  { num: "85", count: 8, note: "บางแหล่งรายงานสูงถึง 11 ครั้งในช่วง 20 ปี" },
+  { num: "69", count: 9, note: "อันดับ 2 ในช่วงสถิติ 20 ปี" },
+  { num: "98", count: 7 },
+  { num: "05", count: 7 },
+  { num: "26", count: 7 },
+  { num: "81", count: 7 },
+  { num: "83" },
+  { num: "95" },
+  { num: "17" },
+  { num: "25" },
+  { num: "73" },
+  { num: "89" },
+  { num: "94" },
+];
+
+const HUAY_STATS_3DIGIT = [
+  { num: "375", count: 5, note: "แชมป์เลขท้าย 3 ตัว" },
+  { num: "578", count: 3 },
+  { num: "989", count: 3 },
+  { num: "631", count: 3 },
+  { num: "297", count: 3 },
+  { num: "094", count: 3 },
+  { num: "421", count: 3 },
+  { num: "426", count: 3 },
+  { num: "447", count: 3 },
+  { num: "485", count: 3 },
+];
+
 function loadHuayState() {
   try {
     const raw = localStorage.getItem("toolhub.huay");
@@ -67,8 +100,13 @@ function renderHuay(container) {
           ).join("")}
         </div>
         <button class="huay-action-btn" id="huayDrawBtn">สุ่มใหม่</button>
+        <button class="reset-btn" id="huayStatsBtn">📊 ดูสถิติย้อนหลัง</button>
       </div>
     `;
+
+    container.querySelector("#huayStatsBtn").addEventListener("click", () => {
+      showHuayStatsOverlay();
+    });
 
     container.querySelectorAll(".step-chip[data-digits]").forEach((chip) => {
       chip.addEventListener("click", () => {
@@ -123,6 +161,41 @@ function showHuayOverlay(value) {
   `;
   overlay.addEventListener("click", () => overlay.remove());
   document.body.appendChild(overlay);
+  void overlay.offsetHeight;
+  overlay.classList.add("show");
+}
+
+function huayStatsChipHtml(item) {
+  return `
+    <div class="huay-stats-chip">
+      <span class="huay-stats-num">${item.num}</span>
+      ${item.count ? `<span class="huay-stats-count">${item.count} ครั้ง</span>` : ""}
+      ${item.note ? `<span class="huay-stats-note">${item.note}</span>` : ""}
+    </div>`;
+}
+
+function showHuayStatsOverlay() {
+  const overlay = document.createElement("div");
+  overlay.className = "huay-stats-overlay";
+  overlay.innerHTML = `
+    <div class="huay-stats-header">
+      <button class="back-btn" id="huayStatsClose">‹</button>
+      <div class="huay-stats-title">สถิติหวยในอดีต</div>
+    </div>
+    <div class="huay-stats-body">
+      <div class="huay-stats-disclaimer">
+        ข้อมูลรวบรวมจากรายงานข่าวสาธารณะ (ประมาณ 15-20 ปีย้อนหลัง แล้วแต่แหล่งข้อมูล) ไม่ใช่ข้อมูลทางการ และอาจไม่อัปเดตล่าสุด
+        <strong>สถิติในอดีตไม่มีผลต่อการออกงวดถัดไปเลย</strong> แต่ละงวดสุ่มเป็นอิสระจากกันเสมอ (การสุ่มในแอปนี้ก็เช่นกัน) — ดูไว้เพื่อความสนุกเท่านั้น
+      </div>
+      <div class="huay-stats-section-title">เลขท้าย 2 ตัว ที่มีสถิติออกบ่อย</div>
+      <div class="huay-stats-grid">${HUAY_STATS_2DIGIT.map(huayStatsChipHtml).join("")}</div>
+      <div class="huay-stats-section-title">เลขท้าย 3 ตัว ที่มีสถิติออกบ่อย</div>
+      <div class="huay-stats-grid">${HUAY_STATS_3DIGIT.map(huayStatsChipHtml).join("")}</div>
+      <div class="huay-stats-source">ที่มา: รวบรวมจากรายงานข่าวหลายสำนัก (Thairath, Sanook, Postjung และอื่นๆ)</div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  overlay.querySelector("#huayStatsClose").addEventListener("click", () => overlay.remove());
   void overlay.offsetHeight;
   overlay.classList.add("show");
 }
