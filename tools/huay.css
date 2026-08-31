@@ -29,16 +29,18 @@
 
 .huay-display-row {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   justify-content: center;
   gap: 10px;
+  width: 100%;
   max-width: min(90vw, 420px);
 }
 
 .huay-ball {
   position: relative;
-  width: 56px;
-  height: 56px;
+  flex: 0 1 56px;
+  min-width: 0;
+  aspect-ratio: 1 / 1;
   border-radius: var(--radius-circle);
   background: linear-gradient(160deg, var(--accent), var(--card-hi));
   box-shadow: var(--shadow-md);
@@ -79,14 +81,14 @@
 }
 
 .huay-ball span {
-  font-size: 24px;
+  font-size: clamp(14px, 4.5vw, 24px);
   font-weight: 800;
   color: #fff;
   font-variant-numeric: tabular-nums;
 }
 
 .huay-ball.placeholder span {
-  font-size: 20px;
+  font-size: clamp(12px, 3.8vw, 20px);
   color: var(--sub);
 }
 
@@ -128,15 +130,17 @@
 
 .huay-overlay-row {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   justify-content: center;
   gap: 14px;
+  width: 100%;
   max-width: min(90vw, 420px);
 }
 
 .huay-overlay-ball {
-  width: 64px;
-  height: 64px;
+  flex: 0 1 64px;
+  min-width: 0;
+  aspect-ratio: 1 / 1;
   border-radius: var(--radius-circle);
   background: linear-gradient(160deg, var(--accent), var(--card-hi));
   box-shadow: var(--shadow-xl);
@@ -159,7 +163,7 @@
 .huay-overlay-ball:nth-child(6) { transition-delay: 0.25s; }
 
 .huay-overlay-ball span {
-  font-size: 28px;
+  font-size: clamp(15px, 5vw, 28px);
   font-weight: 900;
   color: #fff;
   font-variant-numeric: tabular-nums;

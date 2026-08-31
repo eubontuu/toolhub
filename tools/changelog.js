@@ -6,6 +6,13 @@ const CHANGELOG_TAG_LABEL = { added: "เพิ่ม", changed: "แก้ไ�
 
 const CHANGELOG_DATA = [
   {
+    version: "v80",
+    date: "31 ส.ค. 2569",
+    items: [
+      { type: "changed", text: "หวย — ลูกบอลตัวเลข (หน้าหลักและตอนโชว์ผลลัพธ์) หดขนาดพอดีให้อยู่บรรทัดเดียวเสมอ ไม่ล้นขึ้นบรรทัดใหม่บนจอมือถือแล้ว" },
+    ],
+  },
+  {
     version: "v79",
     date: "31 ส.ค. 2569",
     items: [
