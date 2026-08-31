@@ -1,0 +1,86 @@
+/* หวย — reuses .step-row/.step-chip from style.css, .wl-action-btn from wonglao-core.css */
+
+.huay-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  padding-bottom: 12px;
+}
+
+.huay-display {
+  min-width: 200px;
+  padding: 20px 28px;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(160deg, var(--card-hi), var(--card));
+  box-shadow: var(--shadow-md);
+  font-size: 44px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 4px;
+  text-align: center;
+}
+
+.huay-display.empty {
+  color: var(--sub);
+  font-size: 32px;
+  letter-spacing: normal;
+}
+
+.huay-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(5, 6, 10, 0.92);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 28px;
+  z-index: 1000;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity var(--duration-base) ease;
+  padding: 24px;
+}
+
+.huay-overlay.show {
+  opacity: 1;
+}
+
+.huay-overlay-ticket {
+  min-width: min(80vw, 320px);
+  padding: 32px 24px;
+  border-radius: var(--radius-xl);
+  background: linear-gradient(160deg, #ffd700, #ff8c00);
+  box-shadow: var(--shadow-xl);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: scale(0.6);
+  transition: transform var(--duration-slow) var(--ease-bounce);
+}
+
+.huay-overlay.show .huay-overlay-ticket {
+  transform: scale(1);
+}
+
+.huay-overlay-ticket span {
+  font-size: 64px;
+  font-weight: 900;
+  color: #1a1a1a;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 6px;
+}
+
+.huay-overlay-hint {
+  color: var(--sub);
+  font-size: 13px;
+  opacity: 0;
+  transition: opacity 0.3s ease 0.35s;
+}
+
+.huay-overlay.show .huay-overlay-hint {
+  opacity: 1;
+}
