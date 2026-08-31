@@ -47,6 +47,25 @@
   letter-spacing: 0.01em;
 }
 
+.todo-widget-ro .todo-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.todo-edit-btn {
+  flex-shrink: 0;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-pill);
+  padding: 5px 14px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
 .todo-input-row {
   display: flex;
   align-items: center;

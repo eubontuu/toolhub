@@ -73,7 +73,10 @@ function renderTodoPreview(container) {
 
   container.innerHTML = `
     <div class="todo-widget todo-widget-ro">
-      <div class="todo-title">📝 สิ่งที่ต้องทำ</div>
+      <div class="todo-title">
+        <span>📝 สิ่งที่ต้องทำ</span>
+        <button class="todo-edit-btn" id="homeTodoEditBtn">แก้ไข</button>
+      </div>
       <div class="todo-list">
         ${
           total === 0
