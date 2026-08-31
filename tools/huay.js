@@ -1,10 +1,37 @@
-// หวย — สุ่มเลขหวย เลือกจำนวนหลักได้ (2/3/6 ตัว) — depends on saveWongLaoState (wonglao-core.js, must load first)
+// หวย — full-screen app (renderHuay, registered in APPS in app.js). สุ่มเลขหวย เลือกจำนวน
+// หลักได้ (2/3/6 ตัว). แยกออกมาจากวงเหล้าเป็นแอปเดี่ยวแล้ว — เคยเป็นแถบในนั้นมาก่อน (ดู
+// migration ใน loadHuayState ด้านล่าง สำหรับข้อมูลเก่าที่ยังอยู่ใน toolhub.wonglao).
 
 const HUAY_DIGIT_OPTIONS = [
   { n: 2, label: "2 ตัวท้าย" },
   { n: 3, label: "3 ตัวท้าย" },
   { n: 6, label: "6 ตัว (เต็ม)" },
 ];
+
+function loadHuayState() {
+  try {
+    const raw = localStorage.getItem("toolhub.huay");
+    if (raw) {
+      const state = JSON.parse(raw);
+      if (typeof state.digits !== "number") state.digits = 6;
+      if (typeof state.last !== "string") state.last = null;
+      return state;
+    }
+    // one-time migration: หวย used to be a sub-game inside toolhub.wonglao before this split
+    const oldRaw = localStorage.getItem("toolhub.wonglao");
+    if (oldRaw) {
+      const old = JSON.parse(oldRaw);
+      if (old.huayDigits || old.huayLast) {
+        return { digits: old.huayDigits || 6, last: old.huayLast || null };
+      }
+    }
+  } catch (e) {}
+  return { digits: 6, last: null };
+}
+
+function saveHuayState(state) {
+  localStorage.setItem("toolhub.huay", JSON.stringify(state));
+}
 
 function huayRandomDigits(n) {
   let s = "";
@@ -23,12 +50,14 @@ function huayBallsHtml(digits, lastDigits) {
     .join("");
 }
 
-function renderHuayGame(body, state) {
-  function draw() {
-    const digits = state.huayDigits || 6;
-    const lastDigits = state.huayLast && state.huayLast.length === digits ? state.huayLast.split("") : null;
+function renderHuay(container) {
+  const state = loadHuayState();
 
-    body.innerHTML = `
+  function draw() {
+    const digits = state.digits || 6;
+    const lastDigits = state.last && state.last.length === digits ? state.last.split("") : null;
+
+    container.innerHTML = `
       <div class="huay-wrap">
         <div class="huay-display-row" id="huayDisplay">${huayBallsHtml(digits, lastDigits)}</div>
         <div class="step-row">
@@ -37,21 +66,21 @@ function renderHuayGame(body, state) {
             (o) => `<button class="step-chip ${digits === o.n ? "active" : ""}" data-digits="${o.n}">${o.label}</button>`
           ).join("")}
         </div>
-        <button class="wl-action-btn" id="huayDrawBtn">สุ่มใหม่</button>
+        <button class="huay-action-btn" id="huayDrawBtn">สุ่มใหม่</button>
       </div>
     `;
 
-    body.querySelectorAll(".step-chip[data-digits]").forEach((chip) => {
+    container.querySelectorAll(".step-chip[data-digits]").forEach((chip) => {
       chip.addEventListener("click", () => {
-        state.huayDigits = Number(chip.dataset.digits);
-        saveWongLaoState(state);
+        state.digits = Number(chip.dataset.digits);
+        saveHuayState(state);
         draw();
       });
     });
 
-    body.querySelector("#huayDrawBtn").addEventListener("click", () => {
+    container.querySelector("#huayDrawBtn").addEventListener("click", () => {
       const finalVal = huayRandomDigits(digits);
-      const balls = [...body.querySelectorAll(".huay-ball")];
+      const balls = [...container.querySelectorAll(".huay-ball")];
       balls.forEach((b) => {
         b.classList.remove("placeholder", "settled");
       });
@@ -71,8 +100,8 @@ function renderHuayGame(body, state) {
         ticks++;
         if (ticks > maxTicks) {
           clearInterval(spin);
-          state.huayLast = finalVal;
-          saveWongLaoState(state);
+          state.last = finalVal;
+          saveHuayState(state);
           showHuayOverlay(finalVal);
         }
       }, 70);

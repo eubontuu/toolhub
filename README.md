@@ -18,12 +18,14 @@ app.js                               app shell only: APPS registry, router, them
 style.css                            shared/shell styles only: :root vars, base, Home, generic tool screen, small shared components
 tools/counter.{js,css}               บวก/ลบ (incl. ให้/ได้ ledger — see "Persistence")
 tools/todo.{js,css}                  สิ่งที่ต้องทำ — full-screen APPS tool (renderTodo) + read-only Home preview (renderTodoPreview)
+tools/quickstart.{js,css}            ทางลัด — Home widget, pin/unpin APPS entries for one-tap access
 tools/wonglao-core.{js,css}          วงเหล้า shared state, persistent tab-bar shell/dispatcher, shuffleArray util
 tools/wonglao-ohana.{js,css}         ไพ่ Ohana
 tools/wonglao-randomcard.{js,css}    ไพ่สุ่ม
 tools/wonglao-wheel.{js,css}         สุ่ม (เดิม "วงล้อ"/"สุ่มเลข") — 2 โหมด: สุ่มเลข + ลูกเต๋า
 tools/wonglao-chwazi.{js,css}        Chwazi
 tools/wonglao-quiz.{js,css}          Flash Quiz
+tools/huay.{js,css}                  หวย — full-screen APPS tool (split out from วงเหล้า; see Persistence for the one-time migration)
 tools/hikeprep.{js,css}              เตรียมเดินป่า — full-screen APPS tool, 6-week schedule + daily checklist
 tools/games-core.{js,css}            เกม shared state, persistent tab-bar shell/dispatcher (mirrors wonglao-core's pattern)
 tools/snake.{js,css}                 งู — เกม sub-game, canvas snake, theme-adaptive color
@@ -73,7 +75,7 @@ Sidebar's "การอัปเดต" item → `#changelog` → `renderToolShe
 
 ### The "วงเหล้า" sub-hub
 
-6 sub-games switched via one **persistent single-row tab bar** (`WONGLAO_TABS`) above the active game — not a menu screen. Tap a tab to switch instantly; a toggle button hides/shows the bar; overflow scrolls via side arrows instead of wrapping. See `renderWongLaoShell` in `tools/wonglao-core.js`.
+5 sub-games switched via one **persistent single-row tab bar** (`WONGLAO_TABS`) above the active game — not a menu screen. Tap a tab to switch instantly; a toggle button hides/shows the bar; overflow scrolls via side arrows instead of wrapping. See `renderWongLaoShell` in `tools/wonglao-core.js`.
 
 | id | label | render function |
 |---|---|---|
@@ -82,9 +84,8 @@ Sidebar's "การอัปเดต" item → `#changelog` → `renderToolShe
 | `wheel` | สุ่ม | `renderWheelGame` |
 | `chwazi` | Chwazi | `renderChwaziGame` |
 | `quiz` | Flash Quiz | `renderFlashQuizGame` |
-| `huay` | หวย | `renderHuayGame` |
 
-All six share one state blob via `loadWongLaoState()`/`saveWongLaoState()` (see Persistence). หวย picks a digit count (2/3/6) and rolls that many digits, each shown as a themed circle (`--accent` gradient) that settles left-to-right with a staggered pop animation before the `showHuayOverlay` reveal — same reveal-overlay house style as the others, own file pair (`tools/wonglao-huay.{js,css}`) since it's non-trivial.
+All five share one state blob via `loadWongLaoState()`/`saveWongLaoState()` (see Persistence). (หวย — สุ่มเลขหวย, digit count 2/3/6 — used to be a sixth sub-game here; it's now its own top-level `APPS` tool, `tools/huay.{js,css}`, since the owner wanted one-tap access to it without going through วงเหล้า first.)
 
 **New sub-game:** entry in `WONGLAO_TABS` + `WONGLAO_DEFAULT_STATE`, dispatch branch in `renderWongLaoShell`, render fn + styles — inline in `wonglao-core.js`/`.css` if small, own `tools/wonglao-yourgame.{js,css}` if bigger.
 
@@ -120,7 +121,8 @@ Ohana/ไพ่สุ่ม/สุ่ม/Flash Quiz/หวย/บวก-ลบ's
 |---|---|---|
 | `toolhub.counter` | `{ value, step, history: [{delta, time, isReset?}], showHistory, historyPinned, names: [{name, total}], showNames, namesPinned }` | บวก/ลบ — `history` logs +/− taps and resets; `names` is the ให้/ได้ ledger; `*Pinned` gates auto-close on the next +/− |
 | `toolhub.todo` | `{ items: [{id, text, done, date?, subject?}] }` | สิ่งที่ต้องทำ — both the full screen and the Home preview |
-| `toolhub.wonglao` | one object — see `WONGLAO_DEFAULT_STATE` | all 6 wonglao sub-games |
+| `toolhub.wonglao` | one object — see `WONGLAO_DEFAULT_STATE` | all 5 wonglao sub-games |
+| `toolhub.huay` | `{ digits, last }` | หวย — `loadHuayState()` migrates a pre-split `huayDigits`/`huayLast` out of `toolhub.wonglao` on first read if `toolhub.huay` doesn't exist yet |
 | `toolhub.hikeprep.<YYYY-MM-DD>` | `"1"`/`"0"` | เตรียมเดินป่า per-day checkbox |
 | `toolhub.games` | `{ tab }` | เกม hub — which sub-game tab is active |
 | `toolhub.quickstart` | `string[]` of `APPS` ids | ทางลัด — which APPS entries are pinned to the Home quick-start widget |

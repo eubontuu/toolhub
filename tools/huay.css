@@ -1,14 +1,30 @@
-/* หวย — reuses .step-row/.step-chip from style.css, .wl-action-btn from wonglao-core.css.
+/* หวย — full-screen app. Reuses .step-row/.step-chip from style.css.
    Ball color uses var(--accent) so it follows the selected theme (see CLAUDE.md Theme vars rule). */
 
 .huay-wrap {
   flex: 1;
+  min-height: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 24px;
   padding-bottom: 12px;
+}
+
+.huay-action-btn {
+  background: var(--accent);
+  border: none;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  padding: 14px 20px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+}
+
+.huay-action-btn:active {
+  transform: scale(0.97);
 }
 
 .huay-display-row {

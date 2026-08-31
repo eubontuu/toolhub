@@ -17,6 +17,12 @@ const APPS = [
     render: renderWongLao,
   },
   {
+    id: "huay",
+    name: "หวย",
+    icon: "🎫",
+    render: renderHuay,
+  },
+  {
     id: "games",
     name: "เกม",
     icon: "🎮",
