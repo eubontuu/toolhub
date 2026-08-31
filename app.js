@@ -185,6 +185,7 @@ function renderHome() {
 
       <div class="home-welcome">ยินดีต้อนรับกลับมา 🐷</div>
       <div class="home-subtitle">รวมเครื่องมือ เกม และของเล่นเล็กๆ ไว้ที่เดียว — กดปุ่ม ☰ มุมซ้ายบนเพื่อดูทั้งหมด</div>
+      <div id="quickstartContent"></div>
       <div class="home-content" id="homeContent"></div>
 
       <div class="sidebar-overlay" id="sidebarOverlay"></div>
@@ -215,6 +216,7 @@ function renderHome() {
     </div>
   `;
   setupThemePicker(document.getElementById("themePicker"));
+  renderQuickStart(document.getElementById("quickstartContent"), APPS, navigate);
   renderTodoPreview(document.getElementById("homeContent"));
   document.getElementById("homeTodoEditBtn").addEventListener("click", () => navigate("app/todo"));
 

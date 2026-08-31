@@ -123,6 +123,7 @@ Ohana/ไพ่สุ่ม/สุ่ม/Flash Quiz/หวย/บวก-ลบ's
 | `toolhub.wonglao` | one object — see `WONGLAO_DEFAULT_STATE` | all 6 wonglao sub-games |
 | `toolhub.hikeprep.<YYYY-MM-DD>` | `"1"`/`"0"` | เตรียมเดินป่า per-day checkbox |
 | `toolhub.games` | `{ tab }` | เกม hub — which sub-game tab is active |
+| `toolhub.quickstart` | `string[]` of `APPS` ids | ทางลัด — which APPS entries are pinned to the Home quick-start widget |
 | `toolhub.snake.highScore` | number string | งู high score |
 | `toolhub.jumpking.highScore` | number string | Jump King best height score |
 | `toolhub.mathquiz.bestStreak` | number string | คิดเลขเร็ว best streak |
