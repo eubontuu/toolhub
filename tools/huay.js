@@ -15,7 +15,9 @@ function loadHuayState() {
       const state = JSON.parse(raw);
       if (typeof state.digits !== "number") state.digits = 6;
       if (typeof state.last !== "string") state.last = null;
+      // locked[i] เป็น "0".."9" (ล็อกตำแหน่งนั้นไว้ที่เลขนี้) หรือ null (ไม่ล็อก) — ค่าเก่าที่ไม่ใช่รูปแบบนี้ (เช่น boolean จากเวอร์ชันก่อนหน้า) ถือว่าไม่ล็อก
       if (!Array.isArray(state.locked)) state.locked = [];
+      state.locked = state.locked.map((v) => (typeof v === "string" && /^[0-9]$/.test(v) ? v : null));
       return state;
     }
     // one-time migration: หวย used to be a sub-game inside toolhub.wonglao before this split
@@ -37,11 +39,12 @@ function saveHuayState(state) {
 function huayBallsHtml(digits, lastDigits, locked) {
   return Array.from({ length: digits })
     .map((_, i) => {
-      const isLocked = !!(lastDigits && locked && locked[i]);
+      const lockedDigit = locked && locked[i] !== null && locked[i] !== undefined ? locked[i] : null;
+      const displayDigit = lockedDigit !== null ? lockedDigit : lastDigits ? lastDigits[i] : null;
       return `
-    <div class="huay-ball ${lastDigits ? "" : "placeholder"} ${isLocked ? "locked" : ""}" data-idx="${i}">
-      <span>${lastDigits ? lastDigits[i] : "?"}</span>
-      ${isLocked ? '<span class="huay-lock-icon">🔒</span>' : ""}
+    <div class="huay-ball ${displayDigit === null ? "placeholder" : ""} ${lockedDigit !== null ? "locked" : ""}" data-idx="${i}">
+      <span>${displayDigit === null ? "?" : displayDigit}</span>
+      ${lockedDigit !== null ? '<span class="huay-lock-icon">🔒</span>' : ""}
     </div>`;
     })
     .join("");
@@ -53,7 +56,7 @@ function renderHuay(container) {
   // ตัด/เติม state.locked ให้ยาวเท่าจำนวนหลักปัจจุบันเสมอ (จำนวนหลักเปลี่ยนได้ระหว่างทาง)
   function normalizeLocked(digits) {
     if (state.locked.length === digits) return;
-    while (state.locked.length < digits) state.locked.push(false);
+    while (state.locked.length < digits) state.locked.push(null);
     state.locked.length = digits;
     saveHuayState(state);
   }
@@ -61,15 +64,14 @@ function renderHuay(container) {
   function rollHuay() {
     const digits = state.digits || 6;
     normalizeLocked(digits);
-    const prevDigits = state.last && state.last.length === digits ? state.last.split("") : null;
     const finalDigits = Array.from({ length: digits }, (_, i) =>
-      prevDigits && state.locked[i] ? prevDigits[i] : String(Math.floor(Math.random() * 10))
+      state.locked[i] !== null ? state.locked[i] : String(Math.floor(Math.random() * 10))
     );
     const finalVal = finalDigits.join("");
 
     const balls = [...container.querySelectorAll(".huay-ball")];
-    // ตำแหน่งที่ล็อกไว้ (และมีเลขเดิมอยู่แล้ว) ไม่ต้องหมุน คงเลขเดิมไว้
-    const spinIdx = balls.map((_, i) => i).filter((i) => !(prevDigits && state.locked[i]));
+    // ตำแหน่งที่ล็อกไว้ (เลือกเลขไว้ตายตัว) ไม่ต้องหมุน คงเลขที่ล็อกไว้
+    const spinIdx = balls.map((_, i) => i).filter((i) => state.locked[i] === null);
     spinIdx.forEach((i) => balls[i].classList.remove("placeholder", "settled"));
 
     function finish() {
@@ -113,7 +115,7 @@ function renderHuay(container) {
     container.innerHTML = `
       <div class="huay-wrap">
         <div class="huay-display-row" id="huayDisplay">${huayBallsHtml(digits, lastDigits, state.locked)}</div>
-        ${lastDigits ? `<div class="huay-lock-hint">แตะเลขเพื่อล็อกตำแหน่ง — ตัวที่ล็อกไว้จะไม่ถูกสุ่มใหม่</div>` : ""}
+        <div class="huay-lock-hint">แตะตำแหน่งไหนก็ได้เพื่อเลือกเลขล็อกไว้ — ตำแหน่งที่ล็อกจะไม่ถูกสุ่มใหม่</div>
         <div class="step-row">
           <div class="step-label">เลือกจำนวนหลัก</div>
           ${HUAY_DIGIT_OPTIONS.map(
@@ -138,22 +140,13 @@ function renderHuay(container) {
   // event delegation — ใช้ได้กับลูกบอลทุกชุดที่ draw() วาดใหม่ ไม่ต้องผูก listener ซ้ำ
   container.addEventListener("click", (e) => {
     const ball = e.target.closest(".huay-ball[data-idx]");
-    if (!ball || ball.classList.contains("placeholder")) return;
+    if (!ball) return;
     const idx = Number(ball.dataset.idx);
-    state.locked[idx] = !state.locked[idx];
-    saveHuayState(state);
-    ball.classList.toggle("locked", state.locked[idx]);
-    let icon = ball.querySelector(".huay-lock-icon");
-    if (state.locked[idx]) {
-      if (!icon) {
-        icon = document.createElement("span");
-        icon.className = "huay-lock-icon";
-        icon.textContent = "🔒";
-        ball.appendChild(icon);
-      }
-    } else if (icon) {
-      icon.remove();
-    }
+    showHuayLockPicker(idx, state.locked[idx], (digit) => {
+      state.locked[idx] = digit;
+      saveHuayState(state);
+      draw();
+    });
   });
 
   draw();
@@ -176,6 +169,42 @@ function showHuayOverlay(value, onRollAgain) {
       e.stopPropagation();
       overlay.remove();
       onRollAgain();
+    });
+  }
+  document.body.appendChild(overlay);
+  void overlay.offsetHeight;
+  overlay.classList.add("show");
+}
+
+function showHuayLockPicker(idx, currentDigit, onPick) {
+  const overlay = document.createElement("div");
+  overlay.className = "huay-lockpicker-overlay reveal-overlay";
+  overlay.innerHTML = `
+    <div class="huay-lockpicker-panel">
+      <div class="huay-lockpicker-title">เลือกเลขล็อกตำแหน่งที่ ${idx + 1}</div>
+      <div class="huay-lockpicker-grid">
+        ${Array.from(
+          { length: 10 },
+          (_, d) => `<button class="huay-lockpicker-digit ${String(d) === currentDigit ? "active" : ""}" data-digit="${d}">${d}</button>`
+        ).join("")}
+      </div>
+      ${currentDigit !== null ? `<button class="huay-lockpicker-unlock" id="huayLockUnlockBtn">ปลดล็อกตำแหน่งนี้</button>` : ""}
+    </div>
+    <div class="huay-overlay-hint">แตะที่ไหนก็ได้เพื่อปิด</div>
+  `;
+  overlay.addEventListener("click", () => overlay.remove());
+  overlay.querySelector(".huay-lockpicker-panel").addEventListener("click", (e) => e.stopPropagation());
+  overlay.querySelectorAll(".huay-lockpicker-digit").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      onPick(btn.dataset.digit);
+      overlay.remove();
+    });
+  });
+  const unlockBtn = overlay.querySelector("#huayLockUnlockBtn");
+  if (unlockBtn) {
+    unlockBtn.addEventListener("click", () => {
+      onPick(null);
+      overlay.remove();
     });
   }
   document.body.appendChild(overlay);

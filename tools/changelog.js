@@ -6,6 +6,13 @@ const CHANGELOG_TAG_LABEL = { added: "เพิ่ม", changed: "แก้ไ�
 
 const CHANGELOG_DATA = [
   {
+    version: "v79",
+    date: "31 ส.ค. 2569",
+    items: [
+      { type: "changed", text: "หวย — แตะตำแหน่งไหนก็ได้ (ก่อนสุ่มก็ได้) เพื่อเลือกเลข 0-9 มาล็อกตรงตำแหน่งนั้นเอง ไม่ใช่แค่คงเลขที่สุ่มได้ไว้เฉยๆ แบบเดิม" },
+    ],
+  },
+  {
     version: "v78",
     date: "31 ส.ค. 2569",
     items: [
