@@ -146,19 +146,73 @@ function navigate(route) {
   location.hash = route;
 }
 
-// เวลากดปุ่มย้อนกลับจากหน้าเครื่องมือ ให้เปิดแถบเมนูขึ้นมาเลย (สลับเครื่องมือได้ทันที) แทนที่จะโผล่หน้าแรกเฉยๆ
-let openSidebarOnHome = false;
-// route ที่แถบเมนูควรไฮไลท์ตอนเปิด — ปกติคือ "home" แต่ตอนกดย้อนกลับจากแอปอื่น ให้ไฮไลท์แอปที่เพิ่งออกมาแทน (ดูเป็น "อยู่หน้านั้นอยู่" มากกว่าหน้าแรกเปล่าๆ)
+// route ที่แถบเมนูควรไฮไลท์ตอนเปิด — ปกติคือ "home" แต่ตอนเปิดจากหน้าเครื่องมือ ให้ไฮไลท์แอปที่กำลังอยู่แทน
 let sidebarActiveRoute = "home";
 
 function currentRoute() {
   return location.hash.replace(/^#/, "") || "home";
 }
 
+// แถบเมนู (sidebar) เป็น overlay ลอยบน document.body เสมอ ไม่ใช่ส่วนหนึ่งของ renderHome()/
+// renderToolShell() — เปิดได้จากทุกหน้าโดยไม่ต้อง navigate ไปหน้าแรกก่อน พื้นหลังหลัง sidebar
+// เลยเป็นหน้าปัจจุบันจริงๆ (ไม่ใช่หน้าแรกเสมอเหมือนเดิม). ใช้ position:fixed เต็มจอ ไม่ผูกกับ
+// --app-max-width คอลัมน์ตรงกลาง (ดู CLAUDE.md's Width cap rule).
+function openSidebarOverlay() {
+  if (document.querySelector(".home-sidebar")) return;
+
+  const overlay = document.createElement("div");
+  overlay.className = "sidebar-overlay";
+  const sidebar = document.createElement("nav");
+  sidebar.className = "home-sidebar";
+  sidebar.innerHTML = `
+    <button class="sidebar-collapse-btn" id="sidebarCollapseBtn" aria-label="ปิดเมนู">‹</button>
+    <div class="sidebar-brand">
+      <span class="sidebar-brand-icon">🐷</span>
+      <div>
+        <div class="sidebar-brand-name">คลังแสงหมูอุ๊ด</div>
+        <div class="sidebar-brand-version">ToolHub</div>
+      </div>
+    </div>
+    <div class="sidebar-nav">
+      <button class="sidebar-nav-item ${sidebarActiveRoute === "home" ? "active" : ""}" data-route="home">🏠 <span>หน้าแรก</span></button>
+      ${APPS.map(
+        (app) => `
+      <button class="sidebar-nav-item ${sidebarActiveRoute === `app/${app.id}` ? "active" : ""}" data-route="app/${app.id}">${
+          app.iconImg
+            ? `<img src="${app.iconImg}" class="sidebar-nav-icon" alt="" />`
+            : `<span>${app.icon}</span>`
+        } <span>${app.name}</span></button>`
+      ).join("")}
+    </div>
+    <div class="sidebar-footer">
+      <button class="sidebar-nav-item ${sidebarActiveRoute === "changelog" ? "active" : ""}" data-route="changelog">🕓 <span>การอัปเดต</span></button>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  document.body.appendChild(sidebar);
+
+  function closeSidebar() {
+    sidebar.remove();
+    overlay.remove();
+  }
+  overlay.addEventListener("click", closeSidebar);
+  sidebar.querySelector("#sidebarCollapseBtn").addEventListener("click", closeSidebar);
+  sidebar.querySelectorAll(".sidebar-nav-item").forEach((item) => {
+    item.addEventListener("click", () => {
+      closeSidebar();
+      navigate(item.dataset.route);
+    });
+  });
+
+  void sidebar.offsetHeight;
+  sidebar.classList.add("open");
+  overlay.classList.add("open");
+}
+
 function render() {
   const route = currentRoute();
   if (route === "home") {
-    if (!openSidebarOnHome) sidebarActiveRoute = "home";
+    sidebarActiveRoute = "home";
     renderHome();
     return;
   }
@@ -193,63 +247,16 @@ function renderHome() {
       <div class="home-subtitle">รวมเครื่องมือ เกม และของเล่นเล็กๆ ไว้ที่เดียว — กดปุ่ม ☰ มุมซ้ายบนเพื่อดูทั้งหมด</div>
       <div id="quickstartContent"></div>
       <div class="home-content" id="homeContent"></div>
-
-      <div class="sidebar-overlay" id="sidebarOverlay"></div>
-      <nav class="home-sidebar" id="homeSidebar">
-        <button class="sidebar-collapse-btn" id="sidebarCollapseBtn" aria-label="ปิดเมนู">‹</button>
-        <div class="sidebar-brand">
-          <span class="sidebar-brand-icon">🐷</span>
-          <div>
-            <div class="sidebar-brand-name">คลังแสงหมูอุ๊ด</div>
-            <div class="sidebar-brand-version">ToolHub</div>
-          </div>
-        </div>
-        <div class="sidebar-nav">
-          <button class="sidebar-nav-item ${sidebarActiveRoute === "home" ? "active" : ""}" data-route="home">🏠 <span>หน้าแรก</span></button>
-          ${APPS.map(
-            (app) => `
-          <button class="sidebar-nav-item ${sidebarActiveRoute === `app/${app.id}` ? "active" : ""}" data-route="app/${app.id}">${
-              app.iconImg
-                ? `<img src="${app.iconImg}" class="sidebar-nav-icon" alt="" />`
-                : `<span>${app.icon}</span>`
-            } <span>${app.name}</span></button>`
-          ).join("")}
-        </div>
-        <div class="sidebar-footer">
-          <button class="sidebar-nav-item ${sidebarActiveRoute === "changelog" ? "active" : ""}" data-route="changelog">🕓 <span>การอัปเดต</span></button>
-        </div>
-      </nav>
     </div>
   `;
   setupThemePicker(document.getElementById("themePicker"));
   renderQuickStart(document.getElementById("quickstartContent"), APPS, navigate);
   renderTodoPreview(document.getElementById("homeContent"));
   document.getElementById("homeTodoEditBtn").addEventListener("click", () => navigate("app/todo"));
-
-  const sidebar = document.getElementById("homeSidebar");
-  const overlay = document.getElementById("sidebarOverlay");
-  function openSidebar() {
-    sidebar.classList.add("open");
-    overlay.classList.add("open");
-  }
-  function closeSidebar() {
-    sidebar.classList.remove("open");
-    overlay.classList.remove("open");
-  }
-  document.getElementById("menuBtn").addEventListener("click", openSidebar);
-  document.getElementById("sidebarCollapseBtn").addEventListener("click", closeSidebar);
-  overlay.addEventListener("click", closeSidebar);
-  sidebar.querySelectorAll(".sidebar-nav-item").forEach((item) => {
-    item.addEventListener("click", () => {
-      closeSidebar();
-      navigate(item.dataset.route);
-    });
+  document.getElementById("menuBtn").addEventListener("click", () => {
+    sidebarActiveRoute = "home";
+    openSidebarOverlay();
   });
-
-  if (openSidebarOnHome) {
-    openSidebarOnHome = false;
-    openSidebar();
-  }
 }
 
 function renderToolShell(title, renderFn) {
@@ -268,8 +275,7 @@ function renderToolShell(title, renderFn) {
   setupThemePicker(document.getElementById("themePicker"));
   document.getElementById("back").addEventListener("click", () => {
     sidebarActiveRoute = currentRoute();
-    openSidebarOnHome = true;
-    navigate("home");
+    openSidebarOverlay();
   });
   renderFn(document.getElementById("tool-body"));
 }
@@ -307,6 +313,12 @@ document.addEventListener(
     const openOverlay = document.querySelector(".reveal-overlay.show");
     if (openOverlay) {
       openOverlay.click();
+      return;
+    }
+    // close the sidebar drawer if it's open, rather than falling through to .back-btn navigation
+    const openSidebar = document.querySelector(".home-sidebar.open");
+    if (openSidebar) {
+      document.querySelector(".sidebar-overlay").click();
       return;
     }
     const backBtns = document.querySelectorAll(".back-btn");

@@ -10,7 +10,7 @@ Auto-loaded every session in this repo. Read `README.md` for full architecture �
 - Files: `index.html`, `app.js` (shell/router), `tools/*.js`+`.css` (one pair per tool), `style.css` (shell only), `sw.js`, `manifest.json`, `icons/`.
 
 ## คำศัพท์ UI (คุยกับ owner ให้ตรงกัน)
-- **แอป** — full-screen tool opened from sidebar, `renderToolShell` header, registered in `APPS`. 6 ตอนนี้: บวก/ลบ, วงเหล้า, หวย, เกม, สิ่งที่ต้องทำ, เตรียมเดินป่า. ปุ่มย้อนกลับจากแอปไหนก็ตาม → เปิด sidebar ค้างไว้ทันที ไฮไลท์แอปที่เพิ่งออกมา (`openSidebarOnHome`/`sidebarActiveRoute`, `app.js`).
+- **แอป** — full-screen tool opened from sidebar, `renderToolShell` header, registered in `APPS`. 6 ตอนนี้: บวก/ลบ, วงเหล้า, หวย, เกม, สิ่งที่ต้องทำ, เตรียมเดินป่า. ปุ่มย้อนกลับจากแอปไหนก็ตาม → เปิด sidebar ทับหน้าปัจจุบันทันที (ไม่ navigate ไปหน้าแรกก่อน) ไฮไลท์แอปที่เพิ่งออกมา (`openSidebarOverlay()`/`sidebarActiveRoute`, `app.js`).
 - **แถบ** — (1) sidebar nav item (`.sidebar-nav-item`) หรือ (2) แท็บเดี่ยวแนวนอนคงที่ในแอปฮับ (วงเหล้า/เกม) — สลับ sub-item ทันที, พับ/กางได้, ล้นแล้วเลื่อนซ้าย-ขวาแทนขึ้นบรรทัดใหม่. วงเหล้าใช้ `WONGLAO_TABS`+`renderWongLaoShell` (`wonglao-core.js`); เกม (งู/Jump King/คิดเลขเร็ว) ใช้ `GAME_TABS`+`renderGamesShell` (`games-core.js`) — คนละไฟล์ คนละ state กัน แต่ pattern เดียวกัน.
 - **วิดเจ็ต** — ฝังหน้าแรก แก้ไขได้ทันที ไม่ลงทะเบียนใน `APPS`. ตัวอย่าง: `renderQuickStart()` (`quickstart.js`) → `#quickstartContent` — ปักหมุด/เอาออกได้ว่าจะโชว์ทางลัดไปแอปไหนบ้าง (`toolhub.quickstart`, array ของ `APPS` id), กดทางลัดแล้ว `navigate()` ตรงไปแอปนั้นเลยไม่ต้องผ่าน sidebar.
 - **การ์ดแจ้งเตือน** — อ่านอย่างเดียวบนหน้าแรก + ปุ่มขวาล่างพาไปแอปที่แก้ไขได้. ตัวอย่าง: `renderTodoPreview()` (`todo.js`) → `#homeContent`, คู่ `#homeTodoEditBtn` → `#app/todo`.
