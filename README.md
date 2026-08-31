@@ -73,7 +73,7 @@ Sidebar's "การอัปเดต" item → `#changelog` → `renderToolShe
 
 ### The "วงเหล้า" sub-hub
 
-5 sub-games switched via one **persistent single-row tab bar** (`WONGLAO_TABS`) above the active game — not a menu screen. Tap a tab to switch instantly; a toggle button hides/shows the bar; overflow scrolls via side arrows instead of wrapping. See `renderWongLaoShell` in `tools/wonglao-core.js`.
+6 sub-games switched via one **persistent single-row tab bar** (`WONGLAO_TABS`) above the active game — not a menu screen. Tap a tab to switch instantly; a toggle button hides/shows the bar; overflow scrolls via side arrows instead of wrapping. See `renderWongLaoShell` in `tools/wonglao-core.js`.
 
 | id | label | render function |
 |---|---|---|
@@ -82,8 +82,9 @@ Sidebar's "การอัปเดต" item → `#changelog` → `renderToolShe
 | `wheel` | สุ่ม | `renderWheelGame` |
 | `chwazi` | Chwazi | `renderChwaziGame` |
 | `quiz` | Flash Quiz | `renderFlashQuizGame` |
+| `huay` | หวย | `renderHuayGame` |
 
-All five share one state blob via `loadWongLaoState()`/`saveWongLaoState()` (see Persistence).
+All six share one state blob via `loadWongLaoState()`/`saveWongLaoState()` (see Persistence). หวย picks a digit count (2/3/6) and rolls that many digits, each shown as a themed circle (`--accent` gradient) that settles left-to-right with a staggered pop animation before the `showHuayOverlay` reveal — same reveal-overlay house style as the others, own file pair (`tools/wonglao-huay.{js,css}`) since it's non-trivial.
 
 **New sub-game:** entry in `WONGLAO_TABS` + `WONGLAO_DEFAULT_STATE`, dispatch branch in `renderWongLaoShell`, render fn + styles — inline in `wonglao-core.js`/`.css` if small, own `tools/wonglao-yourgame.{js,css}` if bigger.
 
@@ -107,7 +108,7 @@ State (just the active `tab`) persists via `loadGamesState()`/`saveGamesState()`
 
 ### Fullscreen "reveal" overlays
 
-Ohana/ไพ่สุ่ม/สุ่ม/Flash Quiz/บวก-ลบ's name popup all use the same pattern: a full-viewport `position:fixed` div appended to `document.body`, animated in via a class toggle, removed on tap (`showOhanaOverlay`, `showRcOverlay`, `showWheelOverlay`, `showDiceOverlay`, `showQuizOverlay`, `showCounterNameOverlay`). House style for every card/question "open" action — exact trigger code + the `reveal-overlay` class requirement are in CLAUDE.md's overlay rule; copy an existing `show*Overlay` rather than reimplementing.
+Ohana/ไพ่สุ่ม/สุ่ม/Flash Quiz/หวย/บวก-ลบ's name popup all use the same pattern: a full-viewport `position:fixed` div appended to `document.body`, animated in via a class toggle, removed on tap (`showOhanaOverlay`, `showRcOverlay`, `showWheelOverlay`, `showDiceOverlay`, `showQuizOverlay`, `showHuayOverlay`, `showCounterNameOverlay`). House style for every card/question "open" action — exact trigger code + the `reveal-overlay` class requirement are in CLAUDE.md's overlay rule; copy an existing `show*Overlay` rather than reimplementing.
 
 ### Layout: the flex chain must not break
 
@@ -119,7 +120,7 @@ Ohana/ไพ่สุ่ม/สุ่ม/Flash Quiz/บวก-ลบ's name popu
 |---|---|---|
 | `toolhub.counter` | `{ value, step, history: [{delta, time, isReset?}], showHistory, historyPinned, names: [{name, total}], showNames, namesPinned }` | บวก/ลบ — `history` logs +/− taps and resets; `names` is the ให้/ได้ ledger; `*Pinned` gates auto-close on the next +/− |
 | `toolhub.todo` | `{ items: [{id, text, done, date?, subject?}] }` | สิ่งที่ต้องทำ — both the full screen and the Home preview |
-| `toolhub.wonglao` | one object — see `WONGLAO_DEFAULT_STATE` | all 5 wonglao sub-games |
+| `toolhub.wonglao` | one object — see `WONGLAO_DEFAULT_STATE` | all 6 wonglao sub-games |
 | `toolhub.hikeprep.<YYYY-MM-DD>` | `"1"`/`"0"` | เตรียมเดินป่า per-day checkbox |
 | `toolhub.games` | `{ tab }` | เกม hub — which sub-game tab is active |
 | `toolhub.snake.highScore` | number string | งู high score |

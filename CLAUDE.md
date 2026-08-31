@@ -23,7 +23,7 @@ Auto-loaded every session in this repo. Read `README.md` for full architecture �
 counter        บวก/ลบ — ประวัติ+รายชื่อ panels share the ปักหมุด auto-close pattern (historyPinned/namesPinned)
 todo           สิ่งที่ต้องทำ — renderTodo (full APPS tool) + renderTodoPreview (read-only Home card)
 wonglao-core   shared state, tab-bar shell/dispatcher (renderWongLaoShell), shuffleArray() — load first
-wonglao-ohana / -randomcard / -wheel / -chwazi / -quiz   5 sub-games — id/label table in README
+wonglao-ohana / -randomcard / -wheel / -chwazi / -quiz / -huay   6 sub-games — id/label table in README; หวย's ball gradient uses --accent (theme-adaptive, see Theme vars rule)
 hikeprep       เตรียมเดินป่า — HIKE_DAYS schedule, hides after HIKE_WIDGET_HIDE_AFTER
 changelog      CHANGELOG_DATA + renderChangelog
 games-core     เกม hub shared state (GAMES_DEFAULT_STATE), tab-bar shell/dispatcher (renderGamesShell) — load after snake/jumpking/mathquiz, before app.js
@@ -57,7 +57,7 @@ Home = topbar → `#homeContent` (todo preview) → `#homeTodoEditBtn` FAB → s
 - **Flex chain** (`#app → .tool-screen → .tool-body → wrapper`): every link needs `min-height: 0` or content-less children collapse to zero height.
 - **Width cap** (`--app-max-width: 520px`): prefer `position: absolute` inside a `position: relative`, capped ancestor (e.g. `.home-edit-fab` in `.home`) for new floating elements — no vw math. Only use `right: max(16px, calc((100vw - var(--app-max-width))/2 + 16px))` for true full-viewport elements (sidebar-level).
 - **Design tokens** (`--radius-*`/`--shadow-*`/`--duration-*`/`--ease-bounce`): reuse instead of new literals. Only `style.css`+`counter.css` migrated so far — do it opportunistically, not as a sweep. Flavor colors/shadows stay literal (tool identity, not inconsistency).
-- **Theme vars**: flavor colors fixed across themes by default; exceptions = `todo.css` (fully theme-var-built) and งู's snake body/start-btn (`--accent`). New theme → one `THEMES` entry + one `:root[data-theme]` block. Use `var(--hairline)` not hardcoded white/black for borders on themed surfaces.
+- **Theme vars**: flavor colors fixed across themes by default; exceptions = `todo.css` (fully theme-var-built), งู's snake body/start-btn, and หวย's ball gradient (all `--accent`). New theme → one `THEMES` entry + one `:root[data-theme]` block. Use `var(--hairline)` not hardcoded white/black for borders on themed surfaces.
 - `git push` rejected non-fast-forward → another session may be editing concurrently; `fetch` + check `log HEAD..origin/main`, don't force-push.
 - No Web Push (VAPID) — sandbox blocks the egress; `PushNotification` handles the hiking reminder instead. Stale references anywhere should be deleted.
 

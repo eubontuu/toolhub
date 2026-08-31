@@ -12,12 +12,25 @@ function huayRandomDigits(n) {
   return s;
 }
 
+function huayBallsHtml(digits, lastDigits) {
+  return Array.from({ length: digits })
+    .map(
+      (_, i) => `
+    <div class="huay-ball ${lastDigits ? "" : "placeholder"}">
+      <span>${lastDigits ? lastDigits[i] : "?"}</span>
+    </div>`
+    )
+    .join("");
+}
+
 function renderHuayGame(body, state) {
   function draw() {
     const digits = state.huayDigits || 6;
+    const lastDigits = state.huayLast && state.huayLast.length === digits ? state.huayLast.split("") : null;
+
     body.innerHTML = `
       <div class="huay-wrap">
-        <div class="huay-display ${state.huayLast ? "" : "empty"}" id="huayDisplay">${state.huayLast || "?"}</div>
+        <div class="huay-display-row" id="huayDisplay">${huayBallsHtml(digits, lastDigits)}</div>
         <div class="step-row">
           <div class="step-label">เลือกจำนวนหลัก</div>
           ${HUAY_DIGIT_OPTIONS.map(
@@ -37,16 +50,27 @@ function renderHuayGame(body, state) {
     });
 
     body.querySelector("#huayDrawBtn").addEventListener("click", () => {
-      const display = body.querySelector("#huayDisplay");
-      display.classList.remove("empty");
+      const finalVal = huayRandomDigits(digits);
+      const balls = [...body.querySelectorAll(".huay-ball")];
+      balls.forEach((b) => {
+        b.classList.remove("placeholder", "settled");
+      });
+      const stopTicks = balls.map((_, i) => 14 + i * 3);
+      const maxTicks = Math.max(...stopTicks);
       let ticks = 0;
       const spin = setInterval(() => {
-        display.textContent = huayRandomDigits(digits);
+        balls.forEach((ball, i) => {
+          const span = ball.querySelector("span");
+          if (ticks < stopTicks[i]) {
+            span.textContent = Math.floor(Math.random() * 10);
+          } else if (ticks === stopTicks[i]) {
+            span.textContent = finalVal[i];
+            ball.classList.add("settled");
+          }
+        });
         ticks++;
-        if (ticks > 12) {
+        if (ticks > maxTicks) {
           clearInterval(spin);
-          const finalVal = huayRandomDigits(digits);
-          display.textContent = finalVal;
           state.huayLast = finalVal;
           saveWongLaoState(state);
           showHuayOverlay(finalVal);
@@ -62,7 +86,10 @@ function showHuayOverlay(value) {
   const overlay = document.createElement("div");
   overlay.className = "huay-overlay reveal-overlay";
   overlay.innerHTML = `
-    <div class="huay-overlay-ticket"><span>${value}</span></div>
+    <div class="huay-overlay-row">${value
+      .split("")
+      .map((d) => `<div class="huay-overlay-ball"><span>${d}</span></div>`)
+      .join("")}</div>
     <div class="huay-overlay-hint">แตะที่ไหนก็ได้เพื่อปิด</div>
   `;
   overlay.addEventListener("click", () => overlay.remove());
