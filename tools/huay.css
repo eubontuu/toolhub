@@ -50,7 +50,6 @@
 
 .huay-ball.placeholder {
   background: linear-gradient(160deg, var(--card-hi), var(--card));
-  cursor: default;
 }
 
 .huay-ball.locked {
@@ -187,4 +186,81 @@
 
 .huay-overlay.show .huay-overlay-hint {
   opacity: 1;
+}
+
+.huay-lockpicker-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(5, 6, 10, 0.92);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  z-index: 1000;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity var(--duration-base) ease;
+  padding: 24px;
+}
+
+.huay-lockpicker-overlay.show {
+  opacity: 1;
+}
+
+.huay-lockpicker-overlay.show .huay-overlay-hint {
+  opacity: 1;
+}
+
+.huay-lockpicker-panel {
+  background: var(--card);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xl);
+  padding: 24px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  cursor: default;
+  max-width: min(90vw, 340px);
+}
+
+.huay-lockpicker-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.huay-lockpicker-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+}
+
+.huay-lockpicker-digit {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-circle);
+  border: none;
+  background: var(--card-hi);
+  color: var(--text);
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+  font-variant-numeric: tabular-nums;
+}
+
+.huay-lockpicker-digit.active {
+  background: var(--accent);
+  color: #fff;
+}
+
+.huay-lockpicker-unlock {
+  background: none;
+  border: 1px solid var(--hairline);
+  color: var(--sub);
+  padding: 10px 20px;
+  border-radius: var(--radius-pill);
+  font-size: 13.5px;
+  cursor: pointer;
 }
