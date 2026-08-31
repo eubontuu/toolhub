@@ -53,6 +53,36 @@ function huayBallsHtml(digits, lastDigits) {
 function renderHuay(container) {
   const state = loadHuayState();
 
+  function rollHuay() {
+    const digits = state.digits || 6;
+    const finalVal = huayRandomDigits(digits);
+    const balls = [...container.querySelectorAll(".huay-ball")];
+    balls.forEach((b) => {
+      b.classList.remove("placeholder", "settled");
+    });
+    const stopTicks = balls.map((_, i) => 14 + i * 3);
+    const maxTicks = Math.max(...stopTicks);
+    let ticks = 0;
+    const spin = setInterval(() => {
+      balls.forEach((ball, i) => {
+        const span = ball.querySelector("span");
+        if (ticks < stopTicks[i]) {
+          span.textContent = Math.floor(Math.random() * 10);
+        } else if (ticks === stopTicks[i]) {
+          span.textContent = finalVal[i];
+          ball.classList.add("settled");
+        }
+      });
+      ticks++;
+      if (ticks > maxTicks) {
+        clearInterval(spin);
+        state.last = finalVal;
+        saveHuayState(state);
+        showHuayOverlay(finalVal, rollHuay);
+      }
+    }, 70);
+  }
+
   function draw() {
     const digits = state.digits || 6;
     const lastDigits = state.last && state.last.length === digits ? state.last.split("") : null;
@@ -78,40 +108,13 @@ function renderHuay(container) {
       });
     });
 
-    container.querySelector("#huayDrawBtn").addEventListener("click", () => {
-      const finalVal = huayRandomDigits(digits);
-      const balls = [...container.querySelectorAll(".huay-ball")];
-      balls.forEach((b) => {
-        b.classList.remove("placeholder", "settled");
-      });
-      const stopTicks = balls.map((_, i) => 14 + i * 3);
-      const maxTicks = Math.max(...stopTicks);
-      let ticks = 0;
-      const spin = setInterval(() => {
-        balls.forEach((ball, i) => {
-          const span = ball.querySelector("span");
-          if (ticks < stopTicks[i]) {
-            span.textContent = Math.floor(Math.random() * 10);
-          } else if (ticks === stopTicks[i]) {
-            span.textContent = finalVal[i];
-            ball.classList.add("settled");
-          }
-        });
-        ticks++;
-        if (ticks > maxTicks) {
-          clearInterval(spin);
-          state.last = finalVal;
-          saveHuayState(state);
-          showHuayOverlay(finalVal);
-        }
-      }, 70);
-    });
+    container.querySelector("#huayDrawBtn").addEventListener("click", rollHuay);
   }
 
   draw();
 }
 
-function showHuayOverlay(value) {
+function showHuayOverlay(value, onRollAgain) {
   const overlay = document.createElement("div");
   overlay.className = "huay-overlay reveal-overlay";
   overlay.innerHTML = `
@@ -119,9 +122,17 @@ function showHuayOverlay(value) {
       .split("")
       .map((d) => `<div class="huay-overlay-ball"><span>${d}</span></div>`)
       .join("")}</div>
+    ${onRollAgain ? `<button class="huay-overlay-next-btn" id="huayOverlayNextBtn">สุ่มอีกชุด</button>` : ""}
     <div class="huay-overlay-hint">แตะที่ไหนก็ได้เพื่อปิด</div>
   `;
   overlay.addEventListener("click", () => overlay.remove());
+  if (onRollAgain) {
+    overlay.querySelector("#huayOverlayNextBtn").addEventListener("click", (e) => {
+      e.stopPropagation();
+      overlay.remove();
+      onRollAgain();
+    });
+  }
   document.body.appendChild(overlay);
   void overlay.offsetHeight;
   overlay.classList.add("show");
