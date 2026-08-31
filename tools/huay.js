@@ -15,6 +15,7 @@ function loadHuayState() {
       const state = JSON.parse(raw);
       if (typeof state.digits !== "number") state.digits = 6;
       if (typeof state.last !== "string") state.last = null;
+      if (!Array.isArray(state.locked)) state.locked = [];
       return state;
     }
     // one-time migration: หวย used to be a sub-game inside toolhub.wonglao before this split
@@ -22,74 +23,97 @@ function loadHuayState() {
     if (oldRaw) {
       const old = JSON.parse(oldRaw);
       if (old.huayDigits || old.huayLast) {
-        return { digits: old.huayDigits || 6, last: old.huayLast || null };
+        return { digits: old.huayDigits || 6, last: old.huayLast || null, locked: [] };
       }
     }
   } catch (e) {}
-  return { digits: 6, last: null };
+  return { digits: 6, last: null, locked: [] };
 }
 
 function saveHuayState(state) {
   localStorage.setItem("toolhub.huay", JSON.stringify(state));
 }
 
-function huayRandomDigits(n) {
-  let s = "";
-  for (let i = 0; i < n; i++) s += Math.floor(Math.random() * 10);
-  return s;
-}
-
-function huayBallsHtml(digits, lastDigits) {
+function huayBallsHtml(digits, lastDigits, locked) {
   return Array.from({ length: digits })
-    .map(
-      (_, i) => `
-    <div class="huay-ball ${lastDigits ? "" : "placeholder"}">
+    .map((_, i) => {
+      const isLocked = !!(lastDigits && locked && locked[i]);
+      return `
+    <div class="huay-ball ${lastDigits ? "" : "placeholder"} ${isLocked ? "locked" : ""}" data-idx="${i}">
       <span>${lastDigits ? lastDigits[i] : "?"}</span>
-    </div>`
-    )
+      ${isLocked ? '<span class="huay-lock-icon">🔒</span>' : ""}
+    </div>`;
+    })
     .join("");
 }
 
 function renderHuay(container) {
   const state = loadHuayState();
 
+  // ตัด/เติม state.locked ให้ยาวเท่าจำนวนหลักปัจจุบันเสมอ (จำนวนหลักเปลี่ยนได้ระหว่างทาง)
+  function normalizeLocked(digits) {
+    if (state.locked.length === digits) return;
+    while (state.locked.length < digits) state.locked.push(false);
+    state.locked.length = digits;
+    saveHuayState(state);
+  }
+
   function rollHuay() {
     const digits = state.digits || 6;
-    const finalVal = huayRandomDigits(digits);
+    normalizeLocked(digits);
+    const prevDigits = state.last && state.last.length === digits ? state.last.split("") : null;
+    const finalDigits = Array.from({ length: digits }, (_, i) =>
+      prevDigits && state.locked[i] ? prevDigits[i] : String(Math.floor(Math.random() * 10))
+    );
+    const finalVal = finalDigits.join("");
+
     const balls = [...container.querySelectorAll(".huay-ball")];
-    balls.forEach((b) => {
-      b.classList.remove("placeholder", "settled");
-    });
-    const stopTicks = balls.map((_, i) => 14 + i * 3);
-    const maxTicks = Math.max(...stopTicks);
+    // ตำแหน่งที่ล็อกไว้ (และมีเลขเดิมอยู่แล้ว) ไม่ต้องหมุน คงเลขเดิมไว้
+    const spinIdx = balls.map((_, i) => i).filter((i) => !(prevDigits && state.locked[i]));
+    spinIdx.forEach((i) => balls[i].classList.remove("placeholder", "settled"));
+
+    function finish() {
+      state.last = finalVal;
+      saveHuayState(state);
+      showHuayOverlay(finalVal, rollHuay);
+    }
+
+    if (!spinIdx.length) {
+      finish();
+      return;
+    }
+
+    const stopTicks = {};
+    spinIdx.forEach((i, order) => (stopTicks[i] = 14 + order * 3));
+    const maxTicks = Math.max(...spinIdx.map((i) => stopTicks[i]));
     let ticks = 0;
     const spin = setInterval(() => {
-      balls.forEach((ball, i) => {
-        const span = ball.querySelector("span");
+      spinIdx.forEach((i) => {
+        const span = balls[i].querySelector("span");
         if (ticks < stopTicks[i]) {
           span.textContent = Math.floor(Math.random() * 10);
         } else if (ticks === stopTicks[i]) {
-          span.textContent = finalVal[i];
-          ball.classList.add("settled");
+          span.textContent = finalDigits[i];
+          balls[i].classList.add("settled");
         }
       });
       ticks++;
       if (ticks > maxTicks) {
         clearInterval(spin);
-        state.last = finalVal;
-        saveHuayState(state);
-        showHuayOverlay(finalVal, rollHuay);
+        finish();
       }
     }, 70);
   }
 
   function draw() {
     const digits = state.digits || 6;
+    normalizeLocked(digits);
     const lastDigits = state.last && state.last.length === digits ? state.last.split("") : null;
 
     container.innerHTML = `
       <div class="huay-wrap">
-        <div class="huay-display-row" id="huayDisplay">${huayBallsHtml(digits, lastDigits)}</div>
+        <div class="huay-display-row" id="huayDisplay">${huayBallsHtml(digits, lastDigits, state.locked)}</div>
+        ${lastDigits ? `<div class="huay-lock-hint">แตะเลขเพื่อล็อกตำแหน่ง — ตัวที่ล็อกไว้จะไม่ถูกสุ่มใหม่</div>` : ""}
         <div class="step-row">
           <div class="step-label">เลือกจำนวนหลัก</div>
           ${HUAY_DIGIT_OPTIONS.map(
@@ -110,6 +134,27 @@ function renderHuay(container) {
 
     container.querySelector("#huayDrawBtn").addEventListener("click", rollHuay);
   }
+
+  // event delegation — ใช้ได้กับลูกบอลทุกชุดที่ draw() วาดใหม่ ไม่ต้องผูก listener ซ้ำ
+  container.addEventListener("click", (e) => {
+    const ball = e.target.closest(".huay-ball[data-idx]");
+    if (!ball || ball.classList.contains("placeholder")) return;
+    const idx = Number(ball.dataset.idx);
+    state.locked[idx] = !state.locked[idx];
+    saveHuayState(state);
+    ball.classList.toggle("locked", state.locked[idx]);
+    let icon = ball.querySelector(".huay-lock-icon");
+    if (state.locked[idx]) {
+      if (!icon) {
+        icon = document.createElement("span");
+        icon.className = "huay-lock-icon";
+        icon.textContent = "🔒";
+        ball.appendChild(icon);
+      }
+    } else if (icon) {
+      icon.remove();
+    }
+  });
 
   draw();
 }
