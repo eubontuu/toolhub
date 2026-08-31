@@ -42,6 +42,9 @@ Home = topbar → `#quickstartContent` (pinned-apps widget) → `#homeContent` (
 - `browser_batch` a verification sequence instead of one call per step.
 - Long pasted content → scratch file + reference, not inline twice.
 - Before `python -m http.server 8080`, check the port's free (`netstat -ano | grep ':8080.*LISTENING'`) — a second server racing on it serves stale files non-deterministically and looks like a cache bug.
+- Default to text/JSON assertions (`page.evaluate()` returning a small object, `console.log`) over screenshots when testing — a screenshot costs far more tokens than a values check. Take one only for a genuine visual/layout sanity check, usually right at the end.
+- Batch several checks into one `page.evaluate()` call instead of one round-trip per assertion.
+- For consistency audits (counting entries, checking a claim against code) reach for `grep -c`/a one-line `node -e` snippet before reading a whole file.
 
 ## Rules
 - **Batch to one version bump.** Iterate/test freely without touching `CACHE_VERSION` (hard-reload bypasses the SW). Bump + ship as one multi-bullet version at a natural stopping point, not per-request. Ship immediately only if asked to see it live now, or the request is already substantial alone.
