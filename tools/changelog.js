@@ -6,6 +6,13 @@ const CHANGELOG_TAG_LABEL = { added: "เพิ่ม", changed: "แก้ไ�
 
 const CHANGELOG_DATA = [
   {
+    version: "v81",
+    date: "1 ก.ย. 2569",
+    items: [
+      { type: "added", text: "เพิ่มแอปใหม่ \"ดูดวง\" — แตะลูกแก้วเพื่อสุ่มคำทำนาย พร้อมรายละเอียดการงาน การเงิน ความรัก สุขภาพ เลขมงคล และสีมงคล" },
+    ],
+  },
+  {
     version: "v80",
     date: "31 ส.ค. 2569",
     items: [

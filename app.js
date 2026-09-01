@@ -23,6 +23,12 @@ const APPS = [
     render: renderHuay,
   },
   {
+    id: "fortune",
+    name: "ดูดวง",
+    icon: "🔮",
+    render: renderFortune,
+  },
+  {
     id: "games",
     name: "เกม",
     icon: "🎮",
