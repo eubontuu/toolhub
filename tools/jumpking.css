@@ -101,16 +101,17 @@
   gap: 12px;
   margin-top: auto;
   width: 100%;
+  max-width: 300px;
 }
 
 .jk-ctrl-btn {
+  flex: 1;
   background: var(--card);
   border: none;
   color: var(--text);
-  width: 56px;
-  height: 56px;
+  height: 64px;
   border-radius: var(--radius-md);
-  font-size: 20px;
+  font-size: 24px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -124,28 +125,6 @@
 
 .jk-ctrl-btn.active,
 .jk-ctrl-btn:active {
-  background: var(--card-hi);
-}
-
-.jk-jump-btn {
   background: var(--accent);
-  border: none;
   color: #fff;
-  height: 56px;
-  min-width: 120px;
-  padding: 0 20px;
-  border-radius: var(--radius-pill);
-  font-size: 15px;
-  font-weight: 700;
-  cursor: pointer;
-  box-shadow: var(--shadow-sm);
-  touch-action: none;
-  -webkit-touch-callout: none;
-  -webkit-user-select: none;
-  user-select: none;
-}
-
-.jk-jump-btn:active {
-  background: var(--card-hi);
-  color: var(--text);
 }

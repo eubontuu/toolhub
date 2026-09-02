@@ -48,13 +48,12 @@ function renderJumpKing(container) {
         <canvas class="jk-canvas" id="jkCanvas" width="${CANVAS_W}" height="${CANVAS_H}"></canvas>
         <div class="jk-overlay" id="jkOverlay">
           <div class="jk-overlay-title">🤴 Jump King</div>
-          <div class="jk-overlay-sub">กดปุ่ม ◀/▶ ค้างไว้เพื่อเล็งทิศทาง แล้วกดปุ่มกระโดดค้างไว้สะสมพลัง ปล่อยเพื่อกระโดดขึ้นไปให้สูงที่สุด</div>
+          <div class="jk-overlay-sub">กดปุ่ม ◀ หรือ ▶ ค้างไว้เพื่อสะสมพลัง แล้วปล่อยเพื่อกระโดดไปทางนั้นให้สูงที่สุด</div>
           <button class="jk-start-btn" id="jkStartBtn">เริ่มเกม</button>
         </div>
       </div>
       <div class="jk-controls">
         <button class="jk-ctrl-btn" id="jkLeft">◀</button>
-        <button class="jk-jump-btn" id="jkJump">กระโดด</button>
         <button class="jk-ctrl-btn" id="jkRight">▶</button>
       </div>
     </div>
@@ -69,7 +68,6 @@ function renderJumpKing(container) {
   const powerFill = container.querySelector("#jkPowerFill");
   const leftBtn = container.querySelector("#jkLeft");
   const rightBtn = container.querySelector("#jkRight");
-  const jumpBtn = container.querySelector("#jkJump");
 
   const style = getComputedStyle(document.documentElement);
   const colorBg = style.getPropertyValue("--card").trim() || "#1b1f27";
@@ -77,7 +75,7 @@ function renderJumpKing(container) {
   const colorPlayer = style.getPropertyValue("--accent").trim() || "#4c8dff";
 
   let platforms, player, camY, checkpoint, bestWorldY;
-  let leftHeld, rightHeld, charging, chargeStart, running, rafId, lastTime;
+  let charging, chargeDir, chargeStart, running, rafId, lastTime;
 
   function genNextPlatform(prev) {
     const gap = LEVEL_GAP_MIN + Math.random() * (LEVEL_GAP_MAX - LEVEL_GAP_MIN);
@@ -104,9 +102,8 @@ function renderJumpKing(container) {
     checkpoint = { y: 0, x: CANVAS_W / 2 };
     bestWorldY = 0;
     camY = GROUND_CAM_MAX;
-    leftHeld = false;
-    rightHeld = false;
     charging = false;
+    chargeDir = 0;
     running = false;
     lastTime = 0;
     scoreEl.textContent = "0";
@@ -208,32 +205,23 @@ function renderJumpKing(container) {
     rafId = requestAnimationFrame(frame);
   }
 
-  function startCharge() {
+  function startCharge(dir, btn) {
     if (!running || !player.onGround || charging) return;
     charging = true;
+    chargeDir = dir;
     chargeStart = performance.now();
+    btn.classList.add("active");
   }
 
-  function releaseCharge() {
-    if (!charging) return;
+  function releaseCharge(dir, btn) {
+    if (!charging || chargeDir !== dir) return;
     charging = false;
+    btn.classList.remove("active");
     const power = Math.min(1, (performance.now() - chargeStart) / CHARGE_MS);
     powerFill.style.width = "0%";
-    let dir = 0;
-    if (leftHeld && !rightHeld) dir = -1;
-    else if (rightHeld && !leftHeld) dir = 1;
     player.vy = JUMP_VY_WEAK + (JUMP_VY_STRONG - JUMP_VY_WEAK) * power;
     player.vx = dir * HORIZONTAL_MAX * power;
     player.onGround = false;
-  }
-
-  function setLeft(v) {
-    leftHeld = v;
-    leftBtn.classList.toggle("active", v);
-  }
-  function setRight(v) {
-    rightHeld = v;
-    rightBtn.classList.toggle("active", v);
   }
 
   // preventDefault on pointerdown stops iOS Safari from starting its long-press
@@ -241,27 +229,19 @@ function renderJumpKing(container) {
   // triggers the native "select" callout/loupe mid-hold).
   leftBtn.addEventListener("pointerdown", (e) => {
     e.preventDefault();
-    setLeft(true);
+    startCharge(-1, leftBtn);
   });
-  leftBtn.addEventListener("pointerup", () => setLeft(false));
-  leftBtn.addEventListener("pointerleave", () => setLeft(false));
-  leftBtn.addEventListener("pointercancel", () => setLeft(false));
+  leftBtn.addEventListener("pointerup", () => releaseCharge(-1, leftBtn));
+  leftBtn.addEventListener("pointerleave", () => releaseCharge(-1, leftBtn));
+  leftBtn.addEventListener("pointercancel", () => releaseCharge(-1, leftBtn));
 
   rightBtn.addEventListener("pointerdown", (e) => {
     e.preventDefault();
-    setRight(true);
+    startCharge(1, rightBtn);
   });
-  rightBtn.addEventListener("pointerup", () => setRight(false));
-  rightBtn.addEventListener("pointerleave", () => setRight(false));
-  rightBtn.addEventListener("pointercancel", () => setRight(false));
-
-  jumpBtn.addEventListener("pointerdown", (e) => {
-    e.preventDefault();
-    startCharge();
-  });
-  jumpBtn.addEventListener("pointerup", releaseCharge);
-  jumpBtn.addEventListener("pointerleave", releaseCharge);
-  jumpBtn.addEventListener("pointercancel", releaseCharge);
+  rightBtn.addEventListener("pointerup", () => releaseCharge(1, rightBtn));
+  rightBtn.addEventListener("pointerleave", () => releaseCharge(1, rightBtn));
+  rightBtn.addEventListener("pointercancel", () => releaseCharge(1, rightBtn));
 
   startBtn.addEventListener("click", () => {
     overlay.style.display = "none";

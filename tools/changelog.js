@@ -6,6 +6,13 @@ const CHANGELOG_TAG_LABEL = { added: "เพิ่ม", changed: "แก้ไ�
 
 const CHANGELOG_DATA = [
   {
+    version: "v82",
+    date: "2 ก.ย. 2569",
+    items: [
+      { type: "changed", text: "Jump King — เอาปุ่มกระโดดออก เหลือแค่ปุ่มซ้าย/ขวา กดปุ่มไหนค้างไว้จะสะสมพลังแล้วกระโดดไปทางนั้นเลย" },
+    ],
+  },
+  {
     version: "v81",
     date: "1 ก.ย. 2569",
     items: [
