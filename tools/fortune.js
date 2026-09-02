@@ -210,14 +210,19 @@ function fortuneApplyTint(wrapEl, hex) {
     : FORTUNE_BG_BASE;
 }
 
-function fortuneModeTabsHtml(active, historyCount) {
+function fortuneModeTabsHtml(active) {
   return `
     <div class="fortune-mode-row">
       <button class="fortune-mode-btn ${active === "daily" ? "active" : ""}" data-mode="daily">ประจำวัน</button>
       <button class="fortune-mode-btn ${active === "topic" ? "active" : ""}" data-mode="topic">เฉพาะเรื่อง</button>
-      <button class="fortune-mode-btn" id="fortuneHistoryBtn">📜 ประวัติ${historyCount ? ` (${historyCount})` : ""}</button>
     </div>
   `;
+}
+
+// Pinned to the bottom of .fortune-wrap via margin-top:auto (see fortune.css) — kept out of
+// the mode-tabs row so it doesn't scroll away with the rest of the idle content.
+function fortuneHistoryButtonHtml(historyCount) {
+  return `<button class="fortune-history-fab" id="fortuneHistoryBtn">📜 ประวัติ${historyCount ? ` (${historyCount})` : ""}</button>`;
 }
 
 function fortuneCardHtml(f) {
@@ -283,7 +288,7 @@ function renderFortune(container) {
 
     container.innerHTML = `
       <div class="fortune-wrap" id="fortuneWrap">
-        ${fortuneModeTabsHtml("daily", state.history.length)}
+        ${fortuneModeTabsHtml("daily")}
         <button class="fortune-orb-btn" id="fortuneOrbBtn" aria-label="ดูดวง">
           <span class="fortune-orb-icon">🔮</span>
         </button>
@@ -300,6 +305,7 @@ function renderFortune(container) {
               </button>`
             : ""
         }
+        ${fortuneHistoryButtonHtml(state.history.length)}
       </div>
     `;
 
@@ -332,7 +338,7 @@ function renderFortune(container) {
 
     container.innerHTML = `
       <div class="fortune-wrap" id="fortuneWrap">
-        ${fortuneModeTabsHtml("topic", state.history.length)}
+        ${fortuneModeTabsHtml("topic")}
         <div class="fortune-hint">เลือกเรื่องที่อยากดูดวง</div>
         <div class="fortune-topic-row">
           ${FORTUNE_TOPICS.map(
@@ -353,6 +359,7 @@ function renderFortune(container) {
               </button>`
             : ""
         }
+        ${fortuneHistoryButtonHtml(state.history.length)}
       </div>
     `;
 

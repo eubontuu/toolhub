@@ -3,7 +3,8 @@
    .fortune-wrap's own background is a fixed dark base (set from JS via fortuneApplyTint, not this file) — an
    intentional exception, not theme-following: the mystical backdrop is the screen's own flavor. Every element
    that sits directly on it (not inside its own var(--card)-backed card) needs a fixed color too, not var(--text)/
-   var(--sub) — those flip to dark-on-dark in light themes. .fortune-hint is the only one; the cards below it
+   var(--sub) — those flip to dark-on-dark in light themes. .fortune-hint and .fortune-history-fab (pinned to the
+   bottom of the screen via margin-top:auto) are the only two; the cards in between
    (.fortune-last-card, .fortune-topic-btn, .fortune-topic-tip) carry their own var(--card)/var(--card-hi)
    background+text pairing so they stay self-consistent per theme same as .fortune-overlay-card already does. */
 
@@ -41,6 +42,18 @@
 .fortune-mode-btn.active {
   background: var(--accent);
   color: #fff;
+}
+
+.fortune-history-fab {
+  margin-top: auto;
+  background: none;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: rgba(255, 255, 255, 0.65);
+  border-radius: var(--radius-pill);
+  padding: 8px 16px;
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
 }
 
 .fortune-topic-row {

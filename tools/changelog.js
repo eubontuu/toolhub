@@ -6,6 +6,13 @@ const CHANGELOG_TAG_LABEL = { added: "เพิ่ม", changed: "แก้ไ�
 
 const CHANGELOG_DATA = [
   {
+    version: "v91",
+    date: "3 ก.ย. 2569",
+    items: [
+      { type: "changed", text: "ดูดวง — ย้ายปุ่มประวัติไปไว้ด้านล่างสุดของหน้าจอ แยกจากแท็บโหมด" },
+    ],
+  },
+  {
     version: "v90",
     date: "3 ก.ย. 2569",
     items: [
