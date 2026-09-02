@@ -99,6 +99,7 @@ function buildFortuneData() {
 }
 
 const FORTUNE_DATA = buildFortuneData();
+const FORTUNE_HISTORY_MAX = 30;
 
 const FORTUNE_TOPICS = [
   { id: "work", label: "การงาน", icon: "💼" },
@@ -150,14 +151,44 @@ function loadFortuneState() {
           s.topicLast && typeof s.topicLast.topic === "string" && typeof s.topicLast.id === "number"
             ? s.topicLast
             : null,
+        history: Array.isArray(s.history)
+          ? s.history.filter(
+              (h) =>
+                h &&
+                typeof h.time === "number" &&
+                ((h.type === "daily" && typeof h.id === "number") ||
+                  (h.type === "topic" && typeof h.topic === "string" && typeof h.id === "number"))
+            )
+          : [],
       };
     }
   } catch (e) {}
-  return { mode: "daily", dailyLastId: null, topicLast: null };
+  return { mode: "daily", dailyLastId: null, topicLast: null, history: [] };
 }
 
 function saveFortuneState(state) {
   localStorage.setItem("toolhub.fortune", JSON.stringify(state));
+}
+
+function fortuneFormatTime(ts) {
+  return new Date(ts).toLocaleString("th-TH", { dateStyle: "short", timeStyle: "short" });
+}
+
+function fortuneHistoryPush(state, entry) {
+  state.history.unshift({ ...entry, time: Date.now() });
+  if (state.history.length > FORTUNE_HISTORY_MAX) state.history.length = FORTUNE_HISTORY_MAX;
+}
+
+// Resolves a history entry back to its {icon, title, stars, sub, cardHtml} for display —
+// returns null if the entry references data that no longer exists (shouldn't normally happen).
+function fortuneHistoryResolve(h) {
+  if (h.type === "daily") {
+    const f = FORTUNE_DATA.find((x) => x.id === h.id);
+    return f ? { icon: "🔮", title: f.title, stars: f.stars, sub: "ประจำวัน", cardHtml: fortuneCardHtml(f) } : null;
+  }
+  const t = FORTUNE_TOPICS.find((x) => x.id === h.topic);
+  const f = t && FORTUNE_TOPIC_DATA[h.topic] ? FORTUNE_TOPIC_DATA[h.topic].find((x) => x.id === h.id) : null;
+  return t && f ? { icon: t.icon, title: f.title, stars: f.stars, sub: t.label, cardHtml: fortuneTopicCardHtml(t, f) } : null;
 }
 
 function fortuneStarsHtml(stars) {
@@ -179,11 +210,12 @@ function fortuneApplyTint(wrapEl, hex) {
     : FORTUNE_BG_BASE;
 }
 
-function fortuneModeTabsHtml(active) {
+function fortuneModeTabsHtml(active, historyCount) {
   return `
     <div class="fortune-mode-row">
       <button class="fortune-mode-btn ${active === "daily" ? "active" : ""}" data-mode="daily">ประจำวัน</button>
       <button class="fortune-mode-btn ${active === "topic" ? "active" : ""}" data-mode="topic">เฉพาะเรื่อง</button>
+      <button class="fortune-mode-btn" id="fortuneHistoryBtn">📜 ประวัติ${historyCount ? ` (${historyCount})` : ""}</button>
     </div>
   `;
 }
@@ -229,10 +261,17 @@ function renderFortune(container) {
   }
 
   function bindModeTabs() {
-    container.querySelectorAll(".fortune-mode-btn").forEach((btn) => {
+    container.querySelectorAll(".fortune-mode-btn[data-mode]").forEach((btn) => {
       btn.addEventListener("click", () => {
         if (btn.dataset.mode === state.mode) return;
         state.mode = btn.dataset.mode;
+        saveFortuneState(state);
+        draw();
+      });
+    });
+    container.querySelector("#fortuneHistoryBtn").addEventListener("click", () => {
+      showFortuneHistoryOverlay(state.history, () => {
+        state.history = [];
         saveFortuneState(state);
         draw();
       });
@@ -244,7 +283,7 @@ function renderFortune(container) {
 
     container.innerHTML = `
       <div class="fortune-wrap" id="fortuneWrap">
-        ${fortuneModeTabsHtml("daily")}
+        ${fortuneModeTabsHtml("daily", state.history.length)}
         <button class="fortune-orb-btn" id="fortuneOrbBtn" aria-label="ดูดวง">
           <span class="fortune-orb-icon">🔮</span>
         </button>
@@ -280,6 +319,7 @@ function renderFortune(container) {
       const pool = candidates.length ? candidates : FORTUNE_DATA;
       const picked = pool[Math.floor(Math.random() * pool.length)];
       state.dailyLastId = picked.id;
+      fortuneHistoryPush(state, { type: "daily", id: picked.id });
       saveFortuneState(state);
       draw();
       showFortuneOverlay(fortuneCardHtml(picked), "ดูดวงอีกครั้ง", revealDaily);
@@ -292,7 +332,7 @@ function renderFortune(container) {
 
     container.innerHTML = `
       <div class="fortune-wrap" id="fortuneWrap">
-        ${fortuneModeTabsHtml("topic")}
+        ${fortuneModeTabsHtml("topic", state.history.length)}
         <div class="fortune-hint">เลือกเรื่องที่อยากดูดวง</div>
         <div class="fortune-topic-row">
           ${FORTUNE_TOPICS.map(
@@ -335,6 +375,7 @@ function renderFortune(container) {
     const candidates = pool.filter((f) => f.id !== lastId);
     const picked = (candidates.length ? candidates : pool)[Math.floor(Math.random() * (candidates.length || pool.length))];
     state.topicLast = { topic: topicId, id: picked.id };
+    fortuneHistoryPush(state, { type: "topic", topic: topicId, id: picked.id });
     saveFortuneState(state);
     draw();
     const topic = FORTUNE_TOPICS.find((t) => t.id === topicId);
@@ -359,6 +400,59 @@ function showFortuneOverlay(cardHtml, nextLabel, onNext) {
       e.stopPropagation();
       overlay.remove();
       onNext();
+    });
+  }
+  document.body.appendChild(overlay);
+  void overlay.offsetHeight;
+  overlay.classList.add("show");
+}
+
+// Combined history across both modes, newest first — tapping an entry reopens its full
+// card via showFortuneOverlay (read-only, no "next" button since it's a past reveal).
+function showFortuneHistoryOverlay(history, onClearAll) {
+  const entries = history.map((h) => ({ h, info: fortuneHistoryResolve(h) })).filter((e) => e.info);
+  const overlay = document.createElement("div");
+  overlay.className = "fortune-history-overlay reveal-overlay";
+  overlay.innerHTML = `
+    <div class="fortune-history-panel">
+      <div class="fortune-history-title">ประวัติดูดวง</div>
+      <div class="fortune-history-list">
+        ${
+          entries.length === 0
+            ? `<div class="fortune-history-empty">ยังไม่มีประวัติ</div>`
+            : entries
+                .map(
+                  ({ h, info }, i) => `
+          <button class="fortune-history-item" data-idx="${i}">
+            <span class="fortune-history-item-icon">${info.icon}</span>
+            <span class="fortune-history-item-body">
+              <span class="fortune-history-item-title">${info.title}</span>
+              <span class="fortune-history-item-meta">${info.sub} · ${fortuneStarsHtml(info.stars)}</span>
+            </span>
+            <span class="fortune-history-item-time">${fortuneFormatTime(h.time)}</span>
+          </button>`
+                )
+                .join("")
+        }
+      </div>
+      ${entries.length > 0 ? `<button class="fortune-history-clear-btn" id="fortuneHistoryClearBtn">ล้างประวัติ</button>` : ""}
+    </div>
+    <div class="fortune-overlay-hint">แตะที่ไหนก็ได้เพื่อปิด</div>
+  `;
+  overlay.addEventListener("click", () => overlay.remove());
+  overlay.querySelector(".fortune-history-panel").addEventListener("click", (e) => e.stopPropagation());
+  overlay.querySelectorAll(".fortune-history-item").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const { info } = entries[Number(btn.dataset.idx)];
+      overlay.remove();
+      showFortuneOverlay(info.cardHtml, null, null);
+    });
+  });
+  const clearBtn = overlay.querySelector("#fortuneHistoryClearBtn");
+  if (clearBtn) {
+    clearBtn.addEventListener("click", () => {
+      overlay.remove();
+      onClearAll();
     });
   }
   document.body.appendChild(overlay);
