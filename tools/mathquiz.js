@@ -1,13 +1,16 @@
 // คิดเลขเร็ว (flash math quiz) — tab in the เกม hub (registered in GAME_TABS,
 // tools/games-core.js). Shows a problem for 3s, hides it, then gives 5s to answer —
 // either typed or multiple-choice (configurable choice count). Correct answers chain
-// into a streak; problems get harder as the streak grows. No dependency on other tool files.
+// into a streak; problems get harder as the streak grows, starting from a selectable
+// starting level (settings.startLevel) instead of always level 0. No dependency on
+// other tool files.
 
 const MATH_SHOW_MS = 3000;
 const MATH_ANSWER_MS = 5000;
 const MATH_BEST_KEY = "toolhub.mathquiz.bestStreak";
 const MATH_SETTINGS_KEY = "toolhub.mathquiz.settings";
 const MATH_CHOICE_COUNTS = [2, 3, 4, 6];
+const MATH_MAX_LEVEL = 6;
 
 function loadMathBest() {
   try {
@@ -31,10 +34,11 @@ function loadMathSettings() {
       return {
         mode: s.mode === "choice" ? "choice" : "type",
         choiceCount: MATH_CHOICE_COUNTS.includes(s.choiceCount) ? s.choiceCount : 4,
+        startLevel: Number.isInteger(s.startLevel) && s.startLevel >= 0 && s.startLevel <= MATH_MAX_LEVEL ? s.startLevel : 0,
       };
     }
   } catch (e) {}
-  return { mode: "type", choiceCount: 4 };
+  return { mode: "type", choiceCount: 4, startLevel: 0 };
 }
 
 function saveMathSettings(settings) {
@@ -54,8 +58,7 @@ function mathShuffle(arr) {
   return copy;
 }
 
-function mathGenerateProblem(streak) {
-  const level = Math.min(Math.floor(streak / 3), 6);
+function mathGenerateProblem(level) {
   const ops = level < 2 ? ["+", "−"] : ["+", "−", "×"];
   const op = ops[mathRandInt(0, ops.length - 1)];
   const range = 9 + level * 8;
@@ -153,6 +156,13 @@ function renderMathQuiz(container) {
               </div>`
             : ""
         }
+        <div class="math-level-row" id="mathLevelRow">
+          <span class="math-level-label">ระดับเริ่มต้น</span>
+          ${Array.from(
+            { length: MATH_MAX_LEVEL + 1 },
+            (_, lvl) => `<button class="math-level-btn ${settings.startLevel === lvl ? "active" : ""}" data-level="${lvl}">${lvl + 1}</button>`
+          ).join("")}
+        </div>
         <button class="math-start-btn" id="mathStartBtn">เริ่ม</button>
       </div>
     `;
@@ -173,6 +183,13 @@ function renderMathQuiz(container) {
         });
       });
     }
+    stage.querySelectorAll(".math-level-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        settings.startLevel = Number(btn.dataset.level);
+        saveMathSettings(settings);
+        showIdle();
+      });
+    });
     stage.querySelector("#mathStartBtn").addEventListener("click", startRun);
   }
 
@@ -188,7 +205,8 @@ function renderMathQuiz(container) {
   }
 
   function nextProblem() {
-    problem = mathGenerateProblem(streak);
+    const level = Math.min(settings.startLevel + Math.floor(streak / 3), MATH_MAX_LEVEL);
+    problem = mathGenerateProblem(level);
     showQuestion();
   }
 

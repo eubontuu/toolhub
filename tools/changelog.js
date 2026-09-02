@@ -6,6 +6,13 @@ const CHANGELOG_TAG_LABEL = { added: "เพิ่ม", changed: "แก้ไ�
 
 const CHANGELOG_DATA = [
   {
+    version: "v87",
+    date: "3 ก.ย. 2569",
+    items: [
+      { type: "added", text: "คิดเลขเร็ว — เลือกระดับความยากเริ่มต้นได้ (1-7) ก่อนเริ่มเล่น ไม่ต้องไล่จากง่ายทุกครั้ง" },
+    ],
+  },
+  {
     version: "v86",
     date: "3 ก.ย. 2569",
     items: [
