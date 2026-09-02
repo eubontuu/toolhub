@@ -31,13 +31,15 @@ tools/games-core.{js,css}            เกม shared state, persistent tab-bar 
 tools/snake.{js,css}                 งู — เกม sub-game, canvas snake, theme-adaptive color
 tools/jumpking.{js,css}              Jump King — เกม sub-game, canvas climbing game, charge-and-release jump, theme-adaptive color
 tools/mathquiz.{js,css}              คิดเลขเร็ว — เกม sub-game, flash-shown problem then typed/multiple-choice answer, streak-based difficulty
+tools/sudoku.{js,css}                ซูโดกุ — เกม sub-game, 9x9, uniqueness-preserving puzzle generator, 3 difficulties
+tools/2048.{js,css}                  2048 — เกม sub-game, 4x4 slide-and-merge, swipe/D-pad
 tools/changelog.{js,css}             การอัปเดต — data + render, opened from the sidebar
 sw.js                                service worker: offline cache + update mechanism
 manifest.json                        PWA metadata
 icons/, icons/emoji/                 app icons + Twemoji SVGs (CC-BY 4.0, see index.html body comment)
 ```
 
-No bundler, no modules — every JS/CSS file is a plain `<script>`/`<link>`, so **load order in `index.html` matters for JS** (global scope). `wonglao-core.js` must load before the other `wonglao-*.js` files; `games-core.js` must load after `snake.js`/`jumpking.js`/`mathquiz.js` (it calls their render functions by name); everything must load before `app.js` (its `APPS` array references `renderWongLao`/`renderGames`/etc. by name). CSS order rarely matters — each tool's classes are uniquely prefixed.
+No bundler, no modules — every JS/CSS file is a plain `<script>`/`<link>`, so **load order in `index.html` matters for JS** (global scope). `wonglao-core.js` must load before the other `wonglao-*.js` files; `games-core.js` must load after `snake.js`/`jumpking.js`/`mathquiz.js`/`sudoku.js`/`2048.js` (it calls their render functions by name); everything must load before `app.js` (its `APPS` array references `renderWongLao`/`renderGames`/etc. by name). CSS order rarely matters — each tool's classes are uniquely prefixed.
 
 ## Architecture
 
@@ -98,12 +100,16 @@ Same tab-bar shell pattern as วงเหล้า above (own file, own state �
 | `snake` | งู | `renderSnake` |
 | `jumpking` | Jump King | `renderJumpKing` |
 | `mathquiz` | คิดเลขเร็ว | `renderMathQuiz` |
+| `sudoku` | ซูโดกุ | `renderSudoku` |
+| `2048` | 2048 | `render2048` |
 
 State (just the active `tab`) persists via `loadGamesState()`/`saveGamesState()` under `toolhub.games` — each sub-game then owns its own score/best/settings keys (see Persistence).
 
 - **งู** (`tools/snake.js`): classic canvas snake, D-pad + swipe controls.
-- **Jump King** (`tools/jumpking.js`): canvas climbing game. Hold ◀/▶ to aim, hold the jump button to charge power (bar fill shows charge), release to launch — direction+power set the jump vector. Camera eases to follow the player upward; falling more than a threshold below the highest platform reached resets the player back to that checkpoint instead of losing all progress. Height climbed is the score, best is persisted.
+- **Jump King** (`tools/jumpking.js`): canvas climbing game, two buttons only — hold ◀ or ▶ to charge power (bar fill shows charge) in that direction, release to launch that way (no separate jump button). Camera eases to follow the player upward; falling more than a threshold below the highest platform reached resets the player back to that checkpoint instead of losing all progress. Height climbed is the score, best is persisted.
 - **คิดเลขเร็ว** (`tools/mathquiz.js`): shows a problem for 3s, hides it, then gives 5s to answer — typed (number input) or multiple-choice (2/4/6/etc. configurable choices, wrong options generated near the right answer). Correct answers chain into a streak and problems get harder (wider number ranges, then multiplication) as it grows; wrong/timeout/give-up ends the run and offers to restart immediately.
+- **ซูโดกุ** (`tools/sudoku.js`): 9x9, pick a difficulty (ง่าย/กลาง/ยาก → 44/36/30 clues kept). `sudokuGeneratePuzzle()` fills a random full board (`sudokuFillRandom`, randomized backtracking) then removes cells one at a time, keeping each removal only if `sudokuCountSolutions()` (capped at 2) still finds exactly one solution — guarantees every generated puzzle has a unique solution. Tap a cell then a number-pad digit to fill; row/col/box conflicts highlight red in real time (`sudokuFindConflicts`); 3 hints/game reveal a cell from the stored solution; win = board full with zero conflicts. Best time per difficulty persisted.
+- **2048** (`tools/2048.js`): classic 4x4 slide-and-merge, swipe the board or use the D-pad. `g2048Move(board, dir)` slides+merges each row/column once per move (`g2048SlideLine`); a new 2 (90%) or 4 (10%) tile spawns after every move that changes the board. Reaching a 2048 tile shows a one-time win overlay with a "เล่นต่อ" option to keep playing past it; no more empty cells and no adjacent equal pairs ends the game. Best score persisted.
 
 **New sub-game:** own `tools/yourgame.{js,css}` (register in `index.html` before `games-core.js`, and in `PRECACHE_URLS`), entry in `GAME_TABS`, dispatch branch in `renderGamesShell`.
 
@@ -130,6 +136,9 @@ Ohana/ไพ่สุ่ม/สุ่ม/Flash Quiz/หวย/บวก-ลบ's
 | `toolhub.jumpking.highScore` | number string | Jump King best height score |
 | `toolhub.mathquiz.bestStreak` | number string | คิดเลขเร็ว best streak |
 | `toolhub.mathquiz.settings` | `{ mode: "type"\|"choice", choiceCount }` | คิดเลขเร็ว answer-mode preference |
+| `toolhub.sudoku.settings` | `{ difficulty: "easy"\|"medium"\|"hard" }` | ซูโดกุ difficulty preference |
+| `toolhub.sudoku.bestTime` | `{ easy, medium, hard }` (seconds or null) | ซูโดกุ best time per difficulty |
+| `toolhub.game2048.bestScore` | number string | 2048 best score |
 | `toolhub.theme` | theme id string | theme picker — UI preference |
 
 Merge-with-defaults rule is in CLAUDE.md's localStorage rule. Nothing syncs anywhere — data lives only in the browser that created it; reinstalling wipes it. Intentional for this app's scope.

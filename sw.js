@@ -1,5 +1,5 @@
 // bump CACHE_VERSION every time you ship a change — that's what makes the update visible
-const CACHE_VERSION = "v82";
+const CACHE_VERSION = "v83";
 const CACHE_NAME = `toolhub-${CACHE_VERSION}`;
 
 const PRECACHE_URLS = [
@@ -24,6 +24,8 @@ const PRECACHE_URLS = [
   "tools/snake.js",
   "tools/jumpking.js",
   "tools/mathquiz.js",
+  "tools/sudoku.js",
+  "tools/2048.js",
   "tools/games-core.js",
   "tools/counter.css",
   "tools/todo.css",
@@ -41,6 +43,8 @@ const PRECACHE_URLS = [
   "tools/snake.css",
   "tools/jumpking.css",
   "tools/mathquiz.css",
+  "tools/sudoku.css",
+  "tools/2048.css",
   "tools/games-core.css",
   "icons/emoji/abacus.svg",
   "icons/emoji/beers.svg",

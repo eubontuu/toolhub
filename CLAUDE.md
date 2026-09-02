@@ -11,7 +11,7 @@ Auto-loaded every session in this repo. Read `README.md` for full architecture �
 
 ## คำศัพท์ UI (คุยกับ owner ให้ตรงกัน)
 - **แอป** — full-screen tool opened from sidebar, `renderToolShell` header, registered in `APPS`. 7 ตอนนี้: บวก/ลบ, วงเหล้า, หวย, ดูดวง, เกม, สิ่งที่ต้องทำ, เตรียมเดินป่า. ปุ่มย้อนกลับจากแอปไหนก็ตาม → เปิด sidebar ทับหน้าปัจจุบันทันที (ไม่ navigate ไปหน้าแรกก่อน) ไฮไลท์แอปที่เพิ่งออกมา (`openSidebarOverlay()`/`sidebarActiveRoute`, `app.js`).
-- **แถบ** — (1) sidebar nav item (`.sidebar-nav-item`) หรือ (2) แท็บเดี่ยวแนวนอนคงที่ในแอปฮับ (วงเหล้า/เกม) — สลับ sub-item ทันที, พับ/กางได้, ล้นแล้วเลื่อนซ้าย-ขวาแทนขึ้นบรรทัดใหม่. วงเหล้าใช้ `WONGLAO_TABS`+`renderWongLaoShell` (`wonglao-core.js`); เกม (งู/Jump King/คิดเลขเร็ว) ใช้ `GAME_TABS`+`renderGamesShell` (`games-core.js`) — คนละไฟล์ คนละ state กัน แต่ pattern เดียวกัน.
+- **แถบ** — (1) sidebar nav item (`.sidebar-nav-item`) หรือ (2) แท็บเดี่ยวแนวนอนคงที่ในแอปฮับ (วงเหล้า/เกม) — สลับ sub-item ทันที, พับ/กางได้, ล้นแล้วเลื่อนซ้าย-ขวาแทนขึ้นบรรทัดใหม่. วงเหล้าใช้ `WONGLAO_TABS`+`renderWongLaoShell` (`wonglao-core.js`); เกม (งู/Jump King/คิดเลขเร็ว/ซูโดกุ/2048) ใช้ `GAME_TABS`+`renderGamesShell` (`games-core.js`) — คนละไฟล์ คนละ state กัน แต่ pattern เดียวกัน.
 - **วิดเจ็ต** — ฝังหน้าแรก แก้ไขได้ทันที ไม่ลงทะเบียนใน `APPS`. ตัวอย่าง: `renderQuickStart()` (`quickstart.js`) → `#quickstartContent` — ปักหมุด/เอาออกได้ว่าจะโชว์ทางลัดไปแอปไหนบ้าง (`toolhub.quickstart`, array ของ `APPS` id), กดทางลัดแล้ว `navigate()` ตรงไปแอปนั้นเลยไม่ต้องผ่าน sidebar.
 - **การ์ดแจ้งเตือน** — อ่านอย่างเดียวบนหน้าแรก + ปุ่มขวาล่างพาไปแอปที่แก้ไขได้. ตัวอย่าง: `renderTodoPreview()` (`todo.js`) → `#homeContent`, คู่ `#homeTodoEditBtn` → `#app/todo`.
 
@@ -29,10 +29,12 @@ huay           หวย — full APPS tool (split out of วงเหล้า)
 fortune        ดูดวง — full APPS tool; แตะลูกแก้วสุ่มคำทำนาย (FORTUNE_DATA, 20 ใบ) พร้อมงาน/เงิน/รัก/สุขภาพ + เลขมงคล/สีมงคล, บันทึกใบล่าสุดไว้. Orb gradient uses --accent (theme-adaptive); lucky-color swatches stay literal (fortune data, not UI flavor)
 hikeprep       เตรียมเดินป่า — HIKE_DAYS schedule, hides after HIKE_WIDGET_HIDE_AFTER
 changelog      CHANGELOG_DATA + renderChangelog
-games-core     เกม hub shared state (GAMES_DEFAULT_STATE), tab-bar shell/dispatcher (renderGamesShell) — load after snake/jumpking/mathquiz, before app.js
+games-core     เกม hub shared state (GAMES_DEFAULT_STATE), tab-bar shell/dispatcher (renderGamesShell) — load after snake/jumpking/mathquiz/sudoku/2048, before app.js
 snake          งู sub-game — canvas snake; body+start-btn color is theme-adaptive (see Theme vars rule)
-jumpking       Jump King sub-game — canvas climbing game: hold ◀/▶ to aim + hold jump button to charge power/release to launch, camera follows player up, fall-too-far resets to last-reached platform (checkpoint), high score persisted; player/jump-btn color is theme-adaptive (--accent)
+jumpking       Jump King sub-game — canvas climbing game: hold ◀ or ▶ to charge power in that direction, release to launch that way (no separate jump button), camera follows player up, fall-too-far resets to last-reached platform (checkpoint), high score persisted; player color is theme-adaptive (--accent)
 mathquiz       คิดเลขเร็ว sub-game — 3s show / 5s answer flash quiz, typed or multiple-choice (configurable choice count), streak difficulty ramp
+sudoku         ซูโดกุ sub-game — 9x9, uniqueness-preserving digger (sudokuGeneratePuzzle: fills a random full board then removes cells while a backtracking solver confirms exactly one solution remains) at 3 difficulties, real-time row/col/box conflict highlighting, 3 hints/game, best time per difficulty persisted
+2048           2048 sub-game — 4x4 slide-and-merge (g2048Move per direction on rows/cols), swipe board or dpad buttons, best score persisted; tile colors are the classic 2048 palette (fixed, not theme-adaptive — see Theme vars rule)
 ```
 Home = topbar → `#quickstartContent` (pinned-apps widget) → `#homeContent` (todo preview, `#homeTodoEditBtn` in its own header row) → sidebar (all `APPS` + changelog). No icon grid anywhere.
 
@@ -56,14 +58,14 @@ Home = topbar → `#quickstartContent` (pinned-apps widget) → `#homeContent` (
 - **No test suite** — verify manually (local server + `mcp__claude-in-chrome__*`), click through UI changes.
 - **New top-level tool** → `tools/x.js`+`.css`, tags in `index.html`, `renderX(container)`, entry in `APPS`, files in `PRECACHE_URLS`.
 - **New วงเหล้า sub-game** → entry in `WONGLAO_TABS` + `WONGLAO_DEFAULT_STATE`, dispatch branch in `renderWongLaoShell`, render fn + styles (inline in wonglao-core if small, own file pair if big) — all in `tools/wonglao-core.js`.
-- **New เกม sub-game** → own `tools/yourgame.js`+`.css` (register both in `index.html` before `games-core.js`, and in `PRECACHE_URLS`), entry in `GAME_TABS` (`tools/games-core.js`), dispatch branch in `renderGamesShell`. Same shape as a top-level tool's `renderX(container)` — the hub just swaps which one renders into `#gameBody`.
+- **New เกม sub-game** → own `tools/yourgame.js`+`.css` (register both in `index.html` before `games-core.js`, and in `PRECACHE_URLS`), entry in `GAME_TABS` (`tools/games-core.js`), dispatch branch in `renderGamesShell`. Same shape as a top-level tool's `renderX(container)` — the hub just swaps which one renders into `#gameBody`. Filename may start with a digit (`2048.js`); function/const names can't, so prefix them (`render2048`, `G2048_*`).
 - **Icons**: `iconImg` (SVG, `icons/emoji/`) optional alongside required `icon` (emoji fallback). New images → `PRECACHE_URLS`. Keep the Twemoji attribution comment in `index.html`'s `<body>` accurate while any such asset is in use.
 - **localStorage**: new persisted field → add to that tool's default-state shape, not just the code using it. `loadWongLaoState()` spread-merges defaults; `loadCounterState()` uses per-field `typeof` checks — same principle either way.
 - **Fullscreen reveal overlays**: forced-reflow trigger (`void overlay.offsetHeight; overlay.classList.add("show")`), never double-rAF (unreliable here). Copy an existing `show*Overlay`. Root class must include `reveal-overlay` if it closes on tap-anywhere, or edge-swipe-back leaves it stuck onscreen.
 - **Flex chain** (`#app → .tool-screen → .tool-body → wrapper`): every link needs `min-height: 0` or content-less children collapse to zero height.
 - **Width cap** (`--app-max-width: 520px`): prefer `position: absolute` inside a `position: relative`, capped ancestor (e.g. `.home-edit-fab` in `.home`) for new floating elements — no vw math. Only use `right: max(16px, calc((100vw - var(--app-max-width))/2 + 16px))` for true full-viewport elements (sidebar-level).
 - **Design tokens** (`--radius-*`/`--shadow-*`/`--duration-*`/`--ease-bounce`): reuse instead of new literals. Most tool CSS files use them now; `changelog.css`/`wonglao-chwazi.css`/`wonglao-randomcard.css`/`wonglao-wheel.css` don't yet — migrate opportunistically, not as a sweep. Flavor colors/shadows stay literal (tool identity, not inconsistency).
-- **Theme vars**: flavor colors fixed across themes by default; exceptions = `todo.css` (fully theme-var-built), งู's snake body/start-btn, and หวย's ball gradient (all `--accent`). New theme → one `THEMES` entry + one `:root[data-theme]` block. Use `var(--hairline)` not hardcoded white/black for borders on themed surfaces.
+- **Theme vars**: flavor colors fixed across themes by default; exceptions = `todo.css` (fully theme-var-built), งู's snake body/start-btn, Jump King's player color, and หวย's ball gradient (all `--accent`). 2048's tile palette and sudoku's given/entered/conflict colors are intentionally fixed literals, not exceptions. New theme → one `THEMES` entry + one `:root[data-theme]` block. Use `var(--hairline)` not hardcoded white/black for borders on themed surfaces.
 - `git push` rejected non-fast-forward → another session may be editing concurrently; `fetch` + check `log HEAD..origin/main`, don't force-push.
 - No Web Push (VAPID) — sandbox blocks the egress; `PushNotification` handles the hiking reminder instead. Stale references anywhere should be deleted.
 

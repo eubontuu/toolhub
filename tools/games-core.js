@@ -6,6 +6,8 @@ const GAME_TABS = [
   { id: "snake", label: "งู", icon: "🐍" },
   { id: "jumpking", label: "Jump King", icon: "🤴" },
   { id: "mathquiz", label: "คิดเลขเร็ว", icon: "🧮" },
+  { id: "sudoku", label: "ซูโดกุ", icon: "🧩" },
+  { id: "2048", label: "2048", icon: "🔢" },
 ];
 
 const GAMES_DEFAULT_STATE = { tab: null };
@@ -83,5 +85,7 @@ function renderGamesShell(container, state, draw) {
   const body = container.querySelector("#gameBody");
   if (state.tab === "snake") renderSnake(body);
   else if (state.tab === "jumpking") renderJumpKing(body);
-  else renderMathQuiz(body);
+  else if (state.tab === "mathquiz") renderMathQuiz(body);
+  else if (state.tab === "sudoku") renderSudoku(body);
+  else render2048(body);
 }
