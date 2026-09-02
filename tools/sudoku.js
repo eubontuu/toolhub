@@ -2,6 +2,10 @@
 // Generates a random full board, then removes cells while checking the puzzle still
 // has exactly one solution (classic uniqueness-preserving digger). No dependency on
 // other tool files.
+// Notes mode (sudokuNotesMode, module-level like wlTabbarHidden/gameTabbarHidden — not
+// persisted, resets each session): while on, tapping a number pencil-marks it into the
+// selected empty cell instead of answering; setting a real value clears that cell's notes
+// and strips the same number from same-row/col/box peers' notes.
 
 const SUDOKU_SETTINGS_KEY = "toolhub.sudoku.settings";
 const SUDOKU_BEST_KEY = "toolhub.sudoku.bestTime";
@@ -9,6 +13,8 @@ const SUDOKU_DIFFICULTIES = ["easy", "medium", "hard"];
 const SUDOKU_DIFFICULTY_LABEL = { easy: "ง่าย", medium: "กลาง", hard: "ยาก" };
 const SUDOKU_DIFFICULTY_CLUES = { easy: 44, medium: 36, hard: 30 };
 const SUDOKU_HINT_COUNT = 3;
+
+let sudokuNotesMode = false;
 
 function loadSudokuSettings() {
   try {
@@ -111,6 +117,23 @@ function sudokuCountSolutions(board, cap) {
   return count;
 }
 
+function sudokuPeerIndices(idx) {
+  const row = Math.floor(idx / 9);
+  const col = idx % 9;
+  const boxRow = row - (row % 3);
+  const boxCol = col - (col % 3);
+  const peers = new Set();
+  for (let i = 0; i < 9; i++) {
+    peers.add(row * 9 + i);
+    peers.add(i * 9 + col);
+  }
+  for (let r = boxRow; r < boxRow + 3; r++) {
+    for (let c = boxCol; c < boxCol + 3; c++) peers.add(r * 9 + c);
+  }
+  peers.delete(idx);
+  return peers;
+}
+
 function sudokuFindConflicts(board) {
   const conflicts = new Set();
   function checkGroup(indices) {
@@ -158,7 +181,11 @@ function renderSudoku(container) {
   const settings = loadSudokuSettings();
   const bestTimes = loadSudokuBestTimes();
 
-  let puzzle, solution, given, board, selected, hints, timerInterval, elapsed, running;
+  let puzzle, solution, given, board, notes, selected, hints, timerInterval, elapsed, running;
+
+  function clearPeerNotes(idx, num) {
+    sudokuPeerIndices(idx).forEach((i) => notes[i].delete(num));
+  }
 
   function showIdle() {
     running = false;
@@ -197,6 +224,7 @@ function renderSudoku(container) {
       solution = gen.solution;
       board = puzzle.slice();
       given = puzzle.map((v) => v !== 0);
+      notes = Array.from({ length: 81 }, () => new Set());
       selected = null;
       hints = SUDOKU_HINT_COUNT;
       elapsed = 0;
@@ -245,7 +273,12 @@ function renderSudoku(container) {
                 if (conflicts.has(i)) classes.push("conflict");
                 if (col % 3 === 2 && col !== 8) classes.push("boxline-right");
                 if (row % 3 === 2 && row !== 8) classes.push("boxline-bottom");
-                return `<button class="${classes.join(" ")}" data-idx="${i}">${v || ""}</button>`;
+                const cellHtml = v
+                  ? String(v)
+                  : notes[i].size
+                  ? `<div class="sudoku-notes">${[1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => `<span>${notes[i].has(n) ? n : ""}</span>`).join("")}</div>`
+                  : "";
+                return `<button class="${classes.join(" ")}" data-idx="${i}">${cellHtml}</button>`;
               })
               .join("")}
           </div>
@@ -259,7 +292,10 @@ function renderSudoku(container) {
           ${[1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => `<button class="sudoku-num-btn" data-num="${n}">${n}</button>`).join("")}
           <button class="sudoku-num-btn sudoku-erase-btn" data-num="0">⌫</button>
         </div>
-        <button class="sudoku-hint-btn" id="sudokuHintBtn" ${hints <= 0 ? "disabled" : ""}>💡 คำใบ้ (${hints})</button>
+        <div class="sudoku-bottom-actions">
+          <button class="sudoku-notes-toggle ${sudokuNotesMode ? "active" : ""}" id="sudokuNotesToggle">✏️ โน้ต${sudokuNotesMode ? ": เปิด" : ""}</button>
+          <button class="sudoku-hint-btn" id="sudokuHintBtn" ${hints <= 0 ? "disabled" : ""}>💡 คำใบ้ (${hints})</button>
+        </div>
       </div>
     `;
 
@@ -274,13 +310,33 @@ function renderSudoku(container) {
     container.querySelectorAll(".sudoku-num-btn").forEach((btn) => {
       btn.addEventListener("click", () => {
         if (!running || selected === null || given[selected]) return;
-        board[selected] = Number(btn.dataset.num);
+        const num = Number(btn.dataset.num);
+
+        if (sudokuNotesMode) {
+          if (num === 0) notes[selected].clear();
+          else if (board[selected] === 0) {
+            if (notes[selected].has(num)) notes[selected].delete(num);
+            else notes[selected].add(num);
+          }
+          renderBoard();
+          return;
+        }
+
+        board[selected] = num;
+        if (num !== 0) {
+          notes[selected].clear();
+          clearPeerNotes(selected, num);
+        }
         renderBoard();
         checkWin();
       });
     });
 
     container.querySelector("#sudokuNewBtn").addEventListener("click", showIdle);
+    container.querySelector("#sudokuNotesToggle").addEventListener("click", () => {
+      sudokuNotesMode = !sudokuNotesMode;
+      renderBoard();
+    });
     container.querySelector("#sudokuHintBtn").addEventListener("click", useHint);
     container.querySelector("#sudokuOverlayNewBtn").addEventListener("click", showIdle);
   }
@@ -290,6 +346,8 @@ function renderSudoku(container) {
     let idx = selected !== null && board[selected] === 0 ? selected : board.findIndex((v) => v === 0);
     if (idx === -1) return;
     board[idx] = solution[idx];
+    notes[idx].clear();
+    clearPeerNotes(idx, solution[idx]);
     hints -= 1;
     selected = idx;
     renderBoard();

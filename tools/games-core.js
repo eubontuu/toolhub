@@ -55,7 +55,10 @@ function renderGamesShell(container, state, draw) {
         </div>
         <button class="game-tab-nudge" id="gameNudgeRight" aria-label="เลื่อนขวา">›</button>
       </div>
-      <button class="game-tabbar-toggle" id="gameTabbarToggle">${gameTabbarHidden ? "▾ แถบเกม" : "▴ ซ่อนแถบ"}</button>
+      <div class="game-tabbar-actions">
+        <button class="game-tabbar-toggle" id="gameTabbarToggle">${gameTabbarHidden ? "▾ แถบเกม" : "▴ ซ่อนแถบ"}</button>
+        <button class="game-tabbar-toggle" id="gameShowAllBtn">🔳 เกมทั้งหมด</button>
+      </div>
       <div class="game-body" id="gameBody"></div>
     </div>
   `;
@@ -82,10 +85,48 @@ function renderGamesShell(container, state, draw) {
     draw();
   });
 
+  container.querySelector("#gameShowAllBtn").addEventListener("click", () => {
+    showGameAllOverlay(state.tab, (tabId) => {
+      if (tabId === state.tab) return;
+      state.tab = tabId;
+      saveGamesState(state);
+      draw();
+    });
+  });
+
   const body = container.querySelector("#gameBody");
   if (state.tab === "snake") renderSnake(body);
   else if (state.tab === "jumpking") renderJumpKing(body);
   else if (state.tab === "mathquiz") renderMathQuiz(body);
   else if (state.tab === "sudoku") renderSudoku(body);
   else render2048(body);
+}
+
+// Full-screen grid of every เกม tab — opened via "เกมทั้งหมด" next to the tabbar toggle.
+// Tap a tile to switch (onPick), tap empty space to close without switching.
+function showGameAllOverlay(activeTabId, onPick) {
+  const overlay = document.createElement("div");
+  overlay.className = "game-all-overlay reveal-overlay";
+  overlay.innerHTML = `
+    <div class="game-all-grid">
+      ${GAME_TABS.map(
+        (t) => `
+      <button class="game-all-tile ${t.id === activeTabId ? "active" : ""}" data-tab-id="${t.id}">
+        <span class="game-all-tile-icon">${t.icon}</span><span>${t.label}</span>
+      </button>`
+      ).join("")}
+    </div>
+    <div class="game-all-hint">แตะพื้นที่ว่างเพื่อปิด</div>
+  `;
+  overlay.addEventListener("click", () => overlay.remove());
+  overlay.querySelector(".game-all-grid").addEventListener("click", (e) => e.stopPropagation());
+  overlay.querySelectorAll(".game-all-tile").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      overlay.remove();
+      onPick(btn.dataset.tabId);
+    });
+  });
+  document.body.appendChild(overlay);
+  void overlay.offsetHeight;
+  overlay.classList.add("show");
 }

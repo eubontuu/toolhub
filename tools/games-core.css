@@ -74,8 +74,14 @@
   color: #fff;
 }
 
+.game-tabbar-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+}
+
 .game-tabbar-toggle {
-  align-self: center;
   background: none;
   border: none;
   color: var(--sub);
@@ -89,4 +95,65 @@
   display: flex;
   flex-direction: column;
   min-height: 0;
+}
+
+/* Full-screen "show all" overlay — see showGameAllOverlay in games-core.js */
+.game-all-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(5, 6, 10, 0.92);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  z-index: 1000;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity var(--duration-base) ease;
+  padding: 24px;
+}
+
+.game-all-overlay.show {
+  opacity: 1;
+}
+
+.game-all-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  width: 100%;
+  max-width: min(90vw, 420px);
+  cursor: default;
+}
+
+.game-all-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: var(--card);
+  border: none;
+  border-radius: var(--radius-lg);
+  color: var(--text);
+  padding: 22px 12px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: var(--shadow-md);
+}
+
+.game-all-tile.active {
+  background: var(--accent);
+  color: #fff;
+}
+
+.game-all-tile-icon {
+  font-size: 28px;
+}
+
+.game-all-hint {
+  color: var(--sub);
+  font-size: 13px;
 }

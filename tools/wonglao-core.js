@@ -87,7 +87,10 @@ function renderWongLaoShell(container, state, draw) {
         </div>
         <button class="wl-tab-nudge" id="wlNudgeRight" aria-label="เลื่อนขวา">›</button>
       </div>
-      <button class="wl-tabbar-toggle" id="wlTabbarToggle">${wlTabbarHidden ? "▾ แถบเกม" : "▴ ซ่อนแถบ"}</button>
+      <div class="wl-tabbar-actions">
+        <button class="wl-tabbar-toggle" id="wlTabbarToggle">${wlTabbarHidden ? "▾ แถบเกม" : "▴ ซ่อนแถบ"}</button>
+        <button class="wl-tabbar-toggle" id="wlShowAllBtn">🔳 วงเหล้าทั้งหมด</button>
+      </div>
       <div class="wl-game-body" id="wlGameBody"></div>
     </div>
   `;
@@ -114,10 +117,48 @@ function renderWongLaoShell(container, state, draw) {
     draw();
   });
 
+  container.querySelector("#wlShowAllBtn").addEventListener("click", () => {
+    showWongLaoAllOverlay(state.tab, (tabId) => {
+      if (tabId === state.tab) return;
+      state.tab = tabId;
+      saveWongLaoState(state);
+      draw();
+    });
+  });
+
   const body = container.querySelector("#wlGameBody");
   if (state.tab === "ohana") renderOhanaGame(body, state);
   else if (state.tab === "randomcard") renderRandomCardGame(body, state);
   else if (state.tab === "wheel") renderWheelGame(body, state);
   else if (state.tab === "chwazi") renderChwaziGame(body, state);
   else renderFlashQuizGame(body, state);
+}
+
+// Full-screen grid of every วงเหล้า tab — opened via "วงเหล้าทั้งหมด" next to the tabbar
+// toggle. Tap a tile to switch (onPick), tap empty space to close without switching.
+function showWongLaoAllOverlay(activeTabId, onPick) {
+  const overlay = document.createElement("div");
+  overlay.className = "wl-all-overlay reveal-overlay";
+  overlay.innerHTML = `
+    <div class="wl-all-grid">
+      ${WONGLAO_TABS.map(
+        (t) => `
+      <button class="wl-all-tile ${t.id === activeTabId ? "active" : ""}" data-tab-id="${t.id}">
+        <span class="wl-all-tile-icon">${tabIconHtml(t, "wl-all-tile-img")}</span><span>${t.label}</span>
+      </button>`
+      ).join("")}
+    </div>
+    <div class="wl-all-hint">แตะพื้นที่ว่างเพื่อปิด</div>
+  `;
+  overlay.addEventListener("click", () => overlay.remove());
+  overlay.querySelector(".wl-all-grid").addEventListener("click", (e) => e.stopPropagation());
+  overlay.querySelectorAll(".wl-all-tile").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      overlay.remove();
+      onPick(btn.dataset.tabId);
+    });
+  });
+  document.body.appendChild(overlay);
+  void overlay.offsetHeight;
+  overlay.classList.add("show");
 }

@@ -41,7 +41,6 @@ function renderJumpKing(container) {
   const PLATFORM_W_MIN = 58;
   const PLATFORM_W_MAX = 96;
   const HORIZONTAL_JITTER = 95;
-  const FALL_RESET_THRESHOLD = 260;
   const GROUND_CAM_MAX = -(CANVAS_H - 70);
   const WALL_BOUNCE_DAMPING = 0.6;
   const ICE_FRICTION = 0.985;
@@ -95,7 +94,7 @@ function renderJumpKing(container) {
   const colorGround = style.getPropertyValue("--card-hi").trim() || "#262b35";
   const colorPlayer = style.getPropertyValue("--accent").trim() || "#4c8dff";
 
-  let platforms, player, camY, checkpoint, bestWorldY, standingPlatform, lavaTimerStart, lavaCountdown;
+  let platforms, player, camY, bestWorldY, standingPlatform, lavaTimerStart, lavaCountdown;
   let charging, chargeDir, chargeStart, running, rafId, lastTime;
   let windActive, windDir, windUntil, nextWindAt;
 
@@ -161,7 +160,6 @@ function renderJumpKing(container) {
     platforms = [{ y: 0, x: 0, w: CANVAS_W, type: "normal" }];
     ensurePlatformsAbove(-CANVAS_H * 1.5);
     player = { x: CANVAS_W / 2 - PLAYER_SIZE / 2, worldY: 0, vx: 0, vy: 0, onGround: true };
-    checkpoint = { y: 0, x: CANVAS_W / 2, platform: platforms[0] };
     standingPlatform = platforms[0];
     lavaTimerStart = null;
     lavaCountdown = null;
@@ -252,21 +250,9 @@ function renderJumpKing(container) {
             standingPlatform = p;
             lavaTimerStart = null;
             lavaCountdown = null;
-            if (p.y < checkpoint.y) checkpoint = { y: p.y, x: p.x + p.w / 2, platform: p };
             break;
           }
         }
-      }
-
-      if (player.worldY - checkpoint.y > FALL_RESET_THRESHOLD) {
-        player.worldY = checkpoint.y;
-        player.x = checkpoint.x - PLAYER_SIZE / 2;
-        player.vx = 0;
-        player.vy = 0;
-        player.onGround = true;
-        standingPlatform = checkpoint.platform;
-        lavaTimerStart = null;
-        lavaCountdown = null;
       }
 
       if (player.worldY < bestWorldY) {
