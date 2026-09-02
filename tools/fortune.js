@@ -1,10 +1,12 @@
 // ดูดวง — full-screen app (renderFortune, registered in APPS in app.js). Two modes:
-// "ประจำวัน" (deterministic pick from today's date — same result all day, changes tomorrow)
-// and "เฉพาะเรื่อง" (pick a topic, get a detailed reading just for it). FORTUNE_DATA (100
-// entries) is generated at load from small phrase pools (buildFortuneData) rather than
-// hand-written one-by-one — pool sizes are pairwise-coprime-ish so all 100 ids get a
-// distinct title/work/money/love/health combination (see buildFortuneData comment).
-// After a reveal, the screen's background tints toward that card's lucky color.
+// "ประจำวัน" (tap the orb for a random general reading, redrawable as many times as you
+// like — never repeats the immediately-previous card) and "เฉพาะเรื่อง" (pick a topic, get
+// a detailed reading just for it, also redrawable). FORTUNE_DATA (100 entries) is generated
+// at load from small phrase pools (buildFortuneData) rather than hand-written one-by-one —
+// pool sizes are pairwise-coprime-ish so all 100 ids get a distinct title/work/money/love/
+// health combination (see buildFortuneData comment). After a reveal, the screen's background
+// tints toward that card's lucky color over a fixed dark base (not theme-adaptive — see
+// Theme vars rule; the mystical dark backdrop is the ดูดวง screen's own flavor).
 
 const FORTUNE_TITLE_POOL = [
   "ช่วงนี้ควรตั้งสติและระวังเป็นพิเศษ",
@@ -143,7 +145,7 @@ function loadFortuneState() {
       const s = JSON.parse(raw);
       return {
         mode: s.mode === "topic" ? "topic" : "daily",
-        dailyDate: typeof s.dailyDate === "string" ? s.dailyDate : null,
+        dailyLastId: typeof s.dailyLastId === "number" && FORTUNE_DATA.some((f) => f.id === s.dailyLastId) ? s.dailyLastId : null,
         topicLast:
           s.topicLast && typeof s.topicLast.topic === "string" && typeof s.topicLast.id === "number"
             ? s.topicLast
@@ -151,23 +153,11 @@ function loadFortuneState() {
       };
     }
   } catch (e) {}
-  return { mode: "daily", dailyDate: null, topicLast: null };
+  return { mode: "daily", dailyLastId: null, topicLast: null };
 }
 
 function saveFortuneState(state) {
   localStorage.setItem("toolhub.fortune", JSON.stringify(state));
-}
-
-function fortuneTodayStr() {
-  const d = new Date();
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-}
-
-// Deterministic per-day pick: same card all day for everyone, changes at local midnight.
-function fortuneDailyPick(dateStr) {
-  let hash = 0;
-  for (let i = 0; i < dateStr.length; i++) hash = (hash * 31 + dateStr.charCodeAt(i)) >>> 0;
-  return FORTUNE_DATA[hash % FORTUNE_DATA.length];
 }
 
 function fortuneStarsHtml(stars) {
@@ -181,10 +171,12 @@ function fortuneHexToRgba(hex, alpha) {
   return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
 
+const FORTUNE_BG_BASE = "#05060a";
+
 function fortuneApplyTint(wrapEl, hex) {
   wrapEl.style.background = hex
-    ? `radial-gradient(circle at 50% 18%, ${fortuneHexToRgba(hex, 0.28)} 0%, transparent 65%)`
-    : "";
+    ? `radial-gradient(circle at 50% 18%, ${fortuneHexToRgba(hex, 0.4)} 0%, ${FORTUNE_BG_BASE} 70%)`
+    : FORTUNE_BG_BASE;
 }
 
 function fortuneModeTabsHtml(active) {
@@ -248,9 +240,7 @@ function renderFortune(container) {
   }
 
   function drawDailyIdle() {
-    const today = fortuneTodayStr();
-    const fortune = fortuneDailyPick(today);
-    const revealedToday = state.dailyDate === today;
+    const last = state.dailyLastId !== null ? FORTUNE_DATA.find((f) => f.id === state.dailyLastId) : null;
 
     container.innerHTML = `
       <div class="fortune-wrap" id="fortuneWrap">
@@ -258,38 +248,41 @@ function renderFortune(container) {
         <button class="fortune-orb-btn" id="fortuneOrbBtn" aria-label="ดูดวง">
           <span class="fortune-orb-icon">🔮</span>
         </button>
-        <div class="fortune-hint">แตะลูกแก้วเพื่อดูดวงประจำวันนี้</div>
+        <div class="fortune-hint">แตะลูกแก้วเพื่อดูดวง — ดูได้เรื่อยๆ ไม่จำกัดรอบ</div>
         ${
-          revealedToday
+          last
             ? `<button class="fortune-last-card" id="fortuneLastCard">
-                <div class="fortune-last-label">ดวงวันนี้ของคุณ</div>
+                <div class="fortune-last-label">ผลล่าสุดของคุณ</div>
                 <div class="fortune-last-row">
-                  <span class="fortune-last-id">ใบที่ ${fortune.id}</span>
-                  <span class="fortune-last-stars">${fortuneStarsHtml(fortune.stars)}</span>
+                  <span class="fortune-last-id">ใบที่ ${last.id}</span>
+                  <span class="fortune-last-stars">${fortuneStarsHtml(last.stars)}</span>
                 </div>
-                <div class="fortune-last-title">${fortune.title}</div>
+                <div class="fortune-last-title">${last.title}</div>
               </button>`
             : ""
         }
       </div>
     `;
 
-    fortuneApplyTint(container.querySelector("#fortuneWrap"), revealedToday ? fortune.luckyColor.hex : null);
+    fortuneApplyTint(container.querySelector("#fortuneWrap"), last ? last.luckyColor.hex : null);
     bindModeTabs();
-    container.querySelector("#fortuneOrbBtn").addEventListener("click", () => revealDaily(fortune, today));
+    container.querySelector("#fortuneOrbBtn").addEventListener("click", revealDaily);
     const lastCard = container.querySelector("#fortuneLastCard");
-    if (lastCard) lastCard.addEventListener("click", () => showFortuneOverlay(fortuneCardHtml(fortune), null, null));
+    if (lastCard) lastCard.addEventListener("click", () => showFortuneOverlay(fortuneCardHtml(last), "ดูดวงอีกครั้ง", revealDaily));
   }
 
-  function revealDaily(fortune, today) {
+  function revealDaily() {
     const orb = container.querySelector("#fortuneOrbBtn");
     if (!orb || orb.classList.contains("glowing")) return;
     orb.classList.add("glowing");
     setTimeout(() => {
-      state.dailyDate = today;
+      const candidates = FORTUNE_DATA.filter((f) => f.id !== state.dailyLastId);
+      const pool = candidates.length ? candidates : FORTUNE_DATA;
+      const picked = pool[Math.floor(Math.random() * pool.length)];
+      state.dailyLastId = picked.id;
       saveFortuneState(state);
       draw();
-      showFortuneOverlay(fortuneCardHtml(fortune), null, null);
+      showFortuneOverlay(fortuneCardHtml(picked), "ดูดวงอีกครั้ง", revealDaily);
     }, 700);
   }
 

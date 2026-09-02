@@ -36,10 +36,10 @@ function renderJumpKing(container) {
   const CHARGE_MS = 900;
   const HORIZONTAL_MAX = 4.3;
   const PLATFORM_H = 10;
-  const LEVEL_GAP_MIN = 48;
-  const LEVEL_GAP_MAX = 88;
-  const PLATFORM_W_MIN = 58;
-  const PLATFORM_W_MAX = 96;
+  const LEVEL_GAP_MIN = 50;
+  const LEVEL_GAP_MAX = 112;
+  const PLATFORM_W_MIN = 44;
+  const PLATFORM_W_MAX = 112;
   const HORIZONTAL_JITTER = 95;
   const GROUND_CAM_MAX = -(CANVAS_H - 70);
   const WALL_BOUNCE_DAMPING = 0.6;

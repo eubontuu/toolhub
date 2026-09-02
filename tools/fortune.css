@@ -1,5 +1,11 @@
 /* ดูดวง — full-screen app. Orb + overlay accent uses var(--accent) so it follows the selected theme
-   (see CLAUDE.md Theme vars rule). Lucky-color swatches stay literal — they're the fortune's own data, not UI flavor. */
+   (see CLAUDE.md Theme vars rule). Lucky-color swatches stay literal — they're the fortune's own data, not UI flavor.
+   .fortune-wrap's own background is a fixed dark base (set from JS via fortuneApplyTint, not this file) — an
+   intentional exception, not theme-following: the mystical backdrop is the screen's own flavor. Every element
+   that sits directly on it (not inside its own var(--card)-backed card) needs a fixed color too, not var(--text)/
+   var(--sub) — those flip to dark-on-dark in light themes. .fortune-hint is the only one; the cards below it
+   (.fortune-last-card, .fortune-topic-btn, .fortune-topic-tip) carry their own var(--card)/var(--card-hi)
+   background+text pairing so they stay self-consistent per theme same as .fortune-overlay-card already does. */
 
 .fortune-wrap {
   flex: 1;
@@ -124,7 +130,7 @@
 
 .fortune-hint {
   font-size: 13px;
-  color: var(--sub);
+  color: rgba(255, 255, 255, 0.65);
   text-align: center;
 }
 

@@ -103,6 +103,39 @@
   cursor: pointer;
 }
 
+.sudoku-legend {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 11.5px;
+  color: var(--sub);
+}
+
+.sudoku-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.sudoku-legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-circle);
+}
+
+.sudoku-legend-given {
+  background: var(--text);
+}
+
+.sudoku-legend-answer {
+  background: var(--accent);
+}
+
+.sudoku-legend-note {
+  background: var(--accent);
+  opacity: 0.75;
+}
+
 .sudoku-board-wrap {
   position: relative;
   width: 100%;
@@ -181,7 +214,8 @@
   justify-content: center;
   font-size: 8px;
   font-weight: 700;
-  color: var(--sub);
+  color: var(--accent);
+  opacity: 0.75;
 }
 
 .sudoku-cell.selected .sudoku-notes span {

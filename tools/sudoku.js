@@ -254,6 +254,11 @@ function renderSudoku(container) {
           <span>คำใบ้ <b id="sudokuHints">${hints}</b></span>
           <button class="sudoku-new-btn" id="sudokuNewBtn">เกมใหม่</button>
         </div>
+        <div class="sudoku-legend">
+          <span class="sudoku-legend-item"><span class="sudoku-legend-dot sudoku-legend-given"></span>โจทย์</span>
+          <span class="sudoku-legend-item"><span class="sudoku-legend-dot sudoku-legend-answer"></span>คำตอบ</span>
+          <span class="sudoku-legend-item"><span class="sudoku-legend-dot sudoku-legend-note"></span>โน้ต</span>
+        </div>
         <div class="sudoku-board-wrap">
           <div class="sudoku-grid" id="sudokuGrid">
             ${board
