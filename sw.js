@@ -1,5 +1,5 @@
 // bump CACHE_VERSION every time you ship a change — that's what makes the update visible
-const CACHE_VERSION = "v87";
+const CACHE_VERSION = "v88";
 const CACHE_NAME = `toolhub-${CACHE_VERSION}`;
 
 const PRECACHE_URLS = [

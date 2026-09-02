@@ -11,6 +11,11 @@ const MATH_BEST_KEY = "toolhub.mathquiz.bestStreak";
 const MATH_SETTINGS_KEY = "toolhub.mathquiz.settings";
 const MATH_CHOICE_COUNTS = [2, 3, 4, 6];
 const MATH_MAX_LEVEL = 6;
+// Per-level tuning — gaps between levels widen on purpose (not linear) so higher levels
+// feel meaningfully harder, not just slightly harder. factorMax null = no multiplication yet.
+const MATH_LEVEL_LABELS = ["ง่ายมาก", "ง่าย", "ปานกลาง", "ยาก", "ยากมาก", "โหด", "นรก"];
+const MATH_LEVEL_RANGES = [9, 20, 35, 55, 80, 115, 160];
+const MATH_LEVEL_FACTOR_MAX = [null, null, 9, 13, 18, 24, 32];
 
 function loadMathBest() {
   try {
@@ -59,9 +64,10 @@ function mathShuffle(arr) {
 }
 
 function mathGenerateProblem(level) {
-  const ops = level < 2 ? ["+", "−"] : ["+", "−", "×"];
+  const factorMax = MATH_LEVEL_FACTOR_MAX[level];
+  const ops = factorMax === null ? ["+", "−"] : ["+", "−", "×"];
   const op = ops[mathRandInt(0, ops.length - 1)];
-  const range = 9 + level * 8;
+  const range = MATH_LEVEL_RANGES[level];
   let a, b, answer;
   if (op === "+") {
     a = mathRandInt(1, range);
@@ -72,7 +78,6 @@ function mathGenerateProblem(level) {
     b = mathRandInt(1, a);
     answer = a - b;
   } else {
-    const factorMax = 5 + level * 2;
     a = mathRandInt(2, factorMax);
     b = mathRandInt(2, factorMax);
     answer = a * b;
@@ -160,7 +165,7 @@ function renderMathQuiz(container) {
           <span class="math-level-label">ระดับเริ่มต้น</span>
           ${Array.from(
             { length: MATH_MAX_LEVEL + 1 },
-            (_, lvl) => `<button class="math-level-btn ${settings.startLevel === lvl ? "active" : ""}" data-level="${lvl}">${lvl + 1}</button>`
+            (_, lvl) => `<button class="math-level-btn ${settings.startLevel === lvl ? "active" : ""}" data-level="${lvl}">${MATH_LEVEL_LABELS[lvl]}</button>`
           ).join("")}
         </div>
         <button class="math-start-btn" id="mathStartBtn">เริ่ม</button>
