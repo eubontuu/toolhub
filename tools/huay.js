@@ -7,6 +7,7 @@ const HUAY_DIGIT_OPTIONS = [
   { n: 3, label: "3 ตัวท้าย" },
   { n: 6, label: "6 ตัว (เต็ม)" },
 ];
+const HUAY_HISTORY_MAX = 30;
 
 function loadHuayState() {
   try {
@@ -18,6 +19,8 @@ function loadHuayState() {
       // locked[i] เป็น "0".."9" (ล็อกตำแหน่งนั้นไว้ที่เลขนี้) หรือ null (ไม่ล็อก) — ค่าเก่าที่ไม่ใช่รูปแบบนี้ (เช่น boolean จากเวอร์ชันก่อนหน้า) ถือว่าไม่ล็อก
       if (!Array.isArray(state.locked)) state.locked = [];
       state.locked = state.locked.map((v) => (typeof v === "string" && /^[0-9]$/.test(v) ? v : null));
+      if (!Array.isArray(state.history)) state.history = [];
+      state.history = state.history.filter((h) => h && typeof h.value === "string" && typeof h.time === "number");
       return state;
     }
     // one-time migration: หวย used to be a sub-game inside toolhub.wonglao before this split
@@ -25,11 +28,15 @@ function loadHuayState() {
     if (oldRaw) {
       const old = JSON.parse(oldRaw);
       if (old.huayDigits || old.huayLast) {
-        return { digits: old.huayDigits || 6, last: old.huayLast || null, locked: [] };
+        return { digits: old.huayDigits || 6, last: old.huayLast || null, locked: [], history: [] };
       }
     }
   } catch (e) {}
-  return { digits: 6, last: null, locked: [] };
+  return { digits: 6, last: null, locked: [], history: [] };
+}
+
+function huayFormatTime(ts) {
+  return new Date(ts).toLocaleString("th-TH", { dateStyle: "short", timeStyle: "short" });
 }
 
 function saveHuayState(state) {
@@ -76,6 +83,8 @@ function renderHuay(container) {
 
     function finish() {
       state.last = finalVal;
+      state.history.unshift({ value: finalVal, digits, time: Date.now() });
+      if (state.history.length > HUAY_HISTORY_MAX) state.history.length = HUAY_HISTORY_MAX;
       saveHuayState(state);
       showHuayOverlay(finalVal, rollHuay);
     }
@@ -122,13 +131,24 @@ function renderHuay(container) {
             (o) => `<button class="step-chip ${digits === o.n ? "active" : ""}" data-digits="${o.n}">${o.label}</button>`
           ).join("")}
         </div>
-        <button class="huay-action-btn" id="huayDrawBtn">สุ่มใหม่</button>
+        <div class="huay-action-row">
+          <button class="huay-action-btn" id="huayDrawBtn">สุ่มใหม่</button>
+          <button class="huay-history-btn" id="huayHistoryBtn">📜 ประวัติ${state.history.length ? ` (${state.history.length})` : ""}</button>
+        </div>
       </div>
     `;
 
     container.querySelectorAll(".step-chip[data-digits]").forEach((chip) => {
       chip.addEventListener("click", () => {
         state.digits = Number(chip.dataset.digits);
+        saveHuayState(state);
+        draw();
+      });
+    });
+
+    container.querySelector("#huayHistoryBtn").addEventListener("click", () => {
+      showHuayHistoryOverlay(state.history, () => {
+        state.history = [];
         saveHuayState(state);
         draw();
       });
@@ -169,6 +189,45 @@ function showHuayOverlay(value, onRollAgain) {
       e.stopPropagation();
       overlay.remove();
       onRollAgain();
+    });
+  }
+  document.body.appendChild(overlay);
+  void overlay.offsetHeight;
+  overlay.classList.add("show");
+}
+
+function showHuayHistoryOverlay(history, onClearAll) {
+  const overlay = document.createElement("div");
+  overlay.className = "huay-lockpicker-overlay reveal-overlay";
+  overlay.innerHTML = `
+    <div class="huay-lockpicker-panel huay-history-panel">
+      <div class="huay-lockpicker-title">ประวัติการสุ่ม</div>
+      <div class="huay-history-list">
+        ${
+          history.length === 0
+            ? `<div class="huay-history-empty">ยังไม่มีประวัติ</div>`
+            : history
+                .map(
+                  (h) => `
+          <div class="huay-history-item">
+            <span class="huay-history-value">${h.value}</span>
+            <span class="huay-history-time">${huayFormatTime(h.time)}</span>
+          </div>`
+                )
+                .join("")
+        }
+      </div>
+      ${history.length > 0 ? `<button class="huay-lockpicker-unlock" id="huayHistoryClearBtn">ล้างประวัติ</button>` : ""}
+    </div>
+    <div class="huay-overlay-hint">แตะที่ไหนก็ได้เพื่อปิด</div>
+  `;
+  overlay.addEventListener("click", () => overlay.remove());
+  overlay.querySelector(".huay-lockpicker-panel").addEventListener("click", (e) => e.stopPropagation());
+  const clearBtn = overlay.querySelector("#huayHistoryClearBtn");
+  if (clearBtn) {
+    clearBtn.addEventListener("click", () => {
+      overlay.remove();
+      onClearAll();
     });
   }
   document.body.appendChild(overlay);

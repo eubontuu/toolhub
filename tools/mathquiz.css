@@ -68,7 +68,9 @@
 
 .math-mode-row,
 .math-choice-count-row,
-.math-level-row {
+.math-level-row,
+.math-ops-row,
+.math-terms-row {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -78,7 +80,9 @@
 
 .math-mode-btn,
 .math-choice-count-btn,
-.math-level-btn {
+.math-level-btn,
+.math-ops-btn,
+.math-terms-btn {
   background: var(--card-hi);
   border: none;
   color: var(--sub);
@@ -91,13 +95,17 @@
 
 .math-mode-btn.active,
 .math-choice-count-btn.active,
-.math-level-btn.active {
+.math-level-btn.active,
+.math-ops-btn.active,
+.math-terms-btn.active {
   background: var(--accent);
   color: #fff;
 }
 
 .math-choice-count-label,
-.math-level-label {
+.math-level-label,
+.math-ops-label,
+.math-terms-label {
   font-size: 12px;
   color: var(--sub);
 }
@@ -129,9 +137,11 @@
 }
 
 .math-question-text {
-  font-size: 34px;
+  font-size: clamp(20px, 7vw, 34px);
   font-weight: 800;
   letter-spacing: 0.02em;
+  word-break: break-word;
+  text-align: center;
 }
 
 .math-answer-countdown {

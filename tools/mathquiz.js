@@ -2,8 +2,10 @@
 // tools/games-core.js). Shows a problem for 3s, hides it, then gives 5s to answer —
 // either typed or multiple-choice (configurable choice count). Correct answers chain
 // into a streak; problems get harder as the streak grows, starting from a selectable
-// starting level (settings.startLevel) instead of always level 0. No dependency on
-// other tool files.
+// starting level (settings.startLevel) instead of always level 0. Optional extra operand
+// types (settings.ops: pow/sqrt/frac) and a configurable max term count (settings.maxTerms)
+// let the owner make problems longer/spicier than the base level curve alone — see
+// mathGenerateOperand/mathGenerateProblem. No dependency on other tool files.
 
 const MATH_SHOW_MS = 3000;
 const MATH_ANSWER_MS = 5000;
@@ -16,6 +18,15 @@ const MATH_MAX_LEVEL = 6;
 const MATH_LEVEL_LABELS = ["ง่ายมาก", "ง่าย", "ปานกลาง", "ยาก", "ยากมาก", "โหด", "นรก"];
 const MATH_LEVEL_RANGES = [9, 20, 35, 55, 80, 115, 160];
 const MATH_LEVEL_FACTOR_MAX = [null, null, 9, 13, 18, 24, 32];
+const MATH_TERM_MIN = 2;
+const MATH_TERM_MAX = 5;
+const MATH_OP_TYPES = [
+  { id: "pow", label: "ยกกำลัง" },
+  { id: "sqrt", label: "สแควรูท" },
+  { id: "frac", label: "เศษส่วน" },
+];
+// Chance any given operand rolls as one of the enabled special types instead of a plain number.
+const MATH_SPECIAL_OPERAND_CHANCE = 0.35;
 
 function loadMathBest() {
   try {
@@ -40,10 +51,16 @@ function loadMathSettings() {
         mode: s.mode === "choice" ? "choice" : "type",
         choiceCount: MATH_CHOICE_COUNTS.includes(s.choiceCount) ? s.choiceCount : 4,
         startLevel: Number.isInteger(s.startLevel) && s.startLevel >= 0 && s.startLevel <= MATH_MAX_LEVEL ? s.startLevel : 0,
+        maxTerms: Number.isInteger(s.maxTerms) && s.maxTerms >= MATH_TERM_MIN && s.maxTerms <= MATH_TERM_MAX ? s.maxTerms : MATH_TERM_MIN,
+        ops: {
+          pow: !!(s.ops && s.ops.pow),
+          sqrt: !!(s.ops && s.ops.sqrt),
+          frac: !!(s.ops && s.ops.frac),
+        },
       };
     }
   } catch (e) {}
-  return { mode: "type", choiceCount: 4, startLevel: 0 };
+  return { mode: "type", choiceCount: 4, startLevel: 0, maxTerms: MATH_TERM_MIN, ops: { pow: false, sqrt: false, frac: false } };
 }
 
 function saveMathSettings(settings) {
@@ -63,26 +80,59 @@ function mathShuffle(arr) {
   return copy;
 }
 
-function mathGenerateProblem(level) {
-  const factorMax = MATH_LEVEL_FACTOR_MAX[level];
-  const ops = factorMax === null ? ["+", "−"] : ["+", "−", "×"];
-  const op = ops[mathRandInt(0, ops.length - 1)];
-  const range = MATH_LEVEL_RANGES[level];
-  let a, b, answer;
-  if (op === "+") {
-    a = mathRandInt(1, range);
-    b = mathRandInt(1, range);
-    answer = a + b;
-  } else if (op === "−") {
-    a = mathRandInt(1, range);
-    b = mathRandInt(1, a);
-    answer = a - b;
-  } else {
-    a = mathRandInt(2, factorMax);
-    b = mathRandInt(2, factorMax);
-    answer = a * b;
+// An operand is either a plain integer or (if enabled) special notation whose displayed
+// text still evaluates to a plain integer value — so answers stay a single typed/chosen
+// number regardless of which operand types are on.
+function mathGenerateOperand(min, max, opsFlags) {
+  const specials = MATH_OP_TYPES.filter((t) => opsFlags[t.id]).map((t) => t.id);
+  if (specials.length && Math.random() < MATH_SPECIAL_OPERAND_CHANCE) {
+    const type = specials[mathRandInt(0, specials.length - 1)];
+    if (type === "pow") {
+      const base = mathRandInt(2, 6);
+      const exp = mathRandInt(2, 3);
+      return { value: Math.pow(base, exp), text: `${base}${exp === 2 ? "²" : "³"}` };
+    }
+    if (type === "sqrt") {
+      const root = mathRandInt(2, 7);
+      return { value: root, text: `√${root * root}` };
+    }
+    // frac — divisor/multiplier chosen so it always divides evenly
+    const d = mathRandInt(2, 6);
+    const k = mathRandInt(1, 9);
+    return { value: k, text: `${d * k}/${d}` };
   }
-  return { text: `${a} ${op} ${b}`, answer };
+  const value = mathRandInt(min, max);
+  return { value, text: String(value) };
+}
+
+// termCount (2..settings.maxTerms) is rolled per problem. A 2-term roll may use × (matching
+// the original single-operator behaviour); longer +/− chains stay left-to-right only so
+// there's no operator-precedence ambiguity to reason about mid-flash.
+function mathGenerateProblem(level, opsFlags, maxTerms) {
+  const factorMax = MATH_LEVEL_FACTOR_MAX[level];
+  const range = MATH_LEVEL_RANGES[level];
+  const termCount = mathRandInt(MATH_TERM_MIN, Math.max(MATH_TERM_MIN, maxTerms));
+
+  if (termCount === 2 && factorMax !== null && Math.random() < 0.34) {
+    const a = mathGenerateOperand(2, factorMax, opsFlags);
+    const b = mathGenerateOperand(2, factorMax, opsFlags);
+    return { text: `${a.text} × ${b.text}`, answer: a.value * b.value };
+  }
+
+  const first = mathGenerateOperand(1, range, opsFlags);
+  let text = first.text;
+  let answer = first.value;
+  for (let i = 1; i < termCount; i++) {
+    const next = mathGenerateOperand(1, range, opsFlags);
+    if (Math.random() < 0.5 && next.value <= answer) {
+      text += ` − ${next.text}`;
+      answer -= next.value;
+    } else {
+      text += ` + ${next.text}`;
+      answer += next.value;
+    }
+  }
+  return { text, answer };
 }
 
 function mathGenerateChoices(answer, count) {
@@ -168,6 +218,21 @@ function renderMathQuiz(container) {
             (_, lvl) => `<button class="math-level-btn ${settings.startLevel === lvl ? "active" : ""}" data-level="${lvl}">${MATH_LEVEL_LABELS[lvl]}</button>`
           ).join("")}
         </div>
+        <div class="math-ops-row" id="mathOpsRow">
+          <span class="math-ops-label">เครื่องหมายพิเศษ</span>
+          ${MATH_OP_TYPES.map(
+            (t) => `<button class="math-ops-btn ${settings.ops[t.id] ? "active" : ""}" data-op="${t.id}">${t.label}</button>`
+          ).join("")}
+        </div>
+        <div class="math-terms-row" id="mathTermsRow">
+          <span class="math-terms-label">จำนวนพจน์สูงสุด</span>
+          ${Array.from(
+            { length: MATH_TERM_MAX - MATH_TERM_MIN + 1 },
+            (_, i) => MATH_TERM_MIN + i
+          )
+            .map((n) => `<button class="math-terms-btn ${settings.maxTerms === n ? "active" : ""}" data-terms="${n}">${n}</button>`)
+            .join("")}
+        </div>
         <button class="math-start-btn" id="mathStartBtn">เริ่ม</button>
       </div>
     `;
@@ -195,6 +260,21 @@ function renderMathQuiz(container) {
         showIdle();
       });
     });
+    stage.querySelectorAll(".math-ops-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const op = btn.dataset.op;
+        settings.ops[op] = !settings.ops[op];
+        saveMathSettings(settings);
+        showIdle();
+      });
+    });
+    stage.querySelectorAll(".math-terms-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        settings.maxTerms = Number(btn.dataset.terms);
+        saveMathSettings(settings);
+        showIdle();
+      });
+    });
     stage.querySelector("#mathStartBtn").addEventListener("click", startRun);
   }
 
@@ -211,7 +291,7 @@ function renderMathQuiz(container) {
 
   function nextProblem() {
     const level = Math.min(settings.startLevel + Math.floor(streak / 3), MATH_MAX_LEVEL);
-    problem = mathGenerateProblem(level);
+    problem = mathGenerateProblem(level, settings.ops, settings.maxTerms);
     showQuestion();
   }
 
