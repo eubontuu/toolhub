@@ -56,6 +56,26 @@
   box-shadow: var(--shadow-md);
 }
 
+.jk-wind-badge {
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.5);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: var(--radius-pill);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--duration-base) ease;
+}
+
+.jk-wind-badge.show {
+  opacity: 1;
+}
+
 .jk-overlay {
   position: absolute;
   inset: 0;
