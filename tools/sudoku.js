@@ -6,6 +6,10 @@
 // persisted, resets each session): while on, tapping a number pencil-marks it into the
 // selected empty cell instead of answering; setting a real value clears that cell's notes
 // and strips the same number from same-row/col/box peers' notes.
+// Wrong-answer feedback: entering a digit that doesn't match the generated solution[idx]
+// (not just a row/col/box conflict) briefly shows it with a shake/red flash (.wrong class),
+// then auto-clears the cell back to empty ~500ms later so the player can retry immediately
+// without manually erasing first. Notes are left untouched on a wrong guess.
 
 const SUDOKU_SETTINGS_KEY = "toolhub.sudoku.settings";
 const SUDOKU_BEST_KEY = "toolhub.sudoku.bestTime";
@@ -324,6 +328,22 @@ function renderSudoku(container) {
             else notes[selected].add(num);
           }
           renderBoard();
+          return;
+        }
+
+        if (num !== 0 && num !== solution[selected]) {
+          const wrongIdx = selected;
+          board[wrongIdx] = num;
+          renderBoard();
+          const cellEl = container.querySelector(`.sudoku-cell[data-idx="${wrongIdx}"]`);
+          if (cellEl) cellEl.classList.add("wrong");
+          setTimeout(() => {
+            if (running && board[wrongIdx] === num) {
+              board[wrongIdx] = 0;
+              selected = wrongIdx;
+              renderBoard();
+            }
+          }, 500);
           return;
         }
 

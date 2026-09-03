@@ -6,6 +6,13 @@ const CHANGELOG_TAG_LABEL = { added: "เพิ่ม", changed: "แก้ไ�
 
 const CHANGELOG_DATA = [
   {
+    version: "v94",
+    date: "3 ก.ย. 2569",
+    items: [
+      { type: "added", text: "ซูโดกุ — ใส่เลขผิดจะมีอนิเมชันสั่นๆสีแดงเตือน แล้วช่องนั้นจะว่างให้กรอกใหม่ได้ทันทีโดยไม่ต้องลบเอง" },
+    ],
+  },
+  {
     version: "v93",
     date: "3 ก.ย. 2569",
     items: [
