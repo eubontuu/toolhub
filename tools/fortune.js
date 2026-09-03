@@ -101,11 +101,22 @@ function buildFortuneData() {
 const FORTUNE_DATA = buildFortuneData();
 const FORTUNE_HISTORY_MAX = 30;
 
+const FORTUNE_DAILY_CATEGORIES = [
+  { id: "work", label: "การงาน" },
+  { id: "money", label: "การเงิน" },
+  { id: "love", label: "ความรัก" },
+  { id: "health", label: "สุขภาพ" },
+];
+
 const FORTUNE_TOPICS = [
   { id: "work", label: "การงาน", icon: "💼" },
   { id: "money", label: "การเงิน", icon: "💰" },
   { id: "love", label: "ความรัก", icon: "❤️" },
   { id: "health", label: "สุขภาพ", icon: "🍀" },
+  { id: "study", label: "การเรียน", icon: "📚" },
+  { id: "travel", label: "การเดินทาง", icon: "✈️" },
+  { id: "family", label: "ครอบครัว", icon: "👨‍👩‍👧" },
+  { id: "luck", label: "โชคลาภ", icon: "🌟" },
 ];
 
 const FORTUNE_TOPIC_DATA = {
@@ -137,6 +148,34 @@ const FORTUNE_TOPIC_DATA = {
     { id: 4, stars: 4, title: "สุขภาพจิตดีขึ้นอย่างเห็นได้ชัด", detail: "ความเครียดที่สะสมมาเริ่มคลี่คลาย ใจเบาขึ้น มองโลกในแง่ดีมากขึ้น", tip: "หากิจกรรมที่ทำให้ผ่อนคลายทำเป็นประจำ จะช่วยรักษาสมดุลนี้ไว้ได้นาน", luckyNumber: "21", luckyColor: { name: "เขียว", hex: "#43a047" } },
     { id: 5, stars: 4, title: "หากออกกำลังกายสม่ำเสมอจะเห็นผลชัดเจน", detail: "เป็นช่วงที่ร่างกายตอบสนองต่อการดูแลตัวเองได้ดีเป็นพิเศษ", tip: "เลือกกิจกรรมที่ชอบจริงๆ จะทำให้ทำต่อเนื่องได้ง่ายกว่า", luckyNumber: "16", luckyColor: { name: "ฟ้า", hex: "#29b6f6" } },
   ],
+  study: [
+    { id: 1, stars: 5, title: "สมองปลอดโปร่ง เหมาะกับการอ่านหนังสือหรือทบทวน", detail: "ช่วงนี้ความจำและสมาธิดีเป็นพิเศษ สิ่งที่เคยเข้าใจยากจะเริ่มปะติดปะต่อกันได้", tip: "ลองจับเวลาอ่านเป็นช่วงสั้นๆ สลับพัก จะดูดซับได้มากกว่าอ่านยาวรวด", luckyNumber: "11", luckyColor: { name: "ฟ้า", hex: "#29b6f6" } },
+    { id: 2, stars: 2, title: "อาจเสียสมาธิง่ายกว่าปกติ", detail: "สิ่งรอบตัวอาจดึงความสนใจไปจากสิ่งที่ควรโฟกัส ทำให้งานที่ตั้งใจไว้ล่าช้า", tip: "ลองหาสถานที่เงียบๆ หรือปิดการแจ้งเตือนชั่วคราวระหว่างอ่านหนังสือ", luckyNumber: "37", luckyColor: { name: "เทา", hex: "#78909c" } },
+    { id: 3, stars: 4, title: "ผลสอบหรือผลงานที่รอคอยมีเกณฑ์ออกมาดี", detail: "ความพยายามที่ทุ่มเทไปเริ่มเห็นผลตอบแทนที่ชัดเจน", tip: "อย่าเพิ่งการ์ดตก ทบทวนรอบสุดท้ายอีกครั้งก่อนถึงเวลาจริง", luckyNumber: "24", luckyColor: { name: "เขียว", hex: "#43a047" } },
+    { id: 4, stars: 3, title: "การเรียนรู้สิ่งใหม่ต้องใช้ความอดทนสักหน่อย", detail: "อาจรู้สึกว่าตามไม่ทันหรือเข้าใจช้ากว่าคนอื่น แต่เป็นเรื่องปกติของช่วงเริ่มต้น", tip: "อย่าเปรียบเทียบกับคนอื่น จังหวะของแต่ละคนไม่เท่ากัน", luckyNumber: "45", luckyColor: { name: "ม่วง", hex: "#8e24aa" } },
+    { id: 5, stars: 4, title: "มีคนช่วยติวหรือให้คำแนะนำดีๆ เข้ามา", detail: "อาจได้รับคำอธิบายหรือมุมมองใหม่ที่ทำให้เข้าใจเรื่องยากๆ ได้ง่ายขึ้น", tip: "อย่าอายที่จะถามเมื่อไม่เข้าใจ จังหวะนี้คนรอบตัวพร้อมช่วยเหลือ", luckyNumber: "06", luckyColor: { name: "ส้ม", hex: "#fb8c00" } },
+  ],
+  travel: [
+    { id: 1, stars: 5, title: "ทริปที่วางแผนไว้มีเกณฑ์ราบรื่นและสนุกกว่าที่คิด", detail: "การเดินทางช่วงนี้เป็นไปตามแผน ไม่ค่อยมีอุปสรรคติดขัด", tip: "เผื่อเวลาก่อนออกเดินทางสักนิด จะช่วยให้ทริปราบรื่นยิ่งขึ้น", luckyNumber: "20", luckyColor: { name: "ฟ้า", hex: "#29b6f6" } },
+    { id: 2, stars: 2, title: "ควรเผื่อเวลาและตรวจสอบเอกสารให้รอบคอบ", detail: "อาจมีความล่าช้าหรือเรื่องจุกจิกเกี่ยวกับตั๋วหรือเอกสารการเดินทาง", tip: "เช็กรายละเอียดการเดินทางล่วงหน้าอีกรอบก่อนออกจากบ้าน", luckyNumber: "42", luckyColor: { name: "เทา", hex: "#78909c" } },
+    { id: 3, stars: 4, title: "มีโอกาสได้ไปในที่ที่ไม่เคยไปมาก่อน", detail: "อาจมีทริปกะทันหันหรือโอกาสเดินทางที่ไม่ได้วางแผนไว้ล่วงหน้า", tip: "เปิดใจลองอะไรใหม่ๆ ระหว่างทาง อาจเจอประสบการณ์ดีๆ โดยไม่คาดคิด", luckyNumber: "15", luckyColor: { name: "ส้ม", hex: "#fb8c00" } },
+    { id: 4, stars: 3, title: "การเดินทางระยะสั้นเหมาะกว่าทริปใหญ่ในตอนนี้", detail: "ช่วงนี้เหมาะกับการพักผ่อนใกล้ๆ มากกว่าการเดินทางไกล", tip: "ลองหาที่เที่ยวใกล้บ้านที่ยังไม่เคยไป อาจได้บรรยากาศดีๆ แบบไม่ต้องเหนื่อยมาก", luckyNumber: "33", luckyColor: { name: "เขียว", hex: "#43a047" } },
+    { id: 5, stars: 5, title: "ทริปนี้อาจเป็นความทรงจำดีๆ ที่จดจำไปอีกนาน", detail: "มีเกณฑ์ได้เจอเรื่องราวหรือผู้คนที่ทำให้การเดินทางครั้งนี้พิเศษกว่าปกติ", tip: "ถ่ายรูปหรือจดบันทึกไว้บ้าง จะได้กลับมาดูแล้วยิ้มทีหลัง", luckyNumber: "28", luckyColor: { name: "ชมพู", hex: "#ec407a" } },
+  ],
+  family: [
+    { id: 1, stars: 5, title: "บรรยากาศในครอบครัวอบอุ่นเป็นพิเศษ", detail: "ช่วงนี้เหมาะกับการใช้เวลาร่วมกับคนในบ้าน ความสัมพันธ์แน่นแฟ้นขึ้น", tip: "ลองชวนคนในครอบครัวทำกิจกรรมร่วมกันสักอย่าง แม้จะเป็นเรื่องเล็กๆ", luckyNumber: "10", luckyColor: { name: "ทอง", hex: "#d4af37" } },
+    { id: 2, stars: 2, title: "อาจมีความเห็นไม่ตรงกันกับคนในบ้านบ้าง", detail: "เรื่องเล็กน้อยในชีวิตประจำวันอาจกลายเป็นความไม่เข้าใจกันได้ง่าย", tip: "ใจเย็นและรับฟังก่อนตัดสิน จะช่วยลดความตึงเครียดในบ้านได้มาก", luckyNumber: "39", luckyColor: { name: "เทา", hex: "#78909c" } },
+    { id: 3, stars: 4, title: "มีข่าวดีเกี่ยวกับคนในครอบครัวเข้ามา", detail: "อาจได้ยินข่าวดีจากญาติพี่น้อง หรือมีเรื่องน่ายินดีเกิดขึ้นในบ้าน", tip: "แบ่งปันความสุขนี้กับคนรอบตัว จะยิ่งทำให้บรรยากาศดีขึ้นไปอีก", luckyNumber: "18", luckyColor: { name: "เขียว", hex: "#43a047" } },
+    { id: 4, stars: 3, title: "ควรให้เวลากับผู้ใหญ่ในบ้านมากขึ้นสักหน่อย", detail: "ช่วงนี้อาจมีคนในบ้านที่ต้องการความใส่ใจจากคุณเป็นพิเศษ", tip: "โทรหาหรือแวะไปเยี่ยมสักครั้ง แม้จะเป็นแค่ช่วงเวลาสั้นๆ ก็มีความหมาย", luckyNumber: "26", luckyColor: { name: "ม่วง", hex: "#8e24aa" } },
+    { id: 5, stars: 4, title: "การพูดคุยเปิดใจจะช่วยกระชับความสัมพันธ์", detail: "เป็นช่วงเวลาที่เหมาะกับการเคลียร์เรื่องค้างคาใจกับคนในครอบครัว", tip: "เลือกจังหวะที่ทุกคนใจเย็น แล้วค่อยๆ พูดคุยกันตรงๆ", luckyNumber: "31", luckyColor: { name: "ฟ้า", hex: "#29b6f6" } },
+  ],
+  luck: [
+    { id: 1, stars: 5, title: "ดวงโชคลาภพุ่งแรง มีเกณฑ์ได้ของขวัญหรือรางวัล", detail: "ช่วงนี้มีลุ้นเรื่องโชคลาภแบบไม่คาดคิด อาจมาในรูปแบบที่ไม่ได้ตั้งใจ", tip: "ลองเสี่ยงโชคเล็กๆ น้อยๆ ดูบ้าง แต่อย่าทุ่มเกินตัว", luckyNumber: "04", luckyColor: { name: "ทอง", hex: "#d4af37" } },
+    { id: 2, stars: 2, title: "โชคลาภช่วงนี้เงียบเหงาไปสักหน่อย", detail: "ยังไม่ใช่จังหวะที่ดวงด้านนี้จะเข้าข้าง ควรใจเย็นรอจังหวะที่เหมาะสม", tip: "ไม่จำเป็นต้องเสี่ยงโชคในช่วงนี้ เก็บแรงไว้ใช้ตอนดวงดีกว่า", luckyNumber: "46", luckyColor: { name: "เทา", hex: "#78909c" } },
+    { id: 3, stars: 4, title: "อาจได้รับของขวัญหรือความช่วยเหลือแบบไม่คาดคิด", detail: "มีเกณฑ์ได้รับน้ำใจหรือสิ่งดีๆ จากคนรอบตัวโดยไม่ได้ร้องขอ", tip: "เปิดใจรับสิ่งดีๆ ที่เข้ามา และอย่าลืมขอบคุณคนที่ให้", luckyNumber: "23", luckyColor: { name: "ชมพู", hex: "#ec407a" } },
+    { id: 4, stars: 3, title: "โชคด้านนี้ขึ้นอยู่กับความกล้าตัดสินใจ", detail: "โอกาสอาจผ่านมาแบบไม่ทันตั้งตัว ต้องอาศัยการตัดสินใจที่รวดเร็ว", tip: "เชื่อสัญชาตญาณตัวเองให้มากขึ้นสักนิดในช่วงนี้", luckyNumber: "50", luckyColor: { name: "ส้ม", hex: "#fb8c00" } },
+    { id: 5, stars: 5, title: "เป็นช่วงที่โชคเข้าข้างแทบทุกเรื่อง", detail: "ไม่ว่าจะเป็นเรื่องเล็กหรือใหญ่ ดวงโดยรวมเอื้อให้สิ่งต่างๆ ลงตัว", tip: "ใช้จังหวะนี้ลงมือทำสิ่งที่ลังเลมานาน โอกาสสำเร็จสูงกว่าปกติ", luckyNumber: "01", luckyColor: { name: "เขียว", hex: "#43a047" } },
+  ],
 };
 
 function loadFortuneState() {
@@ -144,6 +183,11 @@ function loadFortuneState() {
     const raw = localStorage.getItem("toolhub.fortune");
     if (raw) {
       const s = JSON.parse(raw);
+      const savedCats = s.dailyCategories && typeof s.dailyCategories === "object" ? s.dailyCategories : {};
+      const dailyCategories = {};
+      FORTUNE_DAILY_CATEGORIES.forEach((c) => {
+        dailyCategories[c.id] = typeof savedCats[c.id] === "boolean" ? savedCats[c.id] : true;
+      });
       return {
         mode: s.mode === "topic" ? "topic" : "daily",
         dailyLastId: typeof s.dailyLastId === "number" && FORTUNE_DATA.some((f) => f.id === s.dailyLastId) ? s.dailyLastId : null,
@@ -151,6 +195,7 @@ function loadFortuneState() {
           s.topicLast && typeof s.topicLast.topic === "string" && typeof s.topicLast.id === "number"
             ? s.topicLast
             : null,
+        dailyCategories,
         history: Array.isArray(s.history)
           ? s.history.filter(
               (h) =>
@@ -163,7 +208,9 @@ function loadFortuneState() {
       };
     }
   } catch (e) {}
-  return { mode: "daily", dailyLastId: null, topicLast: null, history: [] };
+  const dailyCategories = {};
+  FORTUNE_DAILY_CATEGORIES.forEach((c) => (dailyCategories[c.id] = true));
+  return { mode: "daily", dailyLastId: null, topicLast: null, dailyCategories, history: [] };
 }
 
 function saveFortuneState(state) {
@@ -206,7 +253,7 @@ const FORTUNE_BG_BASE = "#05060a";
 
 function fortuneApplyTint(wrapEl, hex) {
   wrapEl.style.background = hex
-    ? `radial-gradient(circle at 50% 18%, ${fortuneHexToRgba(hex, 0.4)} 0%, ${FORTUNE_BG_BASE} 70%)`
+    ? `radial-gradient(circle at 50% 18%, ${fortuneHexToRgba(hex, 0.85)} 0%, ${fortuneHexToRgba(hex, 0.5)} 32%, ${FORTUNE_BG_BASE} 78%)`
     : FORTUNE_BG_BASE;
 }
 
@@ -225,16 +272,20 @@ function fortuneHistoryButtonHtml(historyCount) {
   return `<button class="fortune-history-fab" id="fortuneHistoryBtn">📜 ประวัติ${historyCount ? ` (${historyCount})` : ""}</button>`;
 }
 
-function fortuneCardHtml(f) {
+function fortuneCardHtml(f, categories) {
+  const cats = categories || { work: true, money: true, love: true, health: true };
+  const rows = [
+    cats.work ? `<div class="fortune-card-row"><span class="fortune-card-label">การงาน</span><span>${f.work}</span></div>` : "",
+    cats.money ? `<div class="fortune-card-row"><span class="fortune-card-label">การเงิน</span><span>${f.money}</span></div>` : "",
+    cats.love ? `<div class="fortune-card-row"><span class="fortune-card-label">ความรัก</span><span>${f.love}</span></div>` : "",
+    cats.health ? `<div class="fortune-card-row"><span class="fortune-card-label">สุขภาพ</span><span>${f.health}</span></div>` : "",
+  ].join("");
   return `
     <div class="fortune-card-id">คำทำนายใบที่ ${f.id}</div>
     <div class="fortune-card-stars">${fortuneStarsHtml(f.stars)}</div>
     <div class="fortune-card-title">${f.title}</div>
     <div class="fortune-card-rows">
-      <div class="fortune-card-row"><span class="fortune-card-label">การงาน</span><span>${f.work}</span></div>
-      <div class="fortune-card-row"><span class="fortune-card-label">การเงิน</span><span>${f.money}</span></div>
-      <div class="fortune-card-row"><span class="fortune-card-label">ความรัก</span><span>${f.love}</span></div>
-      <div class="fortune-card-row"><span class="fortune-card-label">สุขภาพ</span><span>${f.health}</span></div>
+      ${rows || `<div class="fortune-card-row-empty">ยังไม่ได้เลือกหมวดที่จะแสดง</div>`}
     </div>
     <div class="fortune-card-footer">
       <div class="fortune-lucky"><span class="fortune-lucky-label">เลขมงคล</span><span class="fortune-lucky-value">${f.luckyNumber}</span></div>
@@ -275,16 +326,13 @@ function renderFortune(container) {
       });
     });
     container.querySelector("#fortuneHistoryBtn").addEventListener("click", () => {
-      showFortuneHistoryOverlay(state.history, () => {
-        state.history = [];
-        saveFortuneState(state);
-        draw();
-      });
+      showFortuneHistoryOverlay(state, state.mode, draw);
     });
   }
 
   function drawDailyIdle() {
     const last = state.dailyLastId !== null ? FORTUNE_DATA.find((f) => f.id === state.dailyLastId) : null;
+    const dailyHistoryCount = state.history.filter((h) => h.type === "daily").length;
 
     container.innerHTML = `
       <div class="fortune-wrap" id="fortuneWrap">
@@ -293,6 +341,11 @@ function renderFortune(container) {
           <span class="fortune-orb-icon">🔮</span>
         </button>
         <div class="fortune-hint">แตะลูกแก้วเพื่อดูดวง — ดูได้เรื่อยๆ ไม่จำกัดรอบ</div>
+        <div class="fortune-category-row">
+          ${FORTUNE_DAILY_CATEGORIES.map(
+            (c) => `<button class="fortune-category-btn ${state.dailyCategories[c.id] ? "active" : ""}" data-cat="${c.id}">${c.label}</button>`
+          ).join("")}
+        </div>
         ${
           last
             ? `<button class="fortune-last-card" id="fortuneLastCard">
@@ -305,15 +358,28 @@ function renderFortune(container) {
               </button>`
             : ""
         }
-        ${fortuneHistoryButtonHtml(state.history.length)}
+        ${fortuneHistoryButtonHtml(dailyHistoryCount)}
       </div>
     `;
 
     fortuneApplyTint(container.querySelector("#fortuneWrap"), last ? last.luckyColor.hex : null);
     bindModeTabs();
     container.querySelector("#fortuneOrbBtn").addEventListener("click", revealDaily);
+    container.querySelectorAll(".fortune-category-btn[data-cat]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const id = btn.dataset.cat;
+        const activeCount = FORTUNE_DAILY_CATEGORIES.filter((c) => state.dailyCategories[c.id]).length;
+        if (state.dailyCategories[id] && activeCount <= 1) return;
+        state.dailyCategories[id] = !state.dailyCategories[id];
+        saveFortuneState(state);
+        btn.classList.toggle("active");
+      });
+    });
     const lastCard = container.querySelector("#fortuneLastCard");
-    if (lastCard) lastCard.addEventListener("click", () => showFortuneOverlay(fortuneCardHtml(last), "ดูดวงอีกครั้ง", revealDaily));
+    if (lastCard)
+      lastCard.addEventListener("click", () =>
+        showFortuneOverlay(fortuneCardHtml(last, state.dailyCategories), "ดูดวงอีกครั้ง", revealDaily)
+      );
   }
 
   function revealDaily() {
@@ -328,13 +394,14 @@ function renderFortune(container) {
       fortuneHistoryPush(state, { type: "daily", id: picked.id });
       saveFortuneState(state);
       draw();
-      showFortuneOverlay(fortuneCardHtml(picked), "ดูดวงอีกครั้ง", revealDaily);
+      showFortuneOverlay(fortuneCardHtml(picked, state.dailyCategories), "ดูดวงอีกครั้ง", revealDaily);
     }, 700);
   }
 
   function drawTopicIdle() {
     const lastTopic = state.topicLast ? FORTUNE_TOPICS.find((t) => t.id === state.topicLast.topic) : null;
     const lastFortune = state.topicLast ? FORTUNE_TOPIC_DATA[state.topicLast.topic].find((f) => f.id === state.topicLast.id) : null;
+    const topicHistoryCount = state.history.filter((h) => h.type === "topic").length;
 
     container.innerHTML = `
       <div class="fortune-wrap" id="fortuneWrap">
@@ -359,7 +426,7 @@ function renderFortune(container) {
               </button>`
             : ""
         }
-        ${fortuneHistoryButtonHtml(state.history.length)}
+        ${fortuneHistoryButtonHtml(topicHistoryCount)}
       </div>
     `;
 
@@ -414,54 +481,80 @@ function showFortuneOverlay(cardHtml, nextLabel, onNext) {
   overlay.classList.add("show");
 }
 
-// Combined history across both modes, newest first — tapping an entry reopens its full
-// card via showFortuneOverlay (read-only, no "next" button since it's a past reveal).
-function showFortuneHistoryOverlay(history, onClearAll) {
-  const entries = history.map((h) => ({ h, info: fortuneHistoryResolve(h) })).filter((e) => e.info);
+// Scoped to whichever mode ("daily"/"topic") the ประวัติ button was pressed from — the
+// underlying state.history array stays combined (entries already carry a `type` field),
+// this just filters the *view* and scopes delete/clear-all to that type. Mirrors huay.js's
+// live-state-reference + renderList() re-render-in-place pattern so per-item delete never
+// needs to close/reopen the overlay, and the caller's badge count (via draw()) stays in sync.
+function showFortuneHistoryOverlay(state, mode, draw) {
   const overlay = document.createElement("div");
   overlay.className = "fortune-history-overlay reveal-overlay";
   overlay.innerHTML = `
     <div class="fortune-history-panel">
-      <div class="fortune-history-title">ประวัติดูดวง</div>
-      <div class="fortune-history-list">
-        ${
-          entries.length === 0
-            ? `<div class="fortune-history-empty">ยังไม่มีประวัติ</div>`
-            : entries
-                .map(
-                  ({ h, info }, i) => `
-          <button class="fortune-history-item" data-idx="${i}">
-            <span class="fortune-history-item-icon">${info.icon}</span>
-            <span class="fortune-history-item-body">
-              <span class="fortune-history-item-title">${info.title}</span>
-              <span class="fortune-history-item-meta">${info.sub} · ${fortuneStarsHtml(info.stars)}</span>
-            </span>
-            <span class="fortune-history-item-time">${fortuneFormatTime(h.time)}</span>
-          </button>`
-                )
-                .join("")
-        }
-      </div>
-      ${entries.length > 0 ? `<button class="fortune-history-clear-btn" id="fortuneHistoryClearBtn">ล้างประวัติ</button>` : ""}
+      <div class="fortune-history-title">ประวัติดูดวง${mode === "topic" ? " — เฉพาะเรื่อง" : " — ประจำวัน"}</div>
+      <div class="fortune-history-list" id="fortuneHistoryList"></div>
+      <button class="fortune-history-clear-btn" id="fortuneHistoryClearBtn">ล้างประวัติ</button>
     </div>
     <div class="fortune-overlay-hint">แตะที่ไหนก็ได้เพื่อปิด</div>
   `;
   overlay.addEventListener("click", () => overlay.remove());
   overlay.querySelector(".fortune-history-panel").addEventListener("click", (e) => e.stopPropagation());
-  overlay.querySelectorAll(".fortune-history-item").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      const { info } = entries[Number(btn.dataset.idx)];
-      overlay.remove();
-      showFortuneOverlay(info.cardHtml, null, null);
+
+  function getEntries() {
+    return state.history
+      .map((h, origIdx) => ({ h, origIdx, info: fortuneHistoryResolve(h) }))
+      .filter((e) => e.h.type === mode && e.info);
+  }
+
+  function renderList() {
+    const entries = getEntries();
+    const listEl = overlay.querySelector("#fortuneHistoryList");
+    listEl.innerHTML =
+      entries.length === 0
+        ? `<div class="fortune-history-empty">ยังไม่มีประวัติ</div>`
+        : entries
+            .map(
+              ({ h, origIdx, info }) => `
+      <div class="fortune-history-row">
+        <button class="fortune-history-item" data-origidx="${origIdx}">
+          <span class="fortune-history-item-icon">${info.icon}</span>
+          <span class="fortune-history-item-body">
+            <span class="fortune-history-item-title">${info.title}</span>
+            <span class="fortune-history-item-meta">${info.sub} · ${fortuneStarsHtml(info.stars)}</span>
+          </span>
+          <span class="fortune-history-item-time">${fortuneFormatTime(h.time)}</span>
+        </button>
+        <button class="fortune-history-del" data-origidx="${origIdx}">×</button>
+      </div>`
+            )
+            .join("");
+    overlay.querySelector("#fortuneHistoryClearBtn").hidden = entries.length === 0;
+    listEl.querySelectorAll(".fortune-history-item").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const entry = getEntries().find((e) => e.origIdx === Number(btn.dataset.origidx));
+        if (!entry) return;
+        overlay.remove();
+        showFortuneOverlay(entry.info.cardHtml, null, null);
+      });
     });
-  });
-  const clearBtn = overlay.querySelector("#fortuneHistoryClearBtn");
-  if (clearBtn) {
-    clearBtn.addEventListener("click", () => {
-      overlay.remove();
-      onClearAll();
+    listEl.querySelectorAll(".fortune-history-del").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        state.history.splice(Number(btn.dataset.origidx), 1);
+        saveFortuneState(state);
+        draw();
+        renderList();
+      });
     });
   }
+  renderList();
+
+  overlay.querySelector("#fortuneHistoryClearBtn").addEventListener("click", () => {
+    state.history = state.history.filter((h) => h.type !== mode);
+    saveFortuneState(state);
+    draw();
+    renderList();
+  });
+
   document.body.appendChild(overlay);
   void overlay.offsetHeight;
   overlay.classList.add("show");

@@ -3,8 +3,8 @@
    .fortune-wrap's own background is a fixed dark base (set from JS via fortuneApplyTint, not this file) — an
    intentional exception, not theme-following: the mystical backdrop is the screen's own flavor. Every element
    that sits directly on it (not inside its own var(--card)-backed card) needs a fixed color too, not var(--text)/
-   var(--sub) — those flip to dark-on-dark in light themes. .fortune-hint and .fortune-history-fab (pinned to the
-   bottom of the screen via margin-top:auto) are the only two; the cards in between
+   var(--sub) — those flip to dark-on-dark in light themes. .fortune-hint, .fortune-category-btn, and
+   .fortune-history-fab (pinned to the bottom of the screen via margin-top:auto) are the ones that do; the cards in between
    (.fortune-last-card, .fortune-topic-btn, .fortune-topic-tip) carry their own var(--card)/var(--card-hi)
    background+text pairing so they stay self-consistent per theme same as .fortune-overlay-card already does. */
 
@@ -149,6 +149,30 @@
   text-align: center;
 }
 
+.fortune-category-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+
+.fortune-category-btn {
+  background: none;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: rgba(255, 255, 255, 0.55);
+  border-radius: var(--radius-pill);
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.fortune-category-btn.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
 .fortune-last-card {
   width: 100%;
   max-width: 340px;
@@ -281,6 +305,13 @@
   color: var(--accent);
 }
 
+.fortune-card-row-empty {
+  font-size: 13px;
+  color: var(--sub);
+  font-style: italic;
+  text-align: center;
+}
+
 .fortune-card-footer {
   width: 100%;
   display: flex;
@@ -379,7 +410,15 @@
   gap: 6px;
 }
 
+.fortune-history-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
 .fortune-history-item {
+  flex: 1;
+  min-width: 0;
   display: flex;
   align-items: center;
   gap: 10px;
@@ -388,6 +427,17 @@
   border-radius: var(--radius-md);
   padding: 8px 10px;
   text-align: left;
+  cursor: pointer;
+}
+
+.fortune-history-del {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  color: var(--sub);
+  font-size: 16px;
+  width: 26px;
+  height: 26px;
   cursor: pointer;
 }
 

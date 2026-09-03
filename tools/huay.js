@@ -147,11 +147,7 @@ function renderHuay(container) {
     });
 
     container.querySelector("#huayHistoryBtn").addEventListener("click", () => {
-      showHuayHistoryOverlay(state.history, () => {
-        state.history = [];
-        saveHuayState(state);
-        draw();
-      });
+      showHuayHistoryOverlay(state, draw);
     });
 
     container.querySelector("#huayDrawBtn").addEventListener("click", rollHuay);
@@ -196,40 +192,58 @@ function showHuayOverlay(value, onRollAgain) {
   overlay.classList.add("show");
 }
 
-function showHuayHistoryOverlay(history, onClearAll) {
+// Takes the live หวย state (not a copy) so per-item delete + clear-all can mutate it directly
+// and re-render just the list in place, without closing/reopening the overlay. `draw` is the
+// caller's own re-render function, called after every change so the "ประวัติ (N)" badge behind
+// the overlay stays in sync too.
+function showHuayHistoryOverlay(state, draw) {
   const overlay = document.createElement("div");
   overlay.className = "huay-lockpicker-overlay reveal-overlay";
   overlay.innerHTML = `
     <div class="huay-lockpicker-panel huay-history-panel">
       <div class="huay-lockpicker-title">ประวัติการสุ่ม</div>
-      <div class="huay-history-list">
-        ${
-          history.length === 0
-            ? `<div class="huay-history-empty">ยังไม่มีประวัติ</div>`
-            : history
-                .map(
-                  (h) => `
-          <div class="huay-history-item">
-            <span class="huay-history-value">${h.value}</span>
-            <span class="huay-history-time">${huayFormatTime(h.time)}</span>
-          </div>`
-                )
-                .join("")
-        }
-      </div>
-      ${history.length > 0 ? `<button class="huay-lockpicker-unlock" id="huayHistoryClearBtn">ล้างประวัติ</button>` : ""}
+      <div class="huay-history-list" id="huayHistoryList"></div>
+      <button class="huay-lockpicker-unlock" id="huayHistoryClearBtn">ล้างประวัติ</button>
     </div>
     <div class="huay-overlay-hint">แตะที่ไหนก็ได้เพื่อปิด</div>
   `;
   overlay.addEventListener("click", () => overlay.remove());
   overlay.querySelector(".huay-lockpicker-panel").addEventListener("click", (e) => e.stopPropagation());
-  const clearBtn = overlay.querySelector("#huayHistoryClearBtn");
-  if (clearBtn) {
-    clearBtn.addEventListener("click", () => {
-      overlay.remove();
-      onClearAll();
+
+  function renderList() {
+    const listEl = overlay.querySelector("#huayHistoryList");
+    listEl.innerHTML =
+      state.history.length === 0
+        ? `<div class="huay-history-empty">ยังไม่มีประวัติ</div>`
+        : state.history
+            .map(
+              (h, i) => `
+      <div class="huay-history-item">
+        <span class="huay-history-value">${h.value}</span>
+        <span class="huay-history-time">${huayFormatTime(h.time)}</span>
+        <button class="huay-history-del" data-i="${i}">×</button>
+      </div>`
+            )
+            .join("");
+    overlay.querySelector("#huayHistoryClearBtn").hidden = state.history.length === 0;
+    listEl.querySelectorAll(".huay-history-del").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        state.history.splice(Number(btn.dataset.i), 1);
+        saveHuayState(state);
+        draw();
+        renderList();
+      });
     });
   }
+  renderList();
+
+  overlay.querySelector("#huayHistoryClearBtn").addEventListener("click", () => {
+    state.history = [];
+    saveHuayState(state);
+    draw();
+    renderList();
+  });
+
   document.body.appendChild(overlay);
   void overlay.offsetHeight;
   overlay.classList.add("show");
