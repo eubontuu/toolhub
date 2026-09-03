@@ -8,6 +8,7 @@ const GAME_TABS = [
   { id: "mathquiz", label: "คิดเลขเร็ว", icon: "🧮" },
   { id: "sudoku", label: "ซูโดกุ", icon: "🧩" },
   { id: "2048", label: "2048", icon: "🔢" },
+  { id: "game24", label: "เกม 24", icon: "🎯" },
 ];
 
 const GAMES_DEFAULT_STATE = { tab: null };
@@ -99,7 +100,8 @@ function renderGamesShell(container, state, draw) {
   else if (state.tab === "jumpking") renderJumpKing(body);
   else if (state.tab === "mathquiz") renderMathQuiz(body);
   else if (state.tab === "sudoku") renderSudoku(body);
-  else render2048(body);
+  else if (state.tab === "2048") render2048(body);
+  else renderGame24(body);
 }
 
 // Full-screen grid of every เกม tab — opened via "เกมทั้งหมด" next to the tabbar toggle.

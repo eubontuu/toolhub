@@ -257,10 +257,9 @@ function renderJumpKing(container) {
 
       if (player.worldY < bestWorldY) {
         bestWorldY = player.worldY;
-        const heightM = Math.round(-bestWorldY / JUMPKING_PX_PER_M);
-        scoreEl.textContent = String(heightM);
-        if (heightM > highScore) {
-          highScore = heightM;
+        const bestHeightM = Math.round(-bestWorldY / JUMPKING_PX_PER_M);
+        if (bestHeightM > highScore) {
+          highScore = bestHeightM;
           saveJumpKingHighScore(highScore);
           highScoreEl.textContent = String(highScore);
         }
@@ -297,6 +296,10 @@ function renderJumpKing(container) {
     }
 
     updateWind(now, dt, Math.round(-bestWorldY / JUMPKING_PX_PER_M));
+
+    // "ความสูง" tracks the player's current position (falls back down when they fall) —
+    // "สูงสุด" (highScore) is the separate all-time ratcheted record, untouched here.
+    scoreEl.textContent = String(Math.max(0, Math.round(-player.worldY / JUMPKING_PX_PER_M)));
 
     const targetCam = player.worldY - CANVAS_H * 0.55;
     const eased = camY + (targetCam - camY) * 0.12 * Math.min(1, dt);

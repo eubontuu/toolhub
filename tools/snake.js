@@ -155,10 +155,22 @@ function renderSnake(container) {
   }
 
   startBtn.addEventListener("click", startGame);
-  container.querySelector("#snakeUp").addEventListener("click", () => setDir(0, -1));
-  container.querySelector("#snakeDown").addEventListener("click", () => setDir(0, 1));
-  container.querySelector("#snakeLeft").addEventListener("click", () => setDir(-1, 0));
-  container.querySelector("#snakeRight").addEventListener("click", () => setDir(1, 0));
+
+  // pointerdown instead of click — fires the instant a finger/cursor touches down instead of
+  // waiting for release, so direction changes register faster during quick play.
+  // preventDefault stops iOS Safari's long-press text-selection callout from popping up
+  // during rapid taps (same fix already used on Jump King's control buttons).
+  function bindDpadBtn(id, x, y) {
+    const btn = container.querySelector(id);
+    btn.addEventListener("pointerdown", (e) => {
+      e.preventDefault();
+      setDir(x, y);
+    });
+  }
+  bindDpadBtn("#snakeUp", 0, -1);
+  bindDpadBtn("#snakeDown", 0, 1);
+  bindDpadBtn("#snakeLeft", -1, 0);
+  bindDpadBtn("#snakeRight", 1, 0);
 
   let touchStartX = 0;
   let touchStartY = 0;

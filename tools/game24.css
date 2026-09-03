@@ -1,0 +1,258 @@
+/* เกม 24 — tab in the เกม hub */
+
+.g24-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  padding: 16px 20px calc(var(--safe-bottom) + 16px);
+  align-items: center;
+  gap: 14px;
+}
+
+.g24-idle {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  text-align: center;
+  width: 100%;
+  padding: 32px 20px;
+}
+
+.g24-idle-title {
+  font-size: 20px;
+  font-weight: 800;
+}
+
+.g24-idle-sub {
+  font-size: 13px;
+  color: var(--sub);
+  max-width: 240px;
+}
+
+.g24-mode-row,
+.g24-adv-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.g24-mode-btn,
+.g24-adv-btn {
+  background: var(--card-hi);
+  border: none;
+  color: var(--sub);
+  border-radius: var(--radius-pill);
+  padding: 8px 16px;
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.g24-mode-btn.active,
+.g24-adv-btn.active {
+  background: var(--accent);
+  color: #fff;
+}
+
+.g24-adv-label {
+  font-size: 12px;
+  color: var(--sub);
+}
+
+.g24-adv-hint {
+  font-size: 12px;
+  color: var(--sub);
+  max-width: 260px;
+}
+
+.g24-start-btn {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  font-size: 14.5px;
+  font-weight: 700;
+  padding: 12px 28px;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  margin-top: 4px;
+}
+
+.g24-loading {
+  padding: 60px 20px;
+  text-align: center;
+  color: var(--sub);
+  font-size: 14px;
+}
+
+.g24-score-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 320px;
+  font-size: 13px;
+  color: var(--sub);
+}
+
+.g24-score-row b {
+  color: var(--text);
+  font-size: 17px;
+}
+
+.g24-new-btn {
+  background: var(--card-hi);
+  border: none;
+  color: var(--sub);
+  border-radius: var(--radius-pill);
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.g24-board-wrap {
+  position: relative;
+  width: 100%;
+  max-width: 320px;
+  flex: 1;
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  background: var(--card);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.g24-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+
+.g24-chip {
+  min-width: 56px;
+  height: 56px;
+  padding: 0 10px;
+  background: var(--card-hi);
+  border: none;
+  border-radius: var(--radius-md);
+  color: var(--text);
+  font-size: 18px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+}
+
+.g24-chip.selected {
+  background: var(--accent);
+  color: #fff;
+}
+
+.g24-op-row {
+  display: flex;
+  gap: 10px;
+}
+
+.g24-op-btn {
+  width: 48px;
+  height: 48px;
+  background: var(--card-hi);
+  border: none;
+  border-radius: var(--radius-circle);
+  color: var(--text);
+  font-size: 20px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.g24-op-btn:active {
+  background: var(--accent);
+  color: #fff;
+}
+
+.g24-op-btn:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.g24-hint {
+  font-size: 12.5px;
+  color: var(--sub);
+  text-align: center;
+  min-height: 1em;
+}
+
+.g24-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: rgba(0, 0, 0, 0.6);
+  border-radius: var(--radius-lg);
+  text-align: center;
+  padding: 20px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--duration-base) ease;
+}
+
+.g24-overlay.show {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.g24-overlay-title {
+  font-size: 18px;
+  font-weight: 800;
+  color: #fff;
+}
+
+.g24-overlay-sub {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.75);
+  max-width: 260px;
+}
+
+.g24-overlay-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.g24-controls-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.g24-secondary-btn {
+  background: var(--card-hi);
+  border: none;
+  color: var(--sub);
+  border-radius: var(--radius-pill);
+  padding: 10px 16px;
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.g24-secondary-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}

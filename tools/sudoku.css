@@ -1,6 +1,10 @@
-/* ซูโดกุ — tab in the เกม hub */
+/* ซูโดกุ — tab in the เกม hub. --sudoku-note-color is a fixed literal (amber), not
+   theme-derived — notes need to read as visually distinct from both the given clues
+   (var(--text)) and the player's own answers (var(--accent)) at a glance, and tying it to
+   --accent (as before) meant notes vs. answers were the same hue at different opacity. */
 
 .sudoku-body {
+  --sudoku-note-color: #f0ad2e;
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -132,8 +136,7 @@
 }
 
 .sudoku-legend-note {
-  background: var(--accent);
-  opacity: 0.75;
+  background: var(--sudoku-note-color);
 }
 
 .sudoku-board-wrap {
@@ -213,9 +216,8 @@
   align-items: center;
   justify-content: center;
   font-size: 8px;
-  font-weight: 700;
-  color: var(--accent);
-  opacity: 0.75;
+  font-weight: 800;
+  color: var(--sudoku-note-color);
 }
 
 .sudoku-cell.selected .sudoku-notes span {

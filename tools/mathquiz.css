@@ -227,6 +227,17 @@
   max-width: 260px;
 }
 
+.math-overlay-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.math-overlay-actions .math-start-btn {
+  margin-top: 0;
+}
+
 .math-start-btn {
   background: var(--accent);
   color: #fff;

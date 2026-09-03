@@ -163,7 +163,10 @@ function renderMathQuiz(container) {
         <div class="math-overlay" id="mathOverlay">
           <div class="math-overlay-title" id="mathOverlayTitle"></div>
           <div class="math-overlay-sub" id="mathOverlaySub"></div>
-          <button class="math-start-btn" id="mathRestartBtn">เล่นใหม่</button>
+          <div class="math-overlay-actions">
+            <button class="math-start-btn" id="mathRestartBtn">เล่นใหม่</button>
+            <button class="math-giveup-btn" id="mathSettingsBtn">ตั้งค่า</button>
+          </div>
         </div>
       </div>
     </div>
@@ -416,6 +419,10 @@ function renderMathQuiz(container) {
   }
 
   container.querySelector("#mathRestartBtn").addEventListener("click", startRun);
+  container.querySelector("#mathSettingsBtn").addEventListener("click", () => {
+    overlay.classList.remove("show");
+    showIdle();
+  });
 
   showIdle();
 }
