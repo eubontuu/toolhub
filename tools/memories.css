@@ -148,33 +148,143 @@
   margin-top: -8px;
 }
 
-.memories-pages {
+.memories-book-actions {
   display: flex;
-  flex-direction: column;
-  gap: 12px;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
 }
 
-.memories-page-card {
-  position: relative;
+.memories-viewonly-toggle {
+  background: var(--card-hi);
+  border: none;
+  color: var(--sub);
+  border-radius: var(--radius-pill);
+  padding: 6px 10px;
+  font-size: 11.5px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.memories-viewonly-toggle.active {
+  background: var(--accent);
+  color: #fff;
+}
+
+.memories-add-page-btn-sm {
+  flex-shrink: 0;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-pill);
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+/* ---------- Two-page spread (open-book layout) ---------- */
+
+.memories-spread {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: stretch;
+  gap: 0;
   background: var(--card);
   border-radius: var(--radius-md);
-  padding: 14px 16px;
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+}
+
+.memories-spread-page {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  padding: 14px 14px 40px;
   display: flex;
   flex-direction: column;
   gap: 8px;
-  animation: memories-page-in 0.45s var(--ease-bounce, ease) both;
+  overflow-y: auto;
 }
 
-@keyframes memories-page-in {
+.memories-spread-page.clickable {
+  cursor: pointer;
+}
+
+.memories-spread-page.empty {
+  align-items: center;
+  justify-content: center;
+}
+
+.memories-spread-gutter {
+  flex-shrink: 0;
+  width: 2px;
+  background: linear-gradient(to bottom, transparent, var(--hairline) 15%, var(--hairline) 85%, transparent);
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.25);
+}
+
+@keyframes memories-spread-in-fwd {
   0% {
     opacity: 0;
-    transform: translateY(18px) rotateX(-8deg) scale(0.97);
+    transform: translateX(20px) rotateY(-8deg);
   }
   100% {
     opacity: 1;
-    transform: translateY(0) rotateX(0) scale(1);
+    transform: translateX(0) rotateY(0);
   }
+}
+
+@keyframes memories-spread-in-back {
+  0% {
+    opacity: 0;
+    transform: translateX(-20px) rotateY(8deg);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0) rotateY(0);
+  }
+}
+
+.memories-spread.dir-fwd .memories-spread-page {
+  animation: memories-spread-in-fwd 0.35s ease both;
+}
+
+.memories-spread.dir-back .memories-spread-page {
+  animation: memories-spread-in-back 0.35s ease both;
+}
+
+.memories-spread-pager {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+}
+
+.memories-spread-nav {
+  background: var(--card-hi);
+  border: none;
+  color: var(--text);
+  border-radius: var(--radius-circle);
+  width: 36px;
+  height: 36px;
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.memories-spread-nav:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.memories-spread-pager-label {
+  font-size: 12px;
+  color: var(--sub);
+  white-space: nowrap;
 }
 
 .memories-page-num {
@@ -189,6 +299,7 @@
   position: absolute;
   top: 8px;
   right: 8px;
+  z-index: 1;
   background: none;
   border: none;
   color: var(--sub);
@@ -198,29 +309,35 @@
   cursor: pointer;
 }
 
+.memories-page-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
 .memories-page-photo {
   width: 100%;
-  max-height: 320px;
+  max-height: 220px;
   object-fit: cover;
   border-radius: var(--radius-sm);
 }
 
 .memories-page-text {
-  font-size: 14.5px;
+  font-size: 13.5px;
   line-height: 1.5;
   word-break: break-word;
   white-space: pre-wrap;
 }
 
 .memories-page-impression {
-  font-size: 13px;
+  font-size: 12.5px;
   font-style: italic;
   color: var(--accent);
   word-break: break-word;
 }
 
 .memories-page-meta {
-  font-size: 11.5px;
+  font-size: 11px;
   color: var(--sub);
 }
 
@@ -235,6 +352,10 @@
   font-weight: 700;
   cursor: pointer;
   margin-top: 4px;
+}
+
+.memories-add-page-placeholder {
+  margin-top: 0;
 }
 
 /* Book-opening entrance — perspective lives on the page container so the flip has depth. */

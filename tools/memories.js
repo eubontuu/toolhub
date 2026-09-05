@@ -15,6 +15,7 @@ function loadMemoriesState() {
     if (raw) {
       const state = JSON.parse(raw);
       if (!Array.isArray(state.books)) state.books = [];
+      if (typeof state.viewOnly !== "boolean") state.viewOnly = false;
       state.books.forEach((b) => {
         if (!Array.isArray(b.pages)) b.pages = [];
         if (typeof b.cover !== "string") b.cover = "";
@@ -22,7 +23,7 @@ function loadMemoriesState() {
       return state;
     }
   } catch (e) {}
-  return { books: [] };
+  return { books: [], viewOnly: false };
 }
 
 function saveMemoriesState(state) {
@@ -113,6 +114,8 @@ function memoriesSetupPhotoPicker(panel, { inputId, previewId, labelId, labelIdl
 function renderMemories(container) {
   const state = loadMemoriesState();
   let viewBookId = null;
+  let spreadIndex = 0;
+  let spreadDir = "fwd";
 
   function draw() {
     const book = viewBookId ? state.books.find((b) => b.id === viewBookId) : null;
@@ -156,6 +159,8 @@ function renderMemories(container) {
       el.addEventListener("click", (e) => {
         if (e.target.closest(".memories-book-del")) return;
         viewBookId = el.dataset.id;
+        spreadIndex = 0;
+        spreadDir = "fwd";
         draw();
       });
     });
@@ -173,46 +178,91 @@ function renderMemories(container) {
         state.books.push(book);
         saveMemoriesState(state);
         viewBookId = book.id;
+        spreadIndex = 0;
+        spreadDir = "fwd";
         draw();
       });
     });
   }
 
+  // Inner markup for one spread slot's page content (photo/text/impression/meta) — shared
+  // by the left and right slot, whichever page index they happen to hold.
+  function pageSlotInner(p, idx) {
+    const meta = [];
+    const dateLabel = formatMemoriesDate(p.date);
+    if (dateLabel) meta.push(`📅 ${dateLabel}${p.time ? ` ${p.time}` : ""}`);
+    if (p.location) meta.push(`📍 ${p.location}`);
+    return `
+      <div class="memories-page-num">หน้า ${idx + 1}</div>
+      <button class="memories-page-del" data-id="${p.id}" aria-label="ลบหน้านี้">×</button>
+      <div class="memories-page-content">
+        ${p.photo ? `<img class="memories-page-photo" src="${p.photo}" alt="" />` : ""}
+        ${p.text ? `<div class="memories-page-text">${p.text}</div>` : ""}
+        ${p.impression ? `<div class="memories-page-impression">💭 ${p.impression}</div>` : ""}
+        ${meta.length ? `<div class="memories-page-meta">${meta.join(" · ")}</div>` : ""}
+      </div>
+    `;
+  }
+
+  function openPageEditor(book, page) {
+    showMemoriesPageForm(page, (updated) => {
+      const idx = book.pages.findIndex((pg) => pg.id === page.id);
+      if (idx !== -1) book.pages[idx] = updated;
+      saveMemoriesState(state);
+      draw();
+    });
+  }
+
   function drawBook(book) {
+    const totalPages = book.pages.length;
+    const totalSpreads = Math.max(1, Math.ceil(totalPages / 2));
+    if (spreadIndex >= totalSpreads) spreadIndex = totalSpreads - 1;
+    if (spreadIndex < 0) spreadIndex = 0;
+    const leftPage = book.pages[spreadIndex * 2];
+    const rightPage = book.pages[spreadIndex * 2 + 1];
+    const hasPrev = spreadIndex > 0;
+    const hasNext = (spreadIndex + 1) * 2 < totalPages;
+    const viewOnly = state.viewOnly;
+
     container.innerHTML = `
       <div class="memories-page memories-book-open">
         <button class="memories-back-btn" id="memoriesBackBtn">‹ ทุกความทรงจำ</button>
         <div class="memories-book-header">
           <div class="memories-book-title">${book.name}</div>
-          <button class="memories-edit-btn" id="memoriesEditBtn" aria-label="แก้ไข">✎ แก้ไข</button>
+          <div class="memories-book-actions">
+            <button class="memories-viewonly-toggle ${viewOnly ? "active" : ""}" id="memoriesViewOnlyBtn">👁️ ดูอย่างเดียว</button>
+            <button class="memories-add-page-btn-sm memories-add-page-trigger" id="memoriesAddPageBtnHeader">+ หน้า</button>
+            <button class="memories-edit-btn" id="memoriesEditBtn" aria-label="แก้ไข">✎ แก้ไข</button>
+          </div>
         </div>
         ${book.details ? `<div class="memories-book-details">${book.details}</div>` : ""}
-        <div class="memories-pages" id="memoriesPages">
-          ${
-            book.pages.length === 0
-              ? `<div class="memories-empty">ยังไม่มีหน้า — เพิ่มความทรงจำแรกของเล่มนี้กันเลย</div>`
-              : book.pages
-                  .map((p, i) => {
-                    const meta = [];
-                    const dateLabel = formatMemoriesDate(p.date);
-                    if (dateLabel) meta.push(`📅 ${dateLabel}${p.time ? ` ${p.time}` : ""}`);
-                    if (p.location) meta.push(`📍 ${p.location}`);
-                    const delay = (Math.min(i, 10) * 0.06).toFixed(2);
-                    return `
-              <div class="memories-page-card" style="animation-delay: ${delay}s">
-                <div class="memories-page-num">หน้า ${i + 1}</div>
-                <button class="memories-page-del" data-id="${p.id}" aria-label="ลบหน้านี้">×</button>
-                ${p.photo ? `<img class="memories-page-photo" src="${p.photo}" alt="" />` : ""}
-                ${p.text ? `<div class="memories-page-text">${p.text}</div>` : ""}
-                ${p.impression ? `<div class="memories-page-impression">💭 ${p.impression}</div>` : ""}
-                ${meta.length ? `<div class="memories-page-meta">${meta.join(" · ")}</div>` : ""}
-              </div>
-            `;
-                  })
-                  .join("")
-          }
+        ${
+          totalPages === 0
+            ? `
+        <div class="memories-empty">ยังไม่มีหน้า — เพิ่มความทรงจำแรกของเล่มนี้กันเลย</div>
+        <button class="memories-add-page-btn memories-add-page-trigger" id="memoriesAddPageBtnEmpty">+ เพิ่มหน้าใหม่</button>
+        `
+            : `
+        <div class="memories-spread ${spreadDir === "back" ? "dir-back" : "dir-fwd"}">
+          <div class="memories-spread-page left ${leftPage && !viewOnly ? "clickable" : ""}" id="memoriesSpreadLeft">
+            ${leftPage ? pageSlotInner(leftPage, spreadIndex * 2) : ""}
+          </div>
+          <div class="memories-spread-gutter"></div>
+          <div class="memories-spread-page right ${rightPage ? (!viewOnly ? "clickable" : "") : "empty"}" id="memoriesSpreadRight">
+            ${
+              rightPage
+                ? pageSlotInner(rightPage, spreadIndex * 2 + 1)
+                : `<button class="memories-add-page-btn memories-add-page-placeholder memories-add-page-trigger">+ เพิ่มหน้าใหม่</button>`
+            }
+          </div>
         </div>
-        <button class="memories-add-page-btn" id="memoriesAddPageBtn">+ เพิ่มหน้าใหม่</button>
+        <div class="memories-spread-pager">
+          <button class="memories-spread-nav" id="memoriesPrevBtn" ${!hasPrev ? "disabled" : ""} aria-label="หน้าก่อนหน้า">‹</button>
+          <span class="memories-spread-pager-label">หน้า ${spreadIndex * 2 + 1}${rightPage ? `-${spreadIndex * 2 + 2}` : ""} จาก ${totalPages}</span>
+          <button class="memories-spread-nav" id="memoriesNextBtn" ${!hasNext ? "disabled" : ""} aria-label="หน้าถัดไป">›</button>
+        </div>
+        `
+        }
       </div>
     `;
 
@@ -229,23 +279,85 @@ function renderMemories(container) {
         draw();
       });
     });
+    container.querySelector("#memoriesViewOnlyBtn").addEventListener("click", () => {
+      state.viewOnly = !state.viewOnly;
+      saveMemoriesState(state);
+      draw();
+    });
     container.querySelectorAll(".memories-page-del").forEach((btn) => {
-      btn.addEventListener("click", () => {
+      btn.addEventListener("click", (e) => {
+        e.stopPropagation();
         book.pages = book.pages.filter((p) => p.id !== btn.dataset.id);
         saveMemoriesState(state);
         draw();
       });
     });
-    container.querySelector("#memoriesAddPageBtn").addEventListener("click", () => {
-      showMemoriesPageForm((page) => {
-        book.pages.push(page);
-        saveMemoriesState(state);
-        draw();
-        const cards = container.querySelectorAll(".memories-page-card");
-        const last = cards[cards.length - 1];
-        if (last) last.scrollIntoView({ behavior: "smooth", block: "end" });
+    container.querySelectorAll(".memories-add-page-trigger").forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        showMemoriesPageForm(null, (page) => {
+          book.pages.push(page);
+          saveMemoriesState(state);
+          spreadIndex = Math.floor((book.pages.length - 1) / 2);
+          spreadDir = "fwd";
+          draw();
+        });
       });
     });
+
+    const prevBtn = container.querySelector("#memoriesPrevBtn");
+    if (prevBtn) {
+      prevBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        if (!hasPrev) return;
+        spreadIndex--;
+        spreadDir = "back";
+        draw();
+      });
+    }
+    const nextBtn = container.querySelector("#memoriesNextBtn");
+    if (nextBtn) {
+      nextBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        if (!hasNext) return;
+        spreadIndex++;
+        spreadDir = "fwd";
+        draw();
+      });
+    }
+
+    const leftEl = container.querySelector("#memoriesSpreadLeft");
+    const rightEl = container.querySelector("#memoriesSpreadRight");
+    if (leftEl) {
+      leftEl.addEventListener("click", (e) => {
+        if (e.target.closest(".memories-page-del")) return;
+        if (!leftPage) return;
+        if (viewOnly) {
+          if (hasPrev) {
+            spreadIndex--;
+            spreadDir = "back";
+            draw();
+          }
+        } else {
+          openPageEditor(book, leftPage);
+        }
+      });
+    }
+    if (rightEl) {
+      rightEl.addEventListener("click", (e) => {
+        if (e.target.closest(".memories-page-del") || e.target.closest(".memories-add-page-placeholder")) return;
+        if (!rightPage) return;
+        if (viewOnly) {
+          if (hasNext) {
+            spreadIndex++;
+            spreadDir = "fwd";
+            draw();
+          }
+        } else {
+          openPageEditor(book, rightPage);
+        }
+      });
+    }
   }
 
   draw();
@@ -304,12 +416,14 @@ function showMemoriesBookForm(book, onSave) {
   nameInput.focus();
 }
 
-function showMemoriesPageForm(onSave) {
+// existingPage: null → create a new page, or an existing page object → edit it in place
+// (id/createdAt are preserved). onSave(page) receives the finished page object either way.
+function showMemoriesPageForm(existingPage, onSave) {
   const overlay = document.createElement("div");
   overlay.className = "memories-form-overlay reveal-overlay";
   overlay.innerHTML = `
     <div class="memories-form-panel">
-      <div class="memories-form-title">เพิ่มหน้าใหม่</div>
+      <div class="memories-form-title">${existingPage ? "แก้ไขหน้านี้" : "เพิ่มหน้าใหม่"}</div>
       <label class="memories-photo-picker" id="memoriesPhotoPicker">
         <span id="memoriesPhotoPickerLabel">📷 เพิ่มรูปภาพ (ไม่บังคับ)</span>
         <img id="memoriesPhotoPreview" class="memories-photo-preview" hidden />
@@ -322,14 +436,28 @@ function showMemoriesPageForm(onSave) {
         <input type="time" id="memoriesTimeInput" class="memories-form-input" />
       </div>
       <input type="text" id="memoriesLocationInput" class="memories-form-input" placeholder="📍 สถานที่ (ไม่บังคับ)" maxlength="80" />
-      <button class="memories-form-submit" id="memoriesFormSubmit">บันทึกหน้านี้</button>
+      <button class="memories-form-submit" id="memoriesFormSubmit">${existingPage ? "บันทึกการแก้ไข" : "บันทึกหน้านี้"}</button>
     </div>
   `;
   overlay.addEventListener("click", () => overlay.remove());
   overlay.querySelector(".memories-form-panel").addEventListener("click", (e) => e.stopPropagation());
 
-  overlay.querySelector("#memoriesDateInput").value = memoriesToday();
-  overlay.querySelector("#memoriesTimeInput").value = memoriesNowTime();
+  const textInput = overlay.querySelector("#memoriesTextInput");
+  const impressionInput = overlay.querySelector("#memoriesImpressionInput");
+  const dateInput = overlay.querySelector("#memoriesDateInput");
+  const timeInput = overlay.querySelector("#memoriesTimeInput");
+  const locationInput = overlay.querySelector("#memoriesLocationInput");
+
+  if (existingPage) {
+    textInput.value = existingPage.text || "";
+    impressionInput.value = existingPage.impression || "";
+    dateInput.value = existingPage.date || memoriesToday();
+    timeInput.value = existingPage.time || "";
+    locationInput.value = existingPage.location || "";
+  } else {
+    dateInput.value = memoriesToday();
+    timeInput.value = memoriesNowTime();
+  }
 
   const getPhoto = memoriesSetupPhotoPicker(overlay, {
     inputId: "memoriesPhotoInput",
@@ -338,25 +466,25 @@ function showMemoriesPageForm(onSave) {
     labelIdle: "📷 เพิ่มรูปภาพ (ไม่บังคับ)",
     labelBusy: "กำลังประมวลผลรูป...",
     labelChange: "📷 เปลี่ยนรูปภาพ",
-    initial: "",
+    initial: existingPage ? existingPage.photo : "",
   });
 
   overlay.querySelector("#memoriesFormSubmit").addEventListener("click", () => {
-    const text = overlay.querySelector("#memoriesTextInput").value.trim();
+    const text = textInput.value.trim();
     const photo = getPhoto();
     if (!text && !photo) {
-      overlay.querySelector("#memoriesTextInput").focus();
+      textInput.focus();
       return;
     }
     const page = {
-      id: makeMemoriesId(),
+      id: existingPage ? existingPage.id : makeMemoriesId(),
       text,
       photo,
-      impression: overlay.querySelector("#memoriesImpressionInput").value.trim(),
-      date: overlay.querySelector("#memoriesDateInput").value || "",
-      time: overlay.querySelector("#memoriesTimeInput").value || "",
-      location: overlay.querySelector("#memoriesLocationInput").value.trim(),
-      createdAt: Date.now(),
+      impression: impressionInput.value.trim(),
+      date: dateInput.value || "",
+      time: timeInput.value || "",
+      location: locationInput.value.trim(),
+      createdAt: existingPage ? existingPage.createdAt : Date.now(),
     };
     overlay.remove();
     onSave(page);
