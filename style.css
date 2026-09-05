@@ -283,12 +283,27 @@ html, body {
 .sidebar-nav {
   display: flex;
   flex-direction: column;
+  gap: 14px;
+}
+
+.sidebar-group {
+  display: flex;
+  flex-direction: column;
   gap: 4px;
 }
 
-/* pinned to the bottom of the sidebar via margin-top: auto on the flex column, regardless of how many APPS entries are above it */
+.sidebar-group-label {
+  padding: 2px 12px 4px;
+  font-size: 10.5px;
+  font-weight: 800;
+  color: var(--sub);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+/* Sits right after the nav groups (not pinned to the sidebar's full viewport height) —
+   pinning it via margin-top: auto left a large dead gap below a short APPS list. */
 .sidebar-footer {
-  margin-top: auto;
   padding-top: 12px;
   border-top: 1px solid var(--hairline);
 }

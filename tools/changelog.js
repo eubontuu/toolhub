@@ -6,6 +6,13 @@ const CHANGELOG_TAG_LABEL = { added: "เพิ่ม", changed: "แก้ไ�
 
 const CHANGELOG_DATA = [
   {
+    version: "v97",
+    date: "5 ก.ย. 2569",
+    items: [
+      { type: "changed", text: "จัดหมวดเมนูด้านข้างใหม่ให้เป็นระเบียบ — แยกเป็น \"เครื่องมือ\" กับ \"ความบันเทิง\" และย้าย \"การอัปเดต\" ให้ติดกับเมนูแทนที่จะลอยอยู่ล่างสุด" },
+    ],
+  },
+  {
     version: "v96",
     date: "5 ก.ย. 2569",
     items: [

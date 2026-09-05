@@ -54,6 +54,13 @@ const APPS = [
   },
 ];
 
+// Sidebar grouping only — purely presentational, doesn't affect APPS/routing/quickstart.
+// New app → add its id to a group here too, or it silently falls through ungrouped.
+const SIDEBAR_GROUPS = [
+  { label: "เครื่องมือ", ids: ["counter", "todo", "hikeprep", "memories"] },
+  { label: "ความบันเทิง", ids: ["wonglao", "huay", "fortune", "games"] },
+];
+
 const root = document.getElementById("app");
 
 // ---------- Theme picker ----------
@@ -169,6 +176,15 @@ function currentRoute() {
 // renderToolShell() — เปิดได้จากทุกหน้าโดยไม่ต้อง navigate ไปหน้าแรกก่อน พื้นหลังหลัง sidebar
 // เลยเป็นหน้าปัจจุบันจริงๆ (ไม่ใช่หน้าแรกเสมอเหมือนเดิม). ใช้ position:fixed เต็มจอ ไม่ผูกกับ
 // --app-max-width คอลัมน์ตรงกลาง (ดู CLAUDE.md's Width cap rule).
+function sidebarAppItemHtml(app) {
+  return `
+      <button class="sidebar-nav-item ${sidebarActiveRoute === `app/${app.id}` ? "active" : ""}" data-route="app/${app.id}">${
+        app.iconImg
+          ? `<img src="${app.iconImg}" class="sidebar-nav-icon" alt="" />`
+          : `<span>${app.icon}</span>`
+      } <span>${app.name}</span></button>`;
+}
+
 function openSidebarOverlay() {
   if (document.querySelector(".home-sidebar")) return;
 
@@ -187,13 +203,16 @@ function openSidebarOverlay() {
     </div>
     <div class="sidebar-nav">
       <button class="sidebar-nav-item ${sidebarActiveRoute === "home" ? "active" : ""}" data-route="home">🏠 <span>หน้าแรก</span></button>
-      ${APPS.map(
-        (app) => `
-      <button class="sidebar-nav-item ${sidebarActiveRoute === `app/${app.id}` ? "active" : ""}" data-route="app/${app.id}">${
-          app.iconImg
-            ? `<img src="${app.iconImg}" class="sidebar-nav-icon" alt="" />`
-            : `<span>${app.icon}</span>`
-        } <span>${app.name}</span></button>`
+      ${SIDEBAR_GROUPS.map(
+        (group) => `
+      <div class="sidebar-group">
+        <div class="sidebar-group-label">${group.label}</div>
+        ${group.ids
+          .map((id) => APPS.find((a) => a.id === id))
+          .filter(Boolean)
+          .map(sidebarAppItemHtml)
+          .join("")}
+      </div>`
       ).join("")}
     </div>
     <div class="sidebar-footer">
