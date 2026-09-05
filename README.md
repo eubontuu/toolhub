@@ -28,6 +28,7 @@ tools/wonglao-quiz.{js,css}          Flash Quiz
 tools/huay.{js,css}                  หวย — full-screen APPS tool (split out from วงเหล้า; see Persistence for the one-time migration); roll history view via showHuayHistoryOverlay
 tools/fortune.{js,css}               ดูดวง — full-screen APPS tool, daily + per-topic fortune modes (see "The ดูดวง app" below)
 tools/hikeprep.{js,css}              เตรียมเดินป่า — full-screen APPS tool, 6-week schedule + daily checklist
+tools/memories.{js,css}              ความทรงจำ — full-screen APPS tool, books of diary-style pages (photo/text/impression/date/time/location), custom cover per book
 tools/games-core.{js,css}            เกม shared state, persistent tab-bar shell/dispatcher (mirrors wonglao-core's pattern)
 tools/snake.{js,css}                 งู — เกม sub-game, canvas snake, theme-adaptive color
 tools/jumpking.{js,css}              Jump King — เกม sub-game, canvas climbing game, charge-and-release jump, wall bounce, ice/lava platforms + wind past 250m, theme-adaptive player color
@@ -50,7 +51,7 @@ No bundler, no modules — every JS/CSS file is a plain `<script>`/`<link>`, so 
 `app.js` opens with an `APPS` array — each entry is a sidebar nav item + a `#app/<id>` route:
 
 ```js
-const APPS = [{ id, name, icon, iconImg?, render }, ...];  // 7 entries — id/name list in CLAUDE.md's glossary
+const APPS = [{ id, name, icon, iconImg?, render }, ...];  // 8 entries — id/name list in CLAUDE.md's glossary
 ```
 
 `icon` (emoji fallback) is required; `iconImg` (SVG under `icons/emoji/`) is preferred when present. `WONGLAO_TABS` entries follow the same shape.
@@ -149,6 +150,7 @@ Ohana/ไพ่สุ่ม/สุ่ม/Flash Quiz/หวย/บวก-ลบ's
 | `toolhub.huay` | `{ digits, last, history: [{value, digits, time}] }` | หวย — `history` is newest-first, capped at `HUAY_HISTORY_MAX` (30), viewable via the "ประวัติ" button (`showHuayHistoryOverlay(state, draw)`, live-state reference — per-item delete (×) or clear-all, both re-render the list in place without closing the overlay); `loadHuayState()` migrates a pre-split `huayDigits`/`huayLast` out of `toolhub.wonglao` on first read if `toolhub.huay` doesn't exist yet |
 | `toolhub.fortune` | `{ mode: "daily"\|"topic", dailyLastId: number\|null, topicLast: {topic, id}\|null, dailyCategories: {work,money,love,health: boolean}, history: [{type, id, topic?, time}] }` | ดูดวง — `dailyLastId`/`topicLast` are just the last-shown card per mode (for the "ผลล่าสุด" preview + no-immediate-repeat check), not a daily lock — both modes are redrawable anytime; `dailyCategories` controls which rows show on new daily reveals (defaults all-true, merged per-field on load so old saves don't break); `history` is one combined newest-first log across both modes (capped at 30) but the "ประวัติ" overlay always filters it down to whichever mode it was opened from, including per-item delete and mode-scoped clear-all |
 | `toolhub.hikeprep.<YYYY-MM-DD>` | `"1"`/`"0"` | เตรียมเดินป่า per-day checkbox |
+| `toolhub.memories` | `{ books: [{id, name, details, cover, createdAt, pages: [{id, text, photo, impression, date, time, location, createdAt}]}] }` | ความทรงจำ — page/cover photos are base64 JPEG, pre-resized client-side via `memoriesReadImage` (canvas, `MEMORIES_PHOTO_MAX_DIM`/`MEMORIES_PHOTO_QUALITY`) before being stored |
 | `toolhub.games` | `{ tab }` | เกม hub — which sub-game tab is active |
 | `toolhub.quickstart` | `string[]` of `APPS` ids | ทางลัด — which APPS entries are pinned to the Home quick-start widget |
 | `toolhub.snake.highScore` | number string | งู high score |

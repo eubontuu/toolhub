@@ -46,6 +46,12 @@ const APPS = [
     icon: "🥾",
     render: renderHikePrep,
   },
+  {
+    id: "memories",
+    name: "ความทรงจำ",
+    icon: "📔",
+    render: renderMemories,
+  },
 ];
 
 const root = document.getElementById("app");
