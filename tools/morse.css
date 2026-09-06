@@ -1,0 +1,257 @@
+.morse-wrap [hidden] {
+  display: none !important;
+}
+
+.morse-wrap {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 16px 24px;
+  overflow-y: auto;
+}
+
+.morse-mode-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.morse-mode-btn {
+  background: var(--card-hi);
+  border: none;
+  color: var(--sub);
+  border-radius: var(--radius-pill);
+  padding: 8px 16px;
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.morse-mode-btn.active {
+  background: var(--accent);
+  color: #fff;
+}
+
+.morse-output {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.morse-big-letter {
+  font-size: 64px;
+  font-weight: 800;
+  line-height: 1;
+  min-height: 72px;
+  color: var(--text);
+}
+
+.morse-big-letter.flash {
+  animation: morse-letter-flash var(--duration-normal, 0.3s) var(--ease-bounce, ease);
+}
+
+@keyframes morse-letter-flash {
+  0% { transform: scale(1.4); color: var(--accent); }
+  100% { transform: scale(1); color: var(--text); }
+}
+
+.morse-sentence-box {
+  width: 100%;
+  max-width: 440px;
+  background: var(--card);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  padding: 14px 16px;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+.morse-sentence-text {
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--text);
+}
+
+.morse-sentence-text.placeholder {
+  color: var(--sub);
+  font-weight: 400;
+  font-size: 14px;
+}
+
+.morse-trail {
+  min-height: 28px;
+  font-size: 20px;
+  letter-spacing: 4px;
+  display: flex;
+  gap: 4px;
+}
+
+.morse-trail-sym {
+  color: var(--accent);
+  font-weight: 800;
+}
+
+.morse-key-btn {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  border: none;
+  background: radial-gradient(circle at 35% 30%, var(--card-hi), var(--accent) 75%);
+  box-shadow: var(--shadow-xl);
+  cursor: pointer;
+  touch-action: none;
+  -webkit-touch-callout: none;
+  user-select: none;
+  transition: transform 0.08s ease;
+}
+
+.morse-key-btn.pressed {
+  transform: scale(0.92);
+  box-shadow: var(--shadow-md);
+}
+
+.morse-hint {
+  font-size: 12.5px;
+  color: var(--sub);
+  text-align: center;
+}
+
+.morse-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.morse-action-btn {
+  background: var(--card-hi);
+  border: none;
+  color: var(--text);
+  border-radius: var(--radius-pill);
+  padding: 8px 16px;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.morse-tree-toggle-btn {
+  margin-top: auto;
+  background: none;
+  border: 1px solid var(--hairline);
+  color: var(--sub);
+  border-radius: var(--radius-pill);
+  padding: 8px 16px;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.morse-tree-toggle-btn.active {
+  background: var(--card-hi);
+  color: var(--text);
+}
+
+.morse-tree-panel {
+  width: 100%;
+  max-width: 480px;
+  background: var(--card);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.morse-tree-legend {
+  font-size: 12px;
+  color: var(--sub);
+  text-align: center;
+}
+
+.morse-tree-svg {
+  width: 100%;
+  height: auto;
+}
+
+.morse-tree-edge {
+  stroke: var(--hairline);
+  stroke-width: 2;
+}
+
+.morse-tree-edge.active {
+  stroke: var(--accent);
+  stroke-width: 3;
+}
+
+.morse-tree-node circle {
+  fill: var(--card-hi);
+  stroke: var(--hairline);
+  stroke-width: 1.5;
+}
+
+.morse-tree-node.active circle {
+  fill: var(--accent);
+  stroke: var(--accent);
+}
+
+.morse-tree-node.current circle {
+  stroke: var(--text);
+  stroke-width: 2.5;
+}
+
+.morse-tree-node text {
+  fill: var(--text);
+  font-size: 11px;
+  font-weight: 700;
+  text-anchor: middle;
+  pointer-events: none;
+}
+
+.morse-tree-node.active text {
+  fill: #fff;
+}
+
+.morse-digit-label {
+  font-size: 12px;
+  color: var(--sub);
+  font-weight: 600;
+  align-self: flex-start;
+}
+
+.morse-digit-table {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 6px;
+}
+
+.morse-digit-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: var(--card-hi);
+  border-radius: var(--radius-md);
+  padding: 6px 4px;
+}
+
+.morse-digit-num {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.morse-digit-code {
+  font-size: 11px;
+  color: var(--sub);
+  letter-spacing: 1px;
+}

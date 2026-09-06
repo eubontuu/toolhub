@@ -52,12 +52,18 @@ const APPS = [
     icon: "📔",
     render: renderMemories,
   },
+  {
+    id: "morse",
+    name: "รหัสมอส",
+    icon: "📡",
+    render: renderMorse,
+  },
 ];
 
 // Sidebar grouping only — purely presentational, doesn't affect APPS/routing/quickstart.
 // New app → add its id to a group here too, or it silently falls through ungrouped.
 const SIDEBAR_GROUPS = [
-  { label: "เครื่องมือ", ids: ["counter", "todo", "hikeprep", "memories"] },
+  { label: "เครื่องมือ", ids: ["counter", "todo", "hikeprep", "memories", "morse"] },
   { label: "ความบันเทิง", ids: ["wonglao", "huay", "fortune", "games"] },
 ];
 
