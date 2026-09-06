@@ -265,6 +265,10 @@ function renderMorse(container) {
     lastSymbolEndTime = performance.now();
   }
 
+  // iOS Safari's long-press-to-select gesture ignores preventDefault() on pointerdown alone —
+  // it only backs off if touchstart itself is cancelled (non-passive).
+  keyBtn.addEventListener("touchstart", (e) => e.preventDefault(), { passive: false });
+
   keyBtn.addEventListener("pointerdown", (e) => {
     e.preventDefault();
     pressStart = performance.now();

@@ -109,7 +109,9 @@
   cursor: pointer;
   touch-action: none;
   -webkit-touch-callout: none;
+  -webkit-user-select: none;
   user-select: none;
+  -webkit-tap-highlight-color: transparent;
   transition: transform 0.08s ease;
 }
 

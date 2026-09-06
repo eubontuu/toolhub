@@ -6,6 +6,13 @@ const CHANGELOG_TAG_LABEL = { added: "เพิ่ม", changed: "แก้ไ�
 
 const CHANGELOG_DATA = [
   {
+    version: "v99",
+    date: "6 ก.ย. 2569",
+    items: [
+      { type: "changed", text: "รหัสมอส — แก้ปุ่มกดค้างแล้วเผลอไปเลือกข้อความแทนการส่งขีด (–) บนมือถือ/แท็บเล็ต" },
+    ],
+  },
+  {
     version: "v98",
     date: "6 ก.ย. 2569",
     items: [
