@@ -5,7 +5,7 @@ Auto-loaded every session in this repo. Read `README.md` for full architecture �
 **Keep this file curated, not a running log.** Its length is a cost paid every session. When a rule stops applying or gets superseded, edit/remove it — don't append near-duplicates.
 
 ## What this is
-- Personal PWA hub of mini-tools for the owner (Thai-speaking). No framework, no build step, no backend.
+- Personal PWA hub of mini-tools for the owner (Thai-speaking). No framework, no build step, no backend by default — one opt-in exception: `tools/sync.js` (multi-device sync via Firebase), off unless the owner links a sync code. See its file-map entry + "External state not in this repo".
 - Live: https://eubontuu.github.io/toolhub/ — Repo: https://github.com/eubontuu/toolhub (`eubontuu`) — deploys from `main` on push.
 - Files: `index.html`, `app.js` (shell/router), `tools/*.js`+`.css` (one pair per tool), `style.css` (shell only), `sw.js`, `manifest.json`, `icons/`.
 
@@ -20,6 +20,7 @@ Auto-loaded every session in this repo. Read `README.md` for full architecture �
 `style.css` (~510L) — tokens, theme overrides, base/Home/tool-screen shells, shared components. No tool-specific styling.
 `tools/*.js`+`.css`, one pair per tool, load order matters for JS (global scope, no modules):
 ```
+sync           เชื่อมอุปกรณ์ — optional, off by default (no toolhub.sync.code = zero network activity, Firebase SDK never even loads). Not an "account" system: no login, just a shared random code (10 chars, SYNC_CODE_ALPHABET excludes 0/O/1/I/L) both devices enter — ToolHubSync.link(code)/createAndLink()/unlink()/pullNow(). Patches localStorage.setItem globally so every tool's existing save*State() auto-syncs with zero per-tool changes: any toolhub.* key gets debounced-pushed (SYNC_PUSH_DEBOUNCE_MS) to Firestore syncCodes/{code}/data/{key}, failed pushes queue in toolhub.sync.pending (native/unpatched key, excluded from sync itself) and retry on next boot/pullNow(). app.js's boot calls ToolHubSync.ready() (pulls once, 4s timeout, then render()) before the first render — only blocks boot if a code is already linked. No real-time listener: multi-device freshness needs a reopen or the sidebar's "ซิงค์เดี๋ยวนี้" button, not live collaboration. showSyncPanel() (reveal-overlay) opened from sidebar's "เชื่อมอุปกรณ์" footer button.
 counter        บวก/ลบ — ประวัติ+รายชื่อ panels share the ปักหมุด auto-close pattern (historyPinned/namesPinned)
 todo           สิ่งที่ต้องทำ — renderTodo (full APPS tool) + renderTodoPreview (read-only Home card)
 quickstart     ทางลัด — Home widget, pin/unpin APPS entries for one-tap access (no sidebar)
@@ -75,3 +76,4 @@ Home = topbar → `#quickstartContent` (pinned-apps widget) → `#homeContent` (
 
 ## External state not in this repo
 - Cloud routine (`trig_01AuHV3Bt8XtvCGfFVgbThcc`, "แจ้งเตือนเตรียมเดินป่ารายวัน") fires daily 00:00 Thai time via `PushNotification`. Has its own copy of the `HIKE_DAYS` schedule — no automated sync, update both manually if the schedule changes. Manage via `RemoteTrigger` or https://claude.ai/code/routines.
+- Firebase project `data-56b12` (console: https://console.firebase.google.com/project/data-56b12) backs `tools/sync.js` — free Spark plan, owner's Google account. Firestore (`syncCodes/{code}/data/{key}`) + Anonymous Auth, both enabled manually in the console (not IaC — no config-as-code in this repo). Security rules require `request.auth != null` plus a shape/size check on writes — real protection is the sync code's secrecy (50 bits of entropy), not per-user auth; rules text lives only in the Firebase console, not this repo (paste it there again if the project is ever recreated). `FIREBASE_CONFIG` in `sync.js` (apiKey etc.) is intentionally public — Firebase's client config isn't a secret, security is the rules above.

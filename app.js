@@ -222,6 +222,7 @@ function openSidebarOverlay() {
       ).join("")}
     </div>
     <div class="sidebar-footer">
+      <button class="sidebar-nav-item" id="sidebarSyncBtn">🔗 <span>เชื่อมอุปกรณ์${ToolHubSync.isLinked() ? " ✓" : ""}</span></button>
       <button class="sidebar-nav-item ${sidebarActiveRoute === "changelog" ? "active" : ""}" data-route="changelog">🕓 <span>การอัปเดต</span></button>
     </div>
   `;
@@ -234,11 +235,15 @@ function openSidebarOverlay() {
   }
   overlay.addEventListener("click", closeSidebar);
   sidebar.querySelector("#sidebarCollapseBtn").addEventListener("click", closeSidebar);
-  sidebar.querySelectorAll(".sidebar-nav-item").forEach((item) => {
+  sidebar.querySelectorAll(".sidebar-nav-item[data-route]").forEach((item) => {
     item.addEventListener("click", () => {
       closeSidebar();
       navigate(item.dataset.route);
     });
+  });
+  sidebar.querySelector("#sidebarSyncBtn").addEventListener("click", () => {
+    closeSidebar();
+    showSyncPanel();
   });
 
   void sidebar.offsetHeight;
@@ -368,7 +373,7 @@ document.addEventListener(
 // ---------- Boot ----------
 
 window.addEventListener("hashchange", render);
-render();
+ToolHubSync.ready().then(render, render);
 
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {

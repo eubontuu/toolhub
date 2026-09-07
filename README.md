@@ -1,6 +1,6 @@
 # ToolHub
 
-A personal PWA (Progressive Web App) — a hub of small tools/utilities. No build step, no framework, no backend — plain HTML/CSS/JS, static site.
+A personal PWA (Progressive Web App) — a hub of small tools/utilities. No build step, no framework, no backend by default — plain HTML/CSS/JS, static site. One opt-in exception: `tools/sync.js` talks to Firebase for multi-device sync, entirely off unless the owner links a sync code (see "Multi-device sync" below).
 
 - **Live URL:** https://eubontuu.github.io/toolhub/
 - **Repo:** https://github.com/eubontuu/toolhub
@@ -16,6 +16,7 @@ The owner wanted one app icon that bundles several small personal tools instead 
 index.html                          entry point; loads style.css + every tool's css/js in order, registers sw.js
 app.js                               app shell only: APPS registry, router, theme picker, boot
 style.css                            shared/shell styles only: :root vars, base, Home, generic tool screen, small shared components
+tools/sync.{js,css}                  เชื่อมอุปกรณ์ — optional multi-device sync via Firebase (see "Multi-device sync" below); loads first, patches localStorage.setItem
 tools/counter.{js,css}               บวก/ลบ (incl. ให้/ได้ ledger — see "Persistence")
 tools/todo.{js,css}                  สิ่งที่ต้องทำ — full-screen APPS tool (renderTodo) + read-only Home preview (renderTodoPreview)
 tools/quickstart.{js,css}            ทางลัด — Home widget, pin/unpin APPS entries for one-tap access
@@ -140,10 +141,24 @@ Every card/question/form "open" action across the app (Ohana, ไพ่สุ่
 
 `#app → .tool-screen → .tool-body → <tool wrapper>` is `flex:1; display:flex; flex-direction:column` at every link — each one also needs `min-height: 0`, or a content-less child collapses to zero height. Check this first if new content isn't filling the screen.
 
+### Multi-device sync ("เชื่อมอุปกรณ์")
+
+Optional, off by default — no `toolhub.sync.code` in `localStorage` means `tools/sync.js` never touches the network at all (no Firebase SDK load, nothing). Not a real account system: no login, no per-user identity — every device that types in the same random sync code (10 chars, generated client-side from a 32-symbol alphabet that excludes `0/O/1/I/L`) reads and writes the same Firestore document tree. Security is the code's secrecy (~50 bits of entropy), gated only by Firestore rules requiring Firebase Anonymous Auth (see CLAUDE.md's "External state not in this repo" for the Firebase project + rules).
+
+**Sync mechanism:** `sync.js` loads first (before every other `tools/*.js`) and unconditionally patches `localStorage.setItem` — any key written anywhere in the app that starts with `toolhub.` gets debounced (`SYNC_PUSH_DEBOUNCE_MS`) and pushed to `syncCodes/{code}/data/{key}` as `{ value: <raw string>, updatedAt }`, if a sync code is linked. This means **every existing and future tool syncs automatically with zero code changes** — no tool file needs to know sync exists. A failed push (offline) gets remembered in `toolhub.sync.pending` (itself a plain, unsynced `localStorage` key written via the *native* `setItem` to avoid re-triggering the patch) and retried on the next boot or manual sync.
+
+**Boot sequence:** `app.js`'s very first `render()` call is gated behind `ToolHubSync.ready()` — a no-op Promise if no code is linked, otherwise a pull-everything-from-Firestore-into-localStorage step (race against a 4s timeout so a flaky connection never hangs the app) followed by a best-effort flush of anything in the pending queue.
+
+**No real-time listener.** This is periodic sync, not live collaboration: two devices open at once won't see each other's edits until one of them reopens the app or the owner taps "ซิงค์เดี๋ยวนี้" (`ToolHubSync.pullNow()`, calls the global `render()` afterward) in the sync panel. That panel (`showSyncPanel()`, a `reveal-overlay`) is reached via a "เชื่อมอุปกรณ์" button in the sidebar footer (`app.js`'s `openSidebarOverlay()`) — create a new code (`ToolHubSync.createAndLink()`), join an existing one (`ToolHubSync.link(code)` — pulls first, so cloud data for a key wins over this device's local copy for that key; keys only present locally get pushed up to fill gaps), copy the current code, force a sync, or unlink (`ToolHubSync.unlink()` — local-only, doesn't delete cloud data).
+
+**Firebase SDK is loaded dynamically**, not via a `<script>` tag in `index.html` — `loadFirebaseSdk()` injects the three compat bundles (`firebase-app`/`firebase-auth`/`firebase-firestore`) from `gstatic.com` only the first time `firebaseReady()` actually runs, so a device that never links a sync code never downloads them.
+
 ### Persistence — everything is `localStorage`, no backend
 
 | key | shape | used by |
 |---|---|---|
+| `toolhub.sync.code` | string \| absent | เชื่อมอุปกรณ์ — the linked sync code, if any; absence means sync is fully off. Excluded from the sync mechanism itself (never pushed/pulled as regular data) |
+| `toolhub.sync.pending` | `string[]` of pending key names | เชื่อมอุปกรณ์ — keys whose push to Firestore hasn't succeeded yet, retried on next boot/manual sync; also excluded from the sync mechanism itself |
 | `toolhub.counter` | `{ value, step, history: [{delta, time, isReset?}], showHistory, historyPinned, names: [{name, total}], showNames, namesPinned }` | บวก/ลบ — `history` logs +/− taps and resets; `names` is the ให้/ได้ ledger; `*Pinned` gates auto-close on the next +/− |
 | `toolhub.todo` | `{ items: [{id, text, done, date?, subject?}] }` | สิ่งที่ต้องทำ — both the full screen and the Home preview |
 | `toolhub.wonglao` | one object — see `WONGLAO_DEFAULT_STATE` | all 5 wonglao sub-games |

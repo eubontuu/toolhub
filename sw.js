@@ -1,5 +1,5 @@
 // bump CACHE_VERSION every time you ship a change — that's what makes the update visible
-const CACHE_VERSION = "v99";
+const CACHE_VERSION = "v100";
 const CACHE_NAME = `toolhub-${CACHE_VERSION}`;
 
 const PRECACHE_URLS = [
@@ -8,6 +8,7 @@ const PRECACHE_URLS = [
   "style.css",
   "app.js",
   "manifest.json",
+  "tools/sync.js",
   "tools/counter.js",
   "tools/todo.js",
   "tools/quickstart.js",
@@ -30,6 +31,7 @@ const PRECACHE_URLS = [
   "tools/2048.js",
   "tools/game24.js",
   "tools/games-core.js",
+  "tools/sync.css",
   "tools/counter.css",
   "tools/todo.css",
   "tools/quickstart.css",
