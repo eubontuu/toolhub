@@ -8,8 +8,14 @@
 // push ขึ้น Firestore (debounced) แบบไม่ต้องแก้โค้ดของแต่ละเครื่องมือเลย — ตอนบูตแอป (ToolHubSync.ready(),
 // เรียกจาก app.js ก่อน render() ครั้งแรก) จะ pull ข้อมูลทั้งหมดของรหัสนี้ลงมาทับ localStorage ก่อน (มี
 // timeout กันค้างตอนออฟไลน์). งานที่ push ไม่สำเร็จ (ออฟไลน์ตอนนั้น) จะถูกจำไว้ใน toolhub.sync.pending
-// แล้วลองใหม่ตอนบูต/กด "ซิงค์เดี๋ยวนี้" รอบถัดไป. ไม่มี real-time listener — ต้องเปิดแอปใหม่/กดซิงค์เอง
-// ถึงจะเห็นข้อมูลจากเครื่องอื่น (ไม่ใช่ live collaboration).
+// แล้วลองใหม่ตอนบูต/กด "ซิงค์เดี๋ยวนี้" รอบถัดไป.
+//
+// Real-time: เชื่อมอยู่ก็เปิด onSnapshot listener ค้างไว้ (startLiveListener) — ข้อมูลใหม่จากเครื่องอื่น
+// จะเขียนลง localStorage ทันทีเสมอ (ไม่มีทางหาย) แต่จะ "แสดงผล" (เรียก render() ให้เลย) เฉพาะตอนไม่ได้
+// กำลังยุ่งอยู่ (isUserBusy() — โฟกัสอยู่ที่ input/textarea, หรือมี reveal-overlay เปิดอยู่) กันไม่ให้
+// สิ่งที่กำลังพิมพ์ค้างหายไปเพราะจอรีเฟรชกะทันหัน; ถ้ากำลังยุ่งอยู่จะขึ้นแถบเล็กๆ ให้แตะอัปเดตเองแทน
+// (showLiveUpdateBanner). ข้ามการ apply snapshot ที่มาจาก write ของตัวเองอยู่ (metadata.hasPendingWrites)
+// กันวนลูป/re-render ตัวเองตอนเพิ่ง push เสร็จ.
 //
 // Chunking: Firestore จำกัด 1 MiB ต่อ document แต่ค่าเดียวใน localStorage โตเกินนั้นได้จริง (ความทรงจำ
 // เก็บรูป base64 รวมไว้ในคีย์เดียว) — ค่าที่ยาวเกิน SYNC_CHUNK_SIZE เลยถูกหั่นเป็นหลาย document
@@ -207,11 +213,10 @@ async function flushPending(code) {
   }
 }
 
-// อ่าน document ทั้งหมดของรหัสนี้แล้วประกอบกลับเป็น Map(key -> ค่าเต็ม) — คีย์ไหนที่ชิ้นส่วนขาด
-// (อัปโหลดค้างกลางคัน) จะถูกข้ามทั้งคีย์ ดีกว่าเขียนข้อมูลที่ประกอบไม่ครบทับของเดิมในเครื่อง
-async function fetchAll(code) {
-  await firebaseReady();
-  const snap = await firestoreDb.collection("syncCodes").doc(code).collection("data").get();
+// ประกอบ QuerySnapshot (จาก .get() ครั้งเดียว หรือ onSnapshot ต่อเนื่อง — หน้าตาเหมือนกัน) กลับเป็น
+// Map(key -> ค่าเต็ม) — คีย์ไหนที่ชิ้นส่วนขาด (อัปโหลดค้างกลางคัน) จะถูกข้ามทั้งคีย์ ดีกว่าเขียนข้อมูล
+// ที่ประกอบไม่ครบทับของเดิมในเครื่อง
+function reassembleSnapshot(snap) {
   const mains = new Map();
   const parts = new Map();
   snap.forEach((doc) => {
@@ -252,6 +257,12 @@ async function fetchAll(code) {
   return out;
 }
 
+async function fetchAll(code) {
+  await firebaseReady();
+  const snap = await firestoreDb.collection("syncCodes").doc(code).collection("data").get();
+  return reassembleSnapshot(snap);
+}
+
 async function pullAll(code) {
   const values = await fetchAll(code);
   values.forEach((value, key) => {
@@ -262,6 +273,88 @@ async function pullAll(code) {
       lastSyncError = "พื้นที่ในเครื่องเต็ม เก็บข้อมูลที่ดึงมาไม่ครบ";
     }
   });
+}
+
+// ---------- real-time ----------
+
+let liveUnsubscribe = null;
+let liveBannerEl = null;
+
+function isUserBusy() {
+  const el = document.activeElement;
+  const tag = el && el.tagName;
+  if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" || (el && el.isContentEditable)) return true;
+  if (document.querySelector(".reveal-overlay.show")) return true;
+  return false;
+}
+
+function showLiveUpdateBanner() {
+  if (liveBannerEl) return; // ขึ้นอยู่แล้ว ไม่ต้องซ้อน
+  liveBannerEl = document.createElement("button");
+  liveBannerEl.type = "button";
+  liveBannerEl.className = "sync-live-banner";
+  liveBannerEl.textContent = "🔄 มีข้อมูลใหม่จากอีกเครื่อง — แตะเพื่ออัปเดต";
+  liveBannerEl.addEventListener("click", () => {
+    hideLiveUpdateBanner();
+    if (typeof render === "function") render();
+  });
+  document.body.appendChild(liveBannerEl);
+  void liveBannerEl.offsetHeight;
+  liveBannerEl.classList.add("show");
+}
+
+function hideLiveUpdateBanner() {
+  if (!liveBannerEl) return;
+  liveBannerEl.remove();
+  liveBannerEl = null;
+}
+
+async function startLiveListener(code) {
+  if (liveUnsubscribe) return;
+  try {
+    await firebaseReady(); // ready() อาจเรียกมาตอน pull ยัง timeout อยู่ — firestoreDb ยังไม่ถูก init ก็ได้
+  } catch (e) {
+    return;
+  }
+  if (liveUnsubscribe || loadSyncCode() !== code) return; // เผื่อโดนเรียกซ้อน หรือ unlink ไปแล้วระหว่างรอ
+  liveUnsubscribe = firestoreDb
+    .collection("syncCodes")
+    .doc(code)
+    .collection("data")
+    .onSnapshot(
+      (snap) => {
+        // snapshot ที่สะท้อน write ของเราเองที่ยังไม่ยืนยันจาก server — ข้าม กันวนลูป/re-render ตัวเอง
+        if (snap.metadata.hasPendingWrites) return;
+        const values = reassembleSnapshot(snap);
+        let changed = false;
+        values.forEach((value, key) => {
+          if (localStorage.getItem(key) === value) return;
+          try {
+            nativeSetItem(key, value);
+            changed = true;
+          } catch (e) {
+            lastSyncError = "พื้นที่ในเครื่องเต็ม เก็บข้อมูลที่ดึงมาไม่ครบ";
+          }
+        });
+        if (!changed) return;
+        if (isUserBusy()) {
+          showLiveUpdateBanner();
+        } else if (typeof render === "function") {
+          render();
+        }
+      },
+      () => {
+        // listener ล่ม (เน็ต/สิทธิ์) — เงียบไว้ ยังมี pull ตอนบูต/ปุ่ม "ซิงค์เดี๋ยวนี้" เป็น fallback อยู่
+      }
+    );
+}
+
+function stopLiveListener() {
+  if (liveUnsubscribe) {
+    liveUnsubscribe();
+    liveUnsubscribe = null;
+  }
+  hideLiveUpdateBanner();
 }
 
 function generateSyncCode() {
@@ -303,6 +396,7 @@ const ToolHubSync = {
       new Promise((resolve) => setTimeout(resolve, SYNC_PULL_TIMEOUT_MS)),
     ]);
     flushPending(code).catch(() => {});
+    startLiveListener(code);
   },
   // สร้างรหัสใหม่ + เชื่อมด้วยรหัสนั้นทันที (อุปกรณ์แรกที่ "สร้าง" — ยังไม่มีข้อมูลบนคลาวด์ก่อนหน้า)
   async createAndLink() {
@@ -325,8 +419,10 @@ const ToolHubSync = {
     syncableKeys()
       .filter((k) => !values.has(k))
       .forEach((k) => queuePush(k));
+    startLiveListener(code);
   },
   unlink() {
+    stopLiveListener();
     try {
       localStorage.removeItem(SYNC_CODE_KEY);
       localStorage.removeItem(SYNC_PENDING_KEY);
