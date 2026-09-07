@@ -25,7 +25,7 @@ tools/wonglao-randomcard.{js,css}    ไพ่สุ่ม
 tools/wonglao-wheel.{js,css}         สุ่ม (เดิม "วงล้อ"/"สุ่มเลข") — 2 โหมด: สุ่มเลข + ลูกเต๋า
 tools/wonglao-chwazi.{js,css}        Chwazi
 tools/wonglao-quiz.{js,css}          Flash Quiz
-tools/huay.{js,css}                  หวย — full-screen APPS tool (split out from วงเหล้า; see Persistence for the one-time migration); roll history view via showHuayHistoryOverlay
+tools/huay.{js,css}                  หวย — full-screen APPS tool (split out from วงเหล้า; see Persistence for the one-time migration); per-position digit lock via showHuayLockPicker, roll history view via showHuayHistoryOverlay
 tools/fortune.{js,css}               ดูดวง — full-screen APPS tool, daily + per-topic fortune modes (see "The ดูดวง app" below)
 tools/hikeprep.{js,css}              เตรียมเดินป่า — full-screen APPS tool, 6-week schedule + daily checklist
 tools/memories.{js,css}              ความทรงจำ — full-screen APPS tool, books of diary-style pages (photo/text/impression/date/time/location), custom cover per book, two-page open-book spread with tap-to-edit (toggleable "ดูอย่างเดียว" view-only mode)
@@ -51,7 +51,7 @@ No bundler, no modules — every JS/CSS file is a plain `<script>`/`<link>`, so 
 `app.js` opens with an `APPS` array — each entry is a sidebar nav item + a `#app/<id>` route:
 
 ```js
-const APPS = [{ id, name, icon, iconImg?, render }, ...];  // 8 entries — id/name list in CLAUDE.md's glossary
+const APPS = [{ id, name, icon, iconImg?, render }, ...];  // 9 entries — id/name list in CLAUDE.md's glossary
 ```
 
 `icon` (emoji fallback) is required; `iconImg` (SVG under `icons/emoji/`) is preferred when present. `WONGLAO_TABS` entries follow the same shape.
@@ -68,7 +68,7 @@ Hash router (`#app/<id>`, plus `#changelog`) via `render()`/`renderHome()`/`rend
 
 **Responsive layout:** `#app` is capped at `max-width: var(--app-max-width)` (520px) and centered — a no-op on phone widths, keeps the app phone-sized on tablet/desktop instead of stretching. `position: fixed` elements need manual handling for this cap — see CLAUDE.md's "Width cap" rule for the two patterns in use.
 
-**New top-level tool ("แอป"):** `tools/yourtool.js` (`renderYourTool(container)`) + `.css`, `<script>`/`<link>` tags in `index.html` (script before `app.js`), entry in `APPS`, both files in `PRECACHE_URLS`.
+**New top-level tool ("แอป"):** `tools/yourtool.js` (`renderYourTool(container)`) + `.css`, `<script>`/`<link>` tags in `index.html` (script before `app.js`), entry in `APPS`, both files in `PRECACHE_URLS`, and its id added to a group in `SIDEBAR_GROUPS` (`app.js`) — otherwise it's reachable at `#app/yourtool` but never appears in the sidebar menu.
 
 ### Home screen patterns ("วิดเจ็ต" / "การ์ดแจ้งเตือน")
 
@@ -134,7 +134,7 @@ Both modes reuse `showFortuneOverlay(cardHtml, nextLabel, onNext)` (a `reveal-ov
 
 ### Fullscreen "reveal" overlays
 
-Ohana/ไพ่สุ่ม/สุ่ม/Flash Quiz/หวย/บวก-ลบ's name popup all use the same pattern: a full-viewport `position:fixed` div appended to `document.body`, animated in via a class toggle, removed on tap (`showOhanaOverlay`, `showRcOverlay`, `showWheelOverlay`, `showDiceOverlay`, `showQuizOverlay`, `showHuayOverlay`, `showCounterNameOverlay`). House style for every card/question "open" action — exact trigger code + the `reveal-overlay` class requirement are in CLAUDE.md's overlay rule; copy an existing `show*Overlay` rather than reimplementing.
+Every card/question/form "open" action across the app (Ohana, ไพ่สุ่ม, สุ่ม, Flash Quiz, หวย's roll reveal + lock-picker + history, ดูดวง's card + history, ความทรงจำ's book/page forms, the เกม/วงเหล้า "show all" grids, บวก-ลบ's name popup, and more — grep `reveal-overlay` in `tools/*.js` for the full current list, it grows too often to keep an exhaustive one here) uses the same pattern: a full-viewport `position:fixed` div appended to `document.body`, animated in via a class toggle, removed on tap. Exact trigger code + the `reveal-overlay` class requirement are in CLAUDE.md's overlay rule; copy an existing `show*Overlay` rather than reimplementing.
 
 ### Layout: the flex chain must not break
 
@@ -147,7 +147,7 @@ Ohana/ไพ่สุ่ม/สุ่ม/Flash Quiz/หวย/บวก-ลบ's
 | `toolhub.counter` | `{ value, step, history: [{delta, time, isReset?}], showHistory, historyPinned, names: [{name, total}], showNames, namesPinned }` | บวก/ลบ — `history` logs +/− taps and resets; `names` is the ให้/ได้ ledger; `*Pinned` gates auto-close on the next +/− |
 | `toolhub.todo` | `{ items: [{id, text, done, date?, subject?}] }` | สิ่งที่ต้องทำ — both the full screen and the Home preview |
 | `toolhub.wonglao` | one object — see `WONGLAO_DEFAULT_STATE` | all 5 wonglao sub-games |
-| `toolhub.huay` | `{ digits, last, history: [{value, digits, time}] }` | หวย — `history` is newest-first, capped at `HUAY_HISTORY_MAX` (30), viewable via the "ประวัติ" button (`showHuayHistoryOverlay(state, draw)`, live-state reference — per-item delete (×) or clear-all, both re-render the list in place without closing the overlay); `loadHuayState()` migrates a pre-split `huayDigits`/`huayLast` out of `toolhub.wonglao` on first read if `toolhub.huay` doesn't exist yet |
+| `toolhub.huay` | `{ digits, last, locked: (string\|null)[], history: [{value, digits, time}] }` | หวย — `locked[i]` is `"0"`-`"9"` (that position is pinned to that digit via `showHuayLockPicker`, skips the next roll) or `null` (rolls normally); `history` is newest-first, capped at `HUAY_HISTORY_MAX` (30), viewable via the "ประวัติ" button (`showHuayHistoryOverlay(state, draw)`, live-state reference — per-item delete (×) or clear-all, both re-render the list in place without closing the overlay); `loadHuayState()` migrates a pre-split `huayDigits`/`huayLast` out of `toolhub.wonglao` on first read if `toolhub.huay` doesn't exist yet |
 | `toolhub.fortune` | `{ mode: "daily"\|"topic", dailyLastId: number\|null, topicLast: {topic, id}\|null, dailyCategories: {work,money,love,health: boolean}, history: [{type, id, topic?, time}] }` | ดูดวง — `dailyLastId`/`topicLast` are just the last-shown card per mode (for the "ผลล่าสุด" preview + no-immediate-repeat check), not a daily lock — both modes are redrawable anytime; `dailyCategories` controls which rows show on new daily reveals (defaults all-true, merged per-field on load so old saves don't break); `history` is one combined newest-first log across both modes (capped at 30) but the "ประวัติ" overlay always filters it down to whichever mode it was opened from, including per-item delete and mode-scoped clear-all |
 | `toolhub.hikeprep.<YYYY-MM-DD>` | `"1"`/`"0"` | เตรียมเดินป่า per-day checkbox |
 | `toolhub.memories` | `{ viewOnly: boolean, books: [{id, name, details, cover, createdAt, pages: [{id, text, photo, impression, date, time, location, createdAt}]}] }` | ความทรงจำ — page/cover photos are base64 JPEG, pre-resized client-side via `memoriesReadImage` (canvas, `MEMORIES_PHOTO_MAX_DIM`/`MEMORIES_PHOTO_QUALITY`) before being stored; `viewOnly` gates whether tapping a page opens its editor or just turns the spread |
