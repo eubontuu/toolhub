@@ -222,7 +222,9 @@ function openSidebarOverlay() {
       ).join("")}
     </div>
     <div class="sidebar-footer">
-      <button class="sidebar-nav-item" id="sidebarSyncBtn">🔗 <span>เชื่อมอุปกรณ์${ToolHubSync.isLinked() ? " ✓" : ""}</span></button>
+      <button class="sidebar-nav-item" id="sidebarSyncBtn">🔗 <span>เชื่อมอุปกรณ์${
+        ToolHubSync.isLinked() ? (ToolHubSync.pendingCount() ? " ⚠️" : " ✓") : ""
+      }</span></button>
       <button class="sidebar-nav-item ${sidebarActiveRoute === "changelog" ? "active" : ""}" data-route="changelog">🕓 <span>การอัปเดต</span></button>
     </div>
   `;
