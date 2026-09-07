@@ -10,6 +10,14 @@
 // timeout กันค้างตอนออฟไลน์). งานที่ push ไม่สำเร็จ (ออฟไลน์ตอนนั้น) จะถูกจำไว้ใน toolhub.sync.pending
 // แล้วลองใหม่ตอนบูต/กด "ซิงค์เดี๋ยวนี้" รอบถัดไป. ไม่มี real-time listener — ต้องเปิดแอปใหม่/กดซิงค์เอง
 // ถึงจะเห็นข้อมูลจากเครื่องอื่น (ไม่ใช่ live collaboration).
+//
+// Chunking: Firestore จำกัด 1 MiB ต่อ document แต่ค่าเดียวใน localStorage โตเกินนั้นได้จริง (ความทรงจำ
+// เก็บรูป base64 รวมไว้ในคีย์เดียว) — ค่าที่ยาวเกิน SYNC_CHUNK_SIZE เลยถูกหั่นเป็นหลาย document
+// (`<key>::part<i>`) แล้วเอา document ตัวหลักเก็บ "ตัวชี้" ว่ามีกี่ชิ้น (SYNC_CHUNK_MARKER + จำนวน).
+// ลำดับการเขียนสำคัญ: เขียน marker เป็น 0 ก่อน (= ยังไม่สมบูรณ์ อย่าเพิ่งใช้) → เขียนชิ้นส่วนทั้งหมด →
+// ค่อยเขียน marker ตัวจริง ถ้าเน็ตหลุดกลางคัน ฝั่ง pull จะข้ามคีย์นั้นไปเลยแทนที่จะประกอบข้อมูลพัง.
+// การหั่นนี้ generic ล้วน — sync ไม่รู้จักโครงสร้างข้อมูลของเครื่องมือไหนเลย เครื่องมือใหม่ที่เก็บของใหญ่
+// ก็ได้ผลเหมือนกันโดยไม่ต้องแก้อะไร.
 
 const SYNC_CODE_KEY = "toolhub.sync.code";
 const SYNC_PENDING_KEY = "toolhub.sync.pending";
@@ -19,6 +27,11 @@ const SYNC_PULL_TIMEOUT_MS = 4000;
 const SYNC_PUSH_DEBOUNCE_MS = 900;
 const SYNC_CODE_ALPHABET = "ABCDEFGHJKMNPQRSTUVWXYZ23456789"; // ไม่มี 0/O, 1/I/L กันอ่านผิด
 const SYNC_CODE_LEN = 10;
+// 250k ตัวอักษร: ต่อให้เป็นภาษาไทยล้วน (3 ไบต์/ตัวใน UTF-8) ก็ยัง ~750KB ไม่ชนเพดาน 1 MiB ของ Firestore
+// และไม่ชนเงื่อนไข value.size() < 900000 ใน security rules ด้วย
+const SYNC_CHUNK_SIZE = 250000;
+const SYNC_CHUNK_MARKER = "__TOOLHUB_CHUNKED__:";
+const SYNC_PART_SEP = "::part";
 
 const FIREBASE_CONFIG = {
   apiKey: "AIzaSyDjJjQRPDqfIe0g83G43fhtTyuOiJYwGLM",
@@ -154,6 +167,12 @@ function queuePush(key) {
   pushTimers[key] = setTimeout(() => attemptPush(code, key), SYNC_PUSH_DEBOUNCE_MS);
 }
 
+let lastSyncError = null;
+
+function stamp() {
+  return firebase.firestore.FieldValue.serverTimestamp();
+}
+
 async function attemptPush(code, key) {
   try {
     await firebaseReady();
@@ -162,10 +181,23 @@ async function attemptPush(code, key) {
       clearPending(key);
       return;
     }
-    await docRef(code, key).set({ value: raw, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
+    if (raw.length > SYNC_CHUNK_SIZE) {
+      // marker = 0 ก่อน: ระหว่างนี้เครื่องอื่นที่ pull จะข้ามคีย์นี้ไป ไม่หยิบข้อมูลครึ่งๆ กลางๆ ไปใช้
+      await docRef(code, key).set({ value: SYNC_CHUNK_MARKER + "0", updatedAt: stamp() });
+      const parts = [];
+      for (let i = 0; i < raw.length; i += SYNC_CHUNK_SIZE) parts.push(raw.slice(i, i + SYNC_CHUNK_SIZE));
+      for (let i = 0; i < parts.length; i++) {
+        await docRef(code, key + SYNC_PART_SEP + i).set({ value: parts[i], updatedAt: stamp() });
+      }
+      await docRef(code, key).set({ value: SYNC_CHUNK_MARKER + parts.length, updatedAt: stamp() });
+    } else {
+      await docRef(code, key).set({ value: raw, updatedAt: stamp() });
+    }
     clearPending(key);
+    lastSyncError = null;
   } catch (e) {
     // ยังไม่สำเร็จ (ออฟไลน์/บล็อก) — ค้างไว้ใน pending รอ ready()/pullNow() รอบถัดไปลองใหม่
+    lastSyncError = (e && e.message) || "ซิงค์ไม่สำเร็จ";
   }
 }
 
@@ -175,16 +207,59 @@ async function flushPending(code) {
   }
 }
 
-async function pullAll(code) {
+// อ่าน document ทั้งหมดของรหัสนี้แล้วประกอบกลับเป็น Map(key -> ค่าเต็ม) — คีย์ไหนที่ชิ้นส่วนขาด
+// (อัปโหลดค้างกลางคัน) จะถูกข้ามทั้งคีย์ ดีกว่าเขียนข้อมูลที่ประกอบไม่ครบทับของเดิมในเครื่อง
+async function fetchAll(code) {
   await firebaseReady();
   const snap = await firestoreDb.collection("syncCodes").doc(code).collection("data").get();
+  const mains = new Map();
+  const parts = new Map();
   snap.forEach((doc) => {
-    const key = doc.id;
+    const id = doc.id;
     const { value } = doc.data();
-    if (key.startsWith(SYNC_KEY_PREFIX) && !SYNC_OWN_KEYS.has(key) && typeof value === "string") {
-      try {
-        nativeSetItem(key, value);
-      } catch (e) {}
+    if (typeof value !== "string") return;
+    const sepAt = id.lastIndexOf(SYNC_PART_SEP);
+    if (sepAt !== -1) {
+      const baseKey = id.slice(0, sepAt);
+      const idx = Number(id.slice(sepAt + SYNC_PART_SEP.length));
+      if (!Number.isInteger(idx)) return;
+      if (!parts.has(baseKey)) parts.set(baseKey, new Map());
+      parts.get(baseKey).set(idx, value);
+      return;
+    }
+    mains.set(id, value);
+  });
+
+  const out = new Map();
+  mains.forEach((value, key) => {
+    if (!key.startsWith(SYNC_KEY_PREFIX) || SYNC_OWN_KEYS.has(key)) return;
+    if (!value.startsWith(SYNC_CHUNK_MARKER)) {
+      out.set(key, value);
+      return;
+    }
+    const count = Number(value.slice(SYNC_CHUNK_MARKER.length));
+    if (!Number.isInteger(count) || count < 1) return; // 0 = กำลังเขียนอยู่ ยังไม่สมบูรณ์
+    const bucket = parts.get(key);
+    if (!bucket) return;
+    let joined = "";
+    for (let i = 0; i < count; i++) {
+      const piece = bucket.get(i);
+      if (typeof piece !== "string") return; // ชิ้นส่วนขาด — ข้ามคีย์นี้ไปทั้งอัน
+      joined += piece;
+    }
+    out.set(key, joined);
+  });
+  return out;
+}
+
+async function pullAll(code) {
+  const values = await fetchAll(code);
+  values.forEach((value, key) => {
+    try {
+      nativeSetItem(key, value);
+    } catch (e) {
+      // localStorage เต็ม — ข้อมูลบนคลาวด์ใหญ่กว่าที่เครื่องนี้เก็บไหว
+      lastSyncError = "พื้นที่ในเครื่องเต็ม เก็บข้อมูลที่ดึงมาไม่ครบ";
     }
   });
 }
@@ -211,6 +286,14 @@ const ToolHubSync = {
   getCode() {
     return loadSyncCode();
   },
+  // จำนวนคีย์ที่ push ค้างอยู่ (>0 = มีอะไรยังไม่ขึ้นคลาวด์) + ข้อความ error ล่าสุด — ใช้โชว์สถานะใน UI
+  // แทนที่จะล้มเหลวเงียบๆ
+  pendingCount() {
+    return loadPending().length;
+  },
+  lastError() {
+    return lastSyncError;
+  },
   // เรียกตอนบูตแอปก่อน render() ครั้งแรก — ไม่ทำอะไรเลยถ้ายังไม่เคยเชื่อม (ไม่แตะเน็ตเวิร์ก)
   async ready() {
     const code = loadSyncCode();
@@ -231,21 +314,16 @@ const ToolHubSync = {
   // ข้อมูลเครื่องนี้สำหรับคีย์ที่ชนกัน ส่วนคีย์ที่มีแต่ในเครื่องนี้ (คลาวด์ยังไม่มี) จะถูก push ขึ้นไปเติม
   async link(code) {
     nativeSetItem(SYNC_CODE_KEY, code);
-    await firebaseReady();
-    const snap = await firestoreDb.collection("syncCodes").doc(code).collection("data").get();
-    const remoteKeys = new Set();
-    snap.forEach((doc) => {
-      const key = doc.id;
-      const { value } = doc.data();
-      if (key.startsWith(SYNC_KEY_PREFIX) && !SYNC_OWN_KEYS.has(key) && typeof value === "string") {
-        remoteKeys.add(key);
-        try {
-          nativeSetItem(key, value);
-        } catch (e) {}
+    const values = await fetchAll(code);
+    values.forEach((value, key) => {
+      try {
+        nativeSetItem(key, value);
+      } catch (e) {
+        lastSyncError = "พื้นที่ในเครื่องเต็ม เก็บข้อมูลที่ดึงมาไม่ครบ";
       }
     });
     syncableKeys()
-      .filter((k) => !remoteKeys.has(k))
+      .filter((k) => !values.has(k))
       .forEach((k) => queuePush(k));
   },
   unlink() {
@@ -270,10 +348,19 @@ window.ToolHubSync = ToolHubSync;
 function syncPanelBodyHtml() {
   const code = ToolHubSync.getCode();
   if (code) {
+    const pending = ToolHubSync.pendingCount();
+    const err = ToolHubSync.lastError();
     return `
       <div class="sync-status linked">🔗 เชื่อมอยู่</div>
       <div class="sync-code-display">${code}</div>
       <div class="sync-caption">กรอกรหัสนี้ในเครื่องอื่นเพื่อเชื่อมข้อมูลเข้าด้วยกัน ห้ามแชร์ให้คนอื่น</div>
+      ${
+        pending
+          ? `<div class="sync-warn">⚠️ มี ${pending} รายการยังไม่ได้ขึ้นคลาวด์${
+              err ? `<br><span class="sync-warn-detail">(${err})</span>` : ""
+            }<br>กด "ซิงค์เดี๋ยวนี้" เพื่อลองใหม่</div>`
+          : `<div class="sync-ok">✓ ข้อมูลขึ้นคลาวด์ครบแล้ว</div>`
+      }
       <button class="sync-secondary-btn" id="syncCopyBtn">คัดลอกรหัส</button>
       <button class="sync-secondary-btn" id="syncNowBtn">ซิงค์เดี๋ยวนี้</button>
       <button class="sync-danger-btn" id="syncUnlinkBtn">เลิกเชื่อม</button>
@@ -371,14 +458,15 @@ function showSyncPanel() {
       nowBtn.addEventListener("click", async () => {
         nowBtn.disabled = true;
         msg("กำลังซิงค์...");
+        let ok = true;
         try {
           await ToolHubSync.pullNow();
-          msg("ซิงค์ล่าสุดแล้ว");
-          if (typeof render === "function") render();
         } catch (e) {
-          msg("ซิงค์ไม่สำเร็จ เช็คอินเทอร์เน็ต", true);
+          ok = false;
         }
-        nowBtn.disabled = false;
+        rerenderBody(); // สถานะ "ยังไม่ได้ขึ้นคลาวด์ / ครบแล้ว" อัปเดตตามผลรอบนี้
+        msg(ok ? "ซิงค์ล่าสุดแล้ว" : "ซิงค์ไม่สำเร็จ เช็คอินเทอร์เน็ต", !ok);
+        if (ok && typeof render === "function") render();
       });
     }
 
