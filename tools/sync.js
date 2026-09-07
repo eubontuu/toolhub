@@ -421,9 +421,14 @@ const ToolHubSync = {
       .forEach((k) => queuePush(k));
     startLiveListener(code);
   },
+  // ข้อมูลผูกกับรหัสที่เชื่อมอยู่เท่านั้น — เลิกเชื่อมแล้วล้างข้อมูลในเครื่องนี้เสมอ (ไม่มีทางเหลือ
+  // ข้อมูลค้างจากรหัสเก่าไว้ปนกับรหัสถัดไปที่จะเชื่อม) ข้อมูลบนคลาวด์ของรหัสเดิมไม่ถูกลบ ยังกลับมาเชื่อม
+  // รหัสเดิมได้ตามปกติถ้าจำรหัสได้ — แอปยังใช้งานได้ตามปกติทั้งหมดหลังล้าง (แค่กลับไปเป็นค่าเริ่มต้นว่าง
+  // เหมือนติดตั้งใหม่ ไม่ต้องเชื่อม sync ก็ใช้ต่อได้)
   unlink() {
     stopLiveListener();
     try {
+      syncableKeys().forEach((k) => localStorage.removeItem(k));
       localStorage.removeItem(SYNC_CODE_KEY);
       localStorage.removeItem(SYNC_PENDING_KEY);
     } catch (e) {}
@@ -459,7 +464,7 @@ function syncPanelBodyHtml() {
       }
       <button class="sync-secondary-btn" id="syncCopyBtn">คัดลอกรหัส</button>
       <button class="sync-secondary-btn" id="syncNowBtn">ซิงค์เดี๋ยวนี้</button>
-      <button class="sync-danger-btn" id="syncUnlinkBtn">เลิกเชื่อม</button>
+      <button class="sync-danger-btn" id="syncUnlinkBtn">เลิกเชื่อม (ล้างข้อมูลในเครื่องนี้)</button>
       <div class="sync-msg" id="syncMsg"></div>
     `;
   }
@@ -569,8 +574,13 @@ function showSyncPanel() {
     const unlinkBtn = overlay.querySelector("#syncUnlinkBtn");
     if (unlinkBtn) {
       unlinkBtn.addEventListener("click", () => {
+        const ok = confirm(
+          "เลิกเชื่อมและล้างข้อมูลทั้งหมดในเครื่องนี้ (สิ่งที่ต้องทำ, บวก/ลบ, หวย, ความทรงจำ ฯลฯ)?\n\nข้อมูลบนคลาวด์ของรหัสนี้จะยังอยู่ครบ กลับมาเชื่อมรหัสเดิมได้ตลอดถ้าจำรหัสได้"
+        );
+        if (!ok) return;
         ToolHubSync.unlink();
         rerenderBody();
+        if (typeof render === "function") render(); // เนื้อหาที่แสดงอยู่ตอนนี้อาจอ้างอิงข้อมูลที่เพิ่งล้างไป
       });
     }
   }
