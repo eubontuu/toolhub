@@ -54,6 +54,7 @@ Home = topbar → `#quickstartContent` (pinned-apps widget) → `#homeContent` (
 
 ## Rules
 - **Batch to one version bump.** Iterate/test freely without touching `CACHE_VERSION` (hard-reload bypasses the SW). Bump + ship as one multi-bullet version at a natural stopping point, not per-request. Ship immediately only if asked to see it live now, or the request is already substantial alone.
+- **Auto-merge.** Once a change is committed, pushed, tested, and CACHE_VERSION-bumped (i.e. ready to ship), open the PR and merge it immediately — don't wait for a separate "merge เลย" each time. Still surface what shipped afterward. Skip auto-merge only for something the owner should review first (a large/risky architectural change, e.g. adding a backend) — ask before merging those.
 - **Bump `CACHE_VERSION`** (`sw.js`, plain `"vN"`) on any shipped change to `app.js`/`tools/*`/`style.css`/`index.html`/`manifest.json`.
 - **Add a `CHANGELOG_DATA` entry** (front of array, `tools/changelog.js`) for anything the owner would notice — Thai, one bullet per change, `added`/`changed`/`removed`. `version` echoes the bumped `CACHE_VERSION`. Skip pure-internal changes.
 - **New tool file** → add to `PRECACHE_URLS` (`sw.js`) + `<script>`/`<link>` in `index.html` (script before `app.js`), or it works online but not offline-first-load.
