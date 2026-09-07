@@ -391,11 +391,17 @@ const ToolHubSync = {
   async ready() {
     const code = loadSyncCode();
     if (!code) return;
+    // ดันของที่ค้างจากรอบก่อนขึ้นก่อนเสมอ (เช่นปิดแอปก่อน debounced push จะทัน) — ต้องทำก่อน pullAll
+    // ด้านล่างเสมอ ไม่งั้น pull จะทับข้อมูลที่เพิ่งแก้ในเครื่องด้วยค่าเก่าจากคลาวด์ ก่อนที่ flush จะมี
+    // โอกาสส่งค่าที่ถูกต้องขึ้นไปด้วยซ้ำ (แก้ไขจากรายงานจริง: แก้ to-do แล้วปิดแอปเร็ว เปิดใหม่ข้อมูลหาย)
+    await Promise.race([
+      flushPending(code).catch(() => {}),
+      new Promise((resolve) => setTimeout(resolve, SYNC_PULL_TIMEOUT_MS)),
+    ]);
     await Promise.race([
       pullAll(code).catch(() => {}),
       new Promise((resolve) => setTimeout(resolve, SYNC_PULL_TIMEOUT_MS)),
     ]);
-    flushPending(code).catch(() => {});
     startLiveListener(code);
   },
   // สร้างรหัสใหม่ + เชื่อมด้วยรหัสนั้นทันที (อุปกรณ์แรกที่ "สร้าง" — ยังไม่มีข้อมูลบนคลาวด์ก่อนหน้า)
@@ -437,8 +443,8 @@ const ToolHubSync = {
   async pullNow() {
     const code = loadSyncCode();
     if (!code) return;
+    await flushPending(code); // เหมือน ready() — ส่งของค้างขึ้นก่อนเสมอ กัน pull ทับของที่เพิ่งแก้
     await pullAll(code);
-    await flushPending(code);
   },
 };
 
