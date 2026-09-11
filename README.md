@@ -37,13 +37,14 @@ tools/mathquiz.{js,css}              คิดเลขเร็ว — เก�
 tools/sudoku.{js,css}                ซูโดกุ — เกม sub-game, 9x9, uniqueness-preserving puzzle generator, 3 difficulties
 tools/2048.{js,css}                  2048 — เกม sub-game, 4x4 slide-and-merge, swipe/D-pad
 tools/game24.{js,css}                เกม 24 — เกม sub-game, merge number chips to hit a target, ธรรมดา (classic, solvability-guaranteed) or แอดวานซ์ (configurable count/digits, ±5 tolerance)
+tools/fruitslice.{js,css}            ฟันผลไม้ — เกม sub-game, Fruit Ninja-style canvas slicing: drag to cut fruit launched upward, avoid bombs, limited misses
 tools/changelog.{js,css}             การอัปเดต — data + render, opened from the sidebar
 sw.js                                service worker: offline cache + update mechanism
 manifest.json                        PWA metadata
 icons/, icons/emoji/                 app icons + Twemoji SVGs (CC-BY 4.0, see index.html body comment)
 ```
 
-No bundler, no modules — every JS/CSS file is a plain `<script>`/`<link>`, so **load order in `index.html` matters for JS** (global scope). `wonglao-core.js` must load before the other `wonglao-*.js` files; `games-core.js` must load after `snake.js`/`jumpking.js`/`mathquiz.js`/`sudoku.js`/`2048.js`/`game24.js` (it calls their render functions by name); everything must load before `app.js` (its `APPS` array references `renderWongLao`/`renderGames`/etc. by name). CSS order rarely matters — each tool's classes are uniquely prefixed.
+No bundler, no modules — every JS/CSS file is a plain `<script>`/`<link>`, so **load order in `index.html` matters for JS** (global scope). `wonglao-core.js` must load before the other `wonglao-*.js` files; `games-core.js` must load after `snake.js`/`jumpking.js`/`mathquiz.js`/`sudoku.js`/`2048.js`/`game24.js`/`fruitslice.js` (it calls their render functions by name); everything must load before `app.js` (its `APPS` array references `renderWongLao`/`renderGames`/etc. by name). CSS order rarely matters — each tool's classes are uniquely prefixed.
 
 ## Architecture
 
@@ -107,6 +108,7 @@ Same tab-bar shell pattern as วงเหล้า above (own file, own state �
 | `sudoku` | ซูโดกุ | `renderSudoku` |
 | `2048` | 2048 | `render2048` |
 | `game24` | เกม 24 | `renderGame24` |
+| `fruitslice` | ฟันผลไม้ | `renderFruitSlice` |
 
 State (just the active `tab`) persists via `loadGamesState()`/`saveGamesState()` under `toolhub.games` — each sub-game then owns its own score/best/settings keys (see Persistence).
 
@@ -119,6 +121,7 @@ State (just the active `tab`) persists via `loadGamesState()`/`saveGamesState()`
 - **ซูโดกุ** (`tools/sudoku.js`): 9x9, pick a difficulty (ง่าย/กลาง/ยาก → 44/36/30 clues kept). `sudokuGeneratePuzzle()` fills a random full board (`sudokuFillRandom`, randomized backtracking) then removes cells one at a time, keeping each removal only if `sudokuCountSolutions()` (capped at 2) still finds exactly one solution — guarantees every generated puzzle has a unique solution. Tap a cell then a number-pad digit to fill; row/col/box conflicts highlight red in real time (`sudokuFindConflicts`); 3 hints/game reveal a cell from the stored solution; win = board full with zero conflicts. A "โน้ต" toggle switches the number pad into pencil-mark mode — tapping a digit toggles it in/out of that (still-empty) cell's mini 3x3 note grid instead of answering; answering a cell for real clears its notes and strips that number from same-row/col/box peers' notes (`sudokuPeerIndices`/`clearPeerNotes`). A small legend above the board (`.sudoku-legend`) labels each color: given clues in `--text`, your answers in `--accent`, notes in a fixed `--sudoku-note-color` literal (amber) — deliberately *not* tied to `--accent` like before, since notes-at-reduced-opacity read as just a dimmer shade of the same hue as your answers; the fixed amber reads as unmistakably different from both the neutral given-clue color and the theme's accent color in every theme. Best time per difficulty persisted.
 - **2048** (`tools/2048.js`): slide-and-merge, board size selectable on the start screen — 4x4 through 8x8 (`G2048_SIZES`). `g2048Move(board, size, dir)` slides+merges each row/column once per move (`g2048SlideLine`); a new 2 (90%) or 4 (10%) tile spawns after every move that changes the board. Reaching a 2048 tile shows a one-time win overlay with a "เล่นต่อ" option to keep playing past it; no more empty cells and no adjacent equal pairs ends the game (`g2048CanMove`). Tile font size scales down for larger boards (`g2048FontSizeFor`, `--g2048-font`). Best score persisted per board size.
 - **เกม 24** (`tools/game24.js`): a row of number chips; tap two, tap an operator (+ − × ÷), they collapse into one chip showing the result — repeat until one chip is left, then it's checked against the target. "ธรรมดา" is the classic 4-numbers-make-24 puzzle: `g24GenerateNormal()` keeps redrawing 4 random 1-9 numbers until `g24Solvable()` confirms at least one combination hits exactly 24 — that recursive solver tries every way to pairwise-reduce the numbers down to one value, which implicitly covers every possible parenthesization (reducing any two numbers first, in any order, covers every grouping), so every dealt hand is guaranteed solvable. "แอดวานซ์" lets you pick how many numbers are dealt (`settings.advCount`, 3-6) and how many digits the target has (`settings.advDigits`, 1-3) via `g24GenerateAdvanced()` — those combinations aren't solvability-checked, so passing only requires landing within `G24_ADV_TOLERANCE` (±5) of the target instead of an exact hit. Mid-game controls: "↩ ย้อนกลับ" undoes the last combine (a plain history stack of prior chip arrays), "⟲ เลขเดิม" resets back to the original dealt numbers (same target, fresh attempt), "🔀 สุ่มใหม่" deals an entirely new hand.
+- **ฟันผลไม้** (`tools/fruitslice.js`): Fruit Ninja-style canvas slicer. Fruit emoji spawn at the bottom and launch upward (`vx`/`vy` under `GRAVITY`, same closured-physics pattern as `jumpking.js`); dragging a finger/pointer across the canvas buffers a short-lived position `trail`, and each new segment is tested against every live fruit via point-to-segment distance (`distToSegment`) rather than just point-in-radius, so a fast swipe still registers a hit even between two sparse pointermove samples. Slicing fruit in quick succession (within `COMBO_WINDOW_MS` of the last slice) chains into a combo for bonus score. Bombs (💣) spawn with a chance that ramps up alongside score and fruit speed — slicing one ends the run instantly, but letting one fall past the bottom uncut is free (only real fruit count toward misses). Letting `FRUITSLICE_MAX_MISSES` (3) fruit fall uncut also ends the run. Game-over reuses the single overlay div (innerHTML swap + `style.display`, mirroring Jump King's overlay, not a `reveal-overlay`) showing the run's score and the persisted high score, with a "เล่นใหม่" retry button.
 
 **New sub-game:** own `tools/yourgame.{js,css}` (register in `index.html` before `games-core.js`, and in `PRECACHE_URLS`), entry in `GAME_TABS`, dispatch branch in `renderGamesShell`.
 
@@ -181,6 +184,7 @@ Optional, off by default — no `toolhub.sync.code` in `localStorage` means `too
 | `toolhub.game2048.settings` | `{ size: 4-8 }` | 2048 board-size preference |
 | `toolhub.game2048.bestScore` | `{ "4": best, ..., "8": best }` | 2048 best score per board size (older installs had a single number for 4x4 — migrated in on first read) |
 | `toolhub.game24.settings` | `{ mode: "normal"\|"advanced", advDigits: 1-3, advCount: 3-6 }` | เกม 24 mode + advanced-mode preferences |
+| `toolhub.fruitslice.highScore` | number string | ฟันผลไม้ high score |
 | `toolhub.theme` | theme id string | theme picker — UI preference |
 
 Merge-with-defaults rule is in CLAUDE.md's localStorage rule. Nothing syncs anywhere — data lives only in the browser that created it; reinstalling wipes it. Intentional for this app's scope.
